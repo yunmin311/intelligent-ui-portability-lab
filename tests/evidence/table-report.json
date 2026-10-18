@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "0.2.0",
+  "kind": "static-snapshot",
+  "capability": "static",
+  "capturedAt": "2026-10-16T13:09:20.511Z",
+  "origin": "http://127.0.0.1:18787",
+  "dimensions": {
+    "width": 1000,
+    "height": 238
+  },
+  "limitations": [
+    "不是原始交互的无损复制"
+  ],
+  "stats": {
+    "elements": 16,
+    "omittedImages": 0,
+    "canvasImages": 0,
+    "omittedFrames": 0,
+    "redactedControls": 0,
+    "externalLinks": 0,
+    "truncated": false,
+    "svg": 0
+  },
+  "omissions": [
+    "不含原始脚本、事件及计算逻辑；能力等级为 static",
+    "自定义字体文件未嵌入；离线端可能使用系统回退字体",
+    "只捕获当前已挂载 DOM；不保证虚拟列表、未展开或未加载内容完整"
+  ]
+}

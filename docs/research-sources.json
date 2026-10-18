@@ -1,0 +1,196 @@
+{
+  "retrieved": "2026-10-16",
+  "ref": "main snapshots; file hashes are not commit SHAs",
+  "files": [
+    {
+      "snapshot": "browser-ai-chat-exporter-main",
+      "path": "README.md",
+      "sha256": "05a0e83078bc8475b49e648ec4251cd88695a6b070b91af676a5d4f1d646af79"
+    },
+    {
+      "snapshot": "browser-ai-chat-exporter-main",
+      "path": "LICENSE.md",
+      "sha256": "f4b22fc500d993525fd1c4344e64aa00ef3b9919bba357ce1fda514d48a1a95c"
+    },
+    {
+      "snapshot": "browser-ai-chat-exporter-main",
+      "path": "manifest.json",
+      "sha256": "57ecb89711d4d6f1ad7a092f7d2274b81efb188e3748165c42f884dfe85a9995"
+    },
+    {
+      "snapshot": "browser-ai-chat-exporter-main",
+      "path": "popup.js",
+      "sha256": "051ba9e12680be46077affc2c102058f01a73fd6d8510779f313c7d741ac93d5"
+    },
+    {
+      "snapshot": "browser-ai-chat-exporter-main",
+      "path": "preview.js",
+      "sha256": "3b9892a262583d02997be2ea0f5fde315bd631a89c377cb7fdfc43a9720a3737"
+    },
+    {
+      "snapshot": "browser-ai-chat-exporter-main",
+      "path": "platforms/chatgpt/injector.js",
+      "sha256": "34983ee9e58eadbfb8fe25b9dd66ca995e753341fa5493b7cce6f6b376ca8534"
+    },
+    {
+      "snapshot": "browser-ai-chat-exporter-main",
+      "path": "shared/utils.js",
+      "sha256": "0519bbdb25aed7efbadfaa567efb30f7980445173d64e422217c9bfd46ff899f"
+    },
+    {
+      "snapshot": "browser-ai-chat-exporter-main",
+      "path": "screenshots/export-dialog.jpeg",
+      "sha256": "8672af75cfe74788e841fdb1c9e838c907e67cd4cca54a62c793dd7cf09212f1"
+    },
+    {
+      "snapshot": "browser-ai-chat-exporter-main",
+      "path": "screenshots/preview-select.jpeg",
+      "sha256": "9df040d9fe2e467c78c4bf2fd9b963f631ae8657a2772df63e422559a5dd1875"
+    },
+    {
+      "snapshot": "chatgpt-export-main",
+      "path": "README.md",
+      "sha256": "8492a0c3d200f708cdecb83882cfb2f937b162dbc1db9da506b15956f2e7c608"
+    },
+    {
+      "snapshot": "chatgpt-export-main",
+      "path": "LICENSE",
+      "sha256": "8138b801bf1711efdeb32427dc681c855c3b218442faac91ae16ad31d89e04d4"
+    },
+    {
+      "snapshot": "chatgpt-export-main",
+      "path": "manifest.json",
+      "sha256": "04d893d8c8b637bbf85d8019951b04831f64ee6f4cbaba5ef059149acadadeec"
+    },
+    {
+      "snapshot": "chatgpt-export-main",
+      "path": "popup/popup.html",
+      "sha256": "0e2b4c073b82d7c5b7a09e511cc561d4a52b38d9a2750c529772c737e508245d"
+    },
+    {
+      "snapshot": "chatgpt-export-main",
+      "path": "popup/popup.js",
+      "sha256": "7320c12a684f1b58d26a9936b454af2364601c212e1c899ee551a20b3bc670ff"
+    },
+    {
+      "snapshot": "chatgpt-export-main",
+      "path": "src/content.js",
+      "sha256": "da1adc548405a77cb0610cc499220707791971bffa3de8a9891dc45f9f7176e0"
+    },
+    {
+      "snapshot": "chatgpt-export-main",
+      "path": "store-assets/chrome-screenshots/01-export-options.jpg",
+      "sha256": "1e9770d305bd61866639e471323383985d6ec93641c654e63a320c1c737a189d"
+    },
+    {
+      "snapshot": "chatgpt-export-main",
+      "path": "store-assets/chrome-screenshots/05-conversation-picker.jpg",
+      "sha256": "8da1aff97d9c220915dbda33de43705699dedb9cd899e8df15eede6d8d933c9d"
+    },
+    {
+      "snapshot": "obsidian-clipper-main",
+      "path": "README.md",
+      "sha256": "f238d0457923e499dc123f135e10f65f285d24d417899253d0244f504c655d83"
+    },
+    {
+      "snapshot": "obsidian-clipper-main",
+      "path": "LICENSE",
+      "sha256": "9981588cf4b8f4403d7603ea4b8a99ce2d5c637e2463fec07fc2f26f88c36027"
+    },
+    {
+      "snapshot": "obsidian-clipper-main",
+      "path": "src/manifest.chrome.json",
+      "sha256": "6d9e90fe222377d70291581012fdd03a06948f918a14e00a101e022fd4ccafb6"
+    },
+    {
+      "snapshot": "obsidian-clipper-main",
+      "path": "src/popup.html",
+      "sha256": "0082520951a2df1928ad30e0012fa0536bc71d4976936dbb9a60b52898ce7c97"
+    },
+    {
+      "snapshot": "obsidian-clipper-main",
+      "path": "src/core/popup.ts",
+      "sha256": "077404539a92238a2225e9195a5e0938614ada49d1e132e748875d075520c4f0"
+    },
+    {
+      "snapshot": "obsidian-clipper-main",
+      "path": "src/utils/highlighter.ts",
+      "sha256": "62989d37d36c97f65e3d85e3694df270d68fde48f5f0f66c9be398fc6c2ec055"
+    },
+    {
+      "snapshot": "obsidian-clipper-main",
+      "path": "src/utils/highlighter-overlays.ts",
+      "sha256": "153f78e7610d9f819184b061be028820f0a4ea2013a114785c6b8254cf1fce52"
+    },
+    {
+      "snapshot": "obsidian-clipper-main",
+      "path": "assets/safari/screen-01.png",
+      "sha256": "9150e17a7801eafacf9db621fd910e77868344581e41fddcd90bf4d6c5e47c0d"
+    },
+    {
+      "snapshot": "snapdom-main",
+      "path": "README.md",
+      "sha256": "d54a0687ca429db94f6ec7f34762fe2e21dc4f8e5690806a21d7871051faef2c"
+    },
+    {
+      "snapshot": "snapdom-main",
+      "path": "LICENSE",
+      "sha256": "c5fbd8d2221c17ff18fc7f3fee7ecf3346fb5a3f5bb2dbd3eb08f1c0397ed1a2"
+    },
+    {
+      "snapshot": "snapdom-main",
+      "path": "package.json",
+      "sha256": "02a3e636e76e1441a4f8f47d64d05186534b4ac25247ae669c938c13d6a6ae62"
+    },
+    {
+      "snapshot": "snapdom-main",
+      "path": "src/core/capture.js",
+      "sha256": "9382b2e77d370c1f88cbdaaa23dce931b1a2c0fc6ae43b7d9ca3df2e96bb2255"
+    },
+    {
+      "snapshot": "snapdom-main",
+      "path": "src/core/clone.js",
+      "sha256": "75de0dea3776c257439930be32a7b33a873979bc0292fbfd77c1c2602414b608"
+    },
+    {
+      "snapshot": "snapdom-main",
+      "path": "docs/assets/newhero.png",
+      "sha256": "e8f5b1b6ccd8fc25d1d702a144a12b463772b9f26235f436e27351eddc57e528"
+    },
+    {
+      "snapshot": "SingleFile-main",
+      "path": "README.MD",
+      "sha256": "de1502311d9fce1e58e2b453713f61b2478bb8c17617fe8240631a9a1b13145d"
+    },
+    {
+      "snapshot": "SingleFile-main",
+      "path": "LICENSE",
+      "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+    },
+    {
+      "snapshot": "SingleFile-main",
+      "path": "manifest.json",
+      "sha256": "68cac5f77200d2b23ce0f4506f56bf5395ea9014c222ddcaae7af6c399d43655"
+    },
+    {
+      "snapshot": "SingleFile-main",
+      "path": "known-issues.md",
+      "sha256": "300f455eb4b26e900dbd730bbc0df19a62f83d9735544ac949e6e3e39b2e4da9"
+    },
+    {
+      "snapshot": "SingleFile-main",
+      "path": "src/ui/pages/panel.html",
+      "sha256": "484653e89d73a0e8515bb53a8a99601c9a227afdead1d9ca7f687e3728f67c17"
+    },
+    {
+      "snapshot": "SingleFile-main",
+      "path": "src/ui/bg/ui-panel.js",
+      "sha256": "71c9ae80a83e5eeb2305ac815c7c2984a0ed6a7484b0667becc0ec6393640d01"
+    },
+    {
+      "snapshot": "SingleFile-main",
+      "path": "src/lib/single-file/core/bg/scripts.js",
+      "sha256": "71736f6346e71c8a84bc2e8b98d84d6852ce7407e91d5c30b9955e7094b28077"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+
+> intelligent-ui-portability-lab@0.2.0 test
+> npm run test:static && npm run test:e2e
+
+
+> intelligent-ui-portability-lab@0.2.0 test:static
+> node tests/check.mjs
+
+PASS: manifest, minimum permissions, all extension JS syntax, forbidden network/credential entry points
+
+> intelligent-ui-portability-lab@0.2.0 test:e2e
+> playwright test
+
+
+Running 9 tests using 1 worker
+
+(node:72517) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/engine.spec.mjs:2:1 › engine-only overlay and semantic container regression (not extension E2E) (292ms)
+  ✓  2 tests/mv3.spec.mjs:46:1 › real toolbar Popup → selection → preview → download → open + pixel golden (1.1s)
+  ✓  3 tests/mv3.spec.mjs:62:1 › cancel, repeat injection and tab isolation (1.3s)
+  ✓  4 tests/mv3.spec.mjs:67:1 › security inputs, hidden content, XSS, URL removal and Markdown escaping (1.8s)
+  ✓  5 tests/mv3.spec.mjs:78:1 › changed slider state, SVG paths, canvas, dark mode, narrow container (1.4s)
+  ✓  6 tests/mv3.spec.mjs:88:1 › limits fail clearly; SVG wrong region; expired preview (1.4s)
+  ✓  7 tests/mv3.spec.mjs:93:1 › SnapDOM controlled comparison and explicit omission reports (794ms)
+  ✓  8 tests/mv3.spec.mjs:107:1 › ChatGPT gate and browser internal page failure via actual Popup (574ms)
+  ✓  9 tests/mv3.spec.mjs:111:1 › golden grid, formula fallback, checkbox, Markdown table and depth failure (2.0s)
+
+  9 passed (12.5s)

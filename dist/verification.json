@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "checks": [
+    "CRC",
+    "sha256",
+    "allExtensionFilesMatchTestedSource",
+    "excludedDependenciesAndResearch"
+  ],
+  "archives": [
+    {
+      "file": "Intelligent-UI-Portability-Lab-v0.2-extension.zip",
+      "bytes": 14367,
+      "sha256": "bd6a28dec00c5688c1b526769bc0f132a03859750bd580d1d7eff092e4b98ec8",
+      "files": 8
+    },
+    {
+      "file": "Intelligent-UI-Portability-Lab-v0.2-source.zip",
+      "bytes": 403351,
+      "sha256": "dbf4968ae2078d545e7ce9e393e994af8b272893cac55f30eb1cd45770db3011",
+      "files": 64
+    }
+  ]
+}
