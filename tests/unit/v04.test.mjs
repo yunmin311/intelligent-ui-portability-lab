@@ -1,0 +1,10 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {safeCss} from '../../extension/src/core/policy.js';
+import {migrate} from '../../extension/src/core/ir.js';
+test('CSS values cannot append declarations or blocks',()=>{for(const v of ['red;position:fixed;z-index:99999','red}body{display:none','red!important','red\u000b;display:none'])assert.equal(safeCss(v),false,v);for(const v of ['linear-gradient(90deg, red, blue)','translate(10px, 2px)','var(--accent, rgb(1, 2, 3))'])assert.equal(safeCss(v),true,v);});
+test('1.0 migration establishes current schema with no inferred behavior',()=>{const s={schemaVersion:'1.0.0',kind:'ui-portability-snapshot',capability:'static',createdAt:new Date().toISOString(),source:{type:'html',origin:'local'},dimensions:{width:20,height:20},background:'#fff',tree:{tag:'div',ns:'html',attrs:{},style:{},children:[]},resources:[],provenance:{method:'local-file',status:'captured'},omissions:[],limitations:[],security:{redacted:true,remoteResources:false,scripts:false}};const out=migrate(s);assert.equal(out.schemaVersion,'1.1.0');assert.deepEqual(out.behaviors,[]);});
+import {zip} from '../../extension/src/core/archive.js';
+import {fourierPath} from '../../extension/src/core/recipes.js';
+test('ZIP rejects traversal, absolute and platform separator paths',()=>{for(const path of ['../evil','/evil','a/../evil','a\\evil','a//evil'])assert.throws(()=>zip({[path]:'x'}));});
+test('Fourier numeric oracle samples the explicit finite mathematical sum',()=>{for(const state of [{harmonics:1,amplitude:0,phase:0},{harmonics:3,amplitude:1,phase:-1.2},{harmonics:12,amplitude:1.5,phase:3.14}]){const points=fourierPath(state).split(' ');for(const i of [0,40,60,120,180,240]){const terms=Array.from({length:state.harmonics},(_,j)=>Math.sin((j+1)*(i/240*2*Math.PI)+state.phase)/(j+1));const expected=90-terms.reduce((a,b)=>a+b,0)*state.amplitude*32;assert.ok(Math.abs(Number(points[i].split(',')[1])-expected)<=0.00501);}}});

@@ -1,0 +1,52 @@
+✖ CSS values cannot append declarations or blocks (1.269148ms)
+✖ 1.0 migration establishes current schema with no inferred behavior (1.466522ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 68.619406
+
+✖ failing tests:
+
+test at tests/unit/v04.test.mjs:5:1
+✖ CSS values cannot append declarations or blocks (1.269148ms)
+  AssertionError [ERR_ASSERTION]: red;position:fixed;z-index:99999
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/tests/unit/v04.test.mjs:5:185)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/v04.test.mjs:6:1
+✖ 1.0 migration establishes current schema with no inferred behavior (1.466522ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '1.0.0' !== '1.1.0'
+  
+      at TestContext.<anonymous> (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/tests/unit/v04.test.mjs:6:522)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '1.0.0',
+    expected: '1.1.0',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

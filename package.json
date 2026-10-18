@@ -1,8 +1,8 @@
 {
   "private": true,
   "name": "intelligent-ui-portability-lab",
-  "version": "0.3.0",
-  "description": "Local proof-of-concept static UI portability",
+  "version": "0.4.0",
+  "description": "Local visual snapshots and selective verified offline interactions",
   "scripts": {
     "test": "node scripts/test.mjs",
     "test:static": "node tests/check.mjs",

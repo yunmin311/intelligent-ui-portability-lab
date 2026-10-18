@@ -1,0 +1,46 @@
+[WebServer] 127.0.0.1 - - [18/Oct/2026 19:31:30] "GET / HTTP/1.1" 200 -
+
+Running 1 test using 1 worker
+
+(node:42672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [18/Oct/2026 19:31:32] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [18/Oct/2026 19:31:32] code 404, message File not found
+[WebServer] 127.0.0.1 - - [18/Oct/2026 19:31:32] "GET /favicon.ico HTTP/1.1" 404 -
+  ✘  1 tests/mv3.spec.mjs:228:1 › v0.4 native-only grid expands without overlap or source toggle side effects (902ms)
+
+
+  1) tests/mv3.spec.mjs:228:1 › v0.4 native-only grid expands without overlap or source toggle side effects 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 2
+
+      228 | test('v0.4 native-only grid expands without overlap or source toggle side effects',async()=>{
+      229 |  await page.goto('http://127.0.0.1:18787/interactive-demo.html');await page.evaluate(()=>{document.body.innerHTML='<main id="native-only" style="display:grid;gap:10px;width:600px"><details><summary>折叠</summary>'+Array.from({length:25},(_,i)=>'<p>内容 '+i+'</p>').join('')+'</details><section id="after">后续内容</section></main>';window.captureToggles=0;document.querySelector('details').addEventListener('toggle',()=>window.captureToggles++);});
+    > 230 |  await start();await page.locator('summary').click();await page.keyboard.press('ArrowUp');await page.keyboard.press('ArrowUp');const pending=context.waitForEvent('page',p=>p.url().includes('/preview.html'));await page.keyboard.press('Enter');const preview=await pending;await expect(preview.locator('#save')).toBeEnabled();expect(await page.evaluate(()=>window.captureToggles)).toBe(0);
+          |                                                                                                                                                                                                                                                                                                                                                                                           ^
+      231 |  const file=await save(preview,'v04-native-grid.html'),opened=await context.newPage();await opened.goto('file://'+file);await opened.locator('summary').click();const positions=await opened.evaluate(()=>{const d=document.querySelector('details').getBoundingClientRect(),after=document.querySelector('details+section').getBoundingClientRect();return {bottom:d.bottom,after:after.top,content:document.querySelector('details p:last-child').getBoundingClientRect().bottom};});expect(positions.after).toBeGreaterThanOrEqual(positions.bottom);expect(positions.after).toBeGreaterThanOrEqual(positions.content);
+      232 | });
+      233 |
+        at /mnt/e/30_项目/intelligent-ui-portability-lab/tests/mv3.spec.mjs:230:379
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-native-only-grid--94e54--source-toggle-side-effects/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-native-only-grid--94e54--source-toggle-side-effects/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-native-only-grid--94e54--source-toggle-side-effects/test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/mv3-v0-4-native-only-grid--94e54--source-toggle-side-effects/error-context.md
+
+    Error Context: test-results/mv3-v0-4-native-only-grid--94e54--source-toggle-side-effects/error-context.md
+
+  1 failed
+    tests/mv3.spec.mjs:228:1 › v0.4 native-only grid expands without overlap or source toggle side effects 

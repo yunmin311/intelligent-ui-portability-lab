@@ -1,12 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:ui-portability:snapshot:1.0.0",
-  "title": "UI Portability Snapshot IR 1.0.0",
+  "$id": "urn:ui-portability:snapshot:1.1.0",
+  "title": "UI Portability Snapshot IR 1.1.0",
   "type": "object",
   "additionalProperties": false,
   "properties": {
     "schemaVersion": {
-      "const": "1.0.0"
+      "enum": [
+        "1.0.0",
+        "1.1.0"
+      ]
     },
     "kind": {
       "const": "ui-portability-snapshot"
@@ -125,7 +128,10 @@
           ]
         },
         "status": {
-          "const": "captured"
+          "enum": [
+            "captured",
+            "external-unverified"
+          ]
         }
       },
       "required": [
@@ -154,7 +160,7 @@
       "additionalProperties": false,
       "properties": {
         "redacted": {
-          "const": true
+          "type": "boolean"
         },
         "remoteResources": {
           "const": false
@@ -211,6 +217,91 @@
         "truncated": {
           "type": "boolean"
         }
+      }
+    },
+    "behaviors": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "recipe": {
+            "enum": [
+              "fourier@1",
+              "table@1"
+            ]
+          },
+          "bindings": {
+            "type": "object",
+            "minProperties": 5,
+            "maxProperties": 6,
+            "additionalProperties": {
+              "type": "string",
+              "pattern": "^0(?:\\.[0-9]{1,4}){0,75}$"
+            }
+          },
+          "state": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "harmonics": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12
+                  },
+                  "amplitude": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1.5
+                  },
+                  "phase": {
+                    "type": "number",
+                    "minimum": -3.14,
+                    "maximum": 3.14
+                  }
+                },
+                "required": [
+                  "harmonics",
+                  "amplitude",
+                  "phase"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "minimum": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 50
+                  },
+                  "direction": {
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ]
+                  }
+                },
+                "required": [
+                  "minimum",
+                  "direction"
+                ]
+              }
+            ]
+          },
+          "evidence": {
+            "const": "fixture-equivalence-v1"
+          }
+        },
+        "required": [
+          "recipe",
+          "bindings",
+          "state",
+          "evidence"
+        ]
       }
     }
   },

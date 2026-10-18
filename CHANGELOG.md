@@ -1,5 +1,19 @@
 # 变更清单
 
+## v0.4.0 · 2026-10-18 · 本地交付，未发布
+
+基于 main `2e49833f5ecf37f6adf5a119bb904bf21ae6ef49`，原v0.3静态能力与证据保留。
+
+- `core/interactions/recipes/runtime`：原生details、自有Fourier@1/table@1有限模型、组件/文件能力分析、未知行为静态降级。
+- `core/ir` / schema：IR1.1行为与静态树分离、1.0迁移、严格参数/绑定/输出校验、外部JSON声明去信任与初始筛选冻结。
+- `policy/render/archive`：修复CSS声明逃逸、固定CSP hash运行时、三种策略、单文件HTML、ZIP交互报告/JS/CSS副本与安全路径。
+- 捕获器：已知fixture结构识别；保留details内容与状态；交互区动态高度，修复筛选状态的grid行高。
+- Popup/preview/manifest：Auto说明、策略独立select、逐组件报告、无权限预览sandbox；权限不增加。
+- build/CI/package版本：0.4.0、运行时hash生成、原有测试字节绑定打包；既有main CI已核实通过，当前分支未推送。
+- tests/fixtures：三类与混合案例、实际HTML/ZIP离线行为、多个Fourier参数/独立数值校验、深浅色像素、恶意recipe/外部JSON/CSP/CSS/路径回归。完整结果见tests/TEST_REPORT.md。
+
+不提供ChatGPT原生获取、任意网站交互复制、PDF或全局HTML截图；UNLICENSED保持。
+
 ## v0.3.0 · 2026-10-18
 
 基于 main `4a494540c46080e4034744418638d4436c77cb9a`，保留 v0.2 选择流程与历史资产。

@@ -1,0 +1,10 @@
+{
+  "ratio": 0.0018905134308058484,
+  "mae": 0.1971766972685028,
+  "state": "N=8 / filter30 descending / details open",
+  "theme": "dark",
+  "threshold": {
+    "ratio": 0.02,
+    "mae": 2
+  }
+}

@@ -47,3 +47,17 @@
 独立审查实测发现独立SVG可通过CSS image-set发请求，已用函数白名单修复；不能只依赖HTML CSP保护SVG。资源验证同时检查MIME签名、编码尺寸与SHA-256；无法解码/超像素失败关闭。外部链接只保留可见文字，不保留可点击地址或来源query。JSON自身是用户内容，无法证明普通文本无秘密；security.redacted表示控件脱敏策略执行，绝不表示所有像素/正文已匿名化。
 
 没有正式第三方渗透测试、稳定版Chrome/Edge多版本验收、商店审批或适用个人账号协议意见。官方账户包专用导入无真实授权样本，保持Proposal/Unverified；原生ChatGPT获取为Blocked。
+
+## v0.4 行为与声明边界（Decision）
+
+CSS值在进入单个声明前拒绝分号、花括号、感叹号、C0/DEL、反斜线、注释、活动URL和未知函数；属性名仍是白名单。允许颜色、渐变、变换、calc/var等有限函数；SVG仅允许重映射的本地ID引用。不能用单个color值注入其他声明；浏览器可忽略不符合属性语法的值，不将过滤器视为通用CSS语法解析器。
+
+外部JSON先验证schema/有限recipe结构，再丢弃其行为权限，来源强制json/local、provenance external-unverified、redacted=false。model可用于冻结初始静态外观，不授予执行权。外部安全/来源/evidence字段不是真实证明；普通正文及像素中的秘密仍不能自动识别。HTML导入不执行源JS；原生details行为与产品固定模型分开。
+
+仅自有HTTP loopback固定fixture路径接受Fourier/table描述；路径不能证明页面所有权，攻击者伪造标记至多触发同一有限、无网络的产品模型，绝不执行其代码。参数/绑定/输出验证严格，未知recipe或任意额外字段失败关闭。下载HTML的CSP只允许构建时固定运行时hash，禁connect/font/frame/object/form/base；无扩展API和同源权限。预览同样在manifest sandbox的唯一来源执行；父窗口只发送本地校验renderer产物，不把原HTML放入特权页面。
+
+ZIP成员名拒绝绝对路径、反斜线、空段、点/点点段；内容只来自本地已验证IR，逐文件SHA-256。不会下载跨域资源，JS/CSS审阅副本不额外加载。实际file://回归同时检查合法行为与附加恶意脚本被CSP阻止，以及HTML/ZIP的HTTP(S)请求为零。安全证据不是形式化证明或通用第三方程序复原能力。
+
+仓库管理只读核查：main CI既有run 39121539504成功；rulesets为空，branch protection API返回未保护。建议所有者未来启用main禁止直接push、要求现有CI job成功及PR审查，先确认账户/仓库计划支持；本轮未改管理设置，未推送/发布v0.4。
+
+IR 的 `security.scripts:false` 表示没有保留来源脚本，不表示 HTML 中绝无产品自身脚本。只有经过行为校验的 HTML/ZIP 才包含固定哈希白名单运行时；下载文件和扩展沙箱均实测没有 `chrome.runtime.sendMessage`。

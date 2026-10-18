@@ -1,6 +1,6 @@
 # Intelligent UI Portability · 项目立项书与工程方案
 
-> v0.3.0接手修订 · 2026-10-18。保留原立项结构、原项目与历史证据；当前事实按下列Decision及链接文档收敛。与OpenAI无关联，未宣称官方兼容。
+> v0.4.0迭代 · 2026-10-18。保留原立项结构、原项目与历史证据；当前事实按下列Decision及链接文档收敛。与OpenAI无关联，未宣称官方兼容。
 
 ## 1. 目标、非目标和判定标准
 
@@ -8,7 +8,7 @@
 
 HTML优先保留来源视觉、比例、字体回退与当前可见状态；Markdown服务笔记，JSON承担版本化IR，SVG/PNG按真实范围输出，ZIP封装已有资源。导出不套品牌、装饰标题或AI重设计。默认本地，无后端、付费API或账号。
 
-成功标准是内容正确、隐私有边界、结果可溯源、无法恢复的部分可见。静态快照不是原应用的无损复制；当前static和visual-only明确区分，重建交互须另行验收。
+成功标准是内容正确、隐私有边界、结果可溯源、无法恢复的部分可见。静态快照不是原应用的无损复制；当前静态、像素和经测试的有限交互明确区分，不等同原始程序恢复。
 
 ## 2. 已验证的外部事实与行业参考
 
@@ -26,7 +26,7 @@ HTML优先保留来源视觉、比例、字体回退与当前可见状态；Mark
 
 ## 3. 格式决策（Decision）
 
-HTML为主要视觉产物；Markdown保留语义并明确复杂视觉降级；JSON为IR1.0.0完整快照，独立诊断不含正文。SVG仅根SVG，PNG仅根SVG或导入图片。ZIP实际包含HTML/IR/MD/资源/manifest/SHA-256/报告，不抓跨域资源。PDF为Proposal。各格式边界唯一详表见[保真矩阵](docs/FIDELITY_MATRIX.md)。
+HTML为主要视觉产物；Markdown保留语义并明确复杂视觉降级；JSON为IR1.1.0完整快照，独立诊断不含正文。SVG仅根SVG，PNG仅根SVG或导入图片。ZIP实际包含HTML/IR/MD/资源/manifest/SHA-256/报告，不抓跨域资源。HTML/ZIP支持Auto、Interactive、Static策略；组件能力与文件能力分离。PDF为Proposal。各格式边界唯一详表见[保真矩阵](docs/FIDELITY_MATRIX.md)。
 
 ## 4. 技术架构（Decision）
 
@@ -58,11 +58,11 @@ HTML为主要视觉产物；Markdown保留语义并明确复杂视觉降级；JS
 
 ## 8. 产品范围与阶段门
 
-Decision：v0.3完成模块化、正式IR、离线输入、静态保真、完整归档、会话恢复、安全和自动化；不需要等待ChatGPT接入才能形成可用产品。
+Decision：v0.4沿用v0.3模块化、离线输入与静态基线，加入原生details、自有Fourier/表格有限recipe和局部降级；外部JSON不能授予执行权，不需要等待ChatGPT接入。
 
 Exploration：复杂页面保真与捕获技术持续比较，SnapDOM仅开发对照，当前不引入生产。
 
-Proposal：PDF、任意HTML截图回退、官方账户包专用解析、自有源码组件的独立交互重建；本轮不将任何静态结果标为reconstructed-tested。
+Proposal：PDF、任意HTML截图回退、官方账户包专用解析、任意第三方组件的行为恢复。静态结果绝不标为reconstructed-tested。
 
 Deprecated：v0.2内存Map、混合所有职责的picker与非版本化static-snapshot；仅作为历史保留，不作为当前架构。
 
@@ -74,7 +74,7 @@ Deprecated：v0.2内存Map、混合所有职责的picker与非版本化static-sn
 
 ## 10. 当前实现状态（2026-10-18）
 
-Implemented：模块化捕获、安全IR1.0.0、本地文件导入、HTML/MD/JSON及有限SVG/PNG、ZIP、独立报告、会话恢复、紧凑UI、CI配置和测试绑定打包。真实结果/截图见测试报告；CI远端运行未验证，本轮不推送。
+Implemented：模块化捕获、安全IR1.1.0、本地文件导入、HTML/MD/JSON及有限SVG/PNG、ZIP、独立报告、会话恢复、紧凑UI、CI配置和测试绑定打包。选择性交互、IR迁移、CSS属性边界修复与外部来源信任隔离；真实结果/截图见测试报告。远端main既有CI已核实success；v0.4未推送，不能宣称v0.4远端CI通过。
 
 Blocked：原生ChatGPT数据获取及无数据的完整交互恢复。Unverified：其他浏览器/真实官方账户包。Proposal：PDF等上述后续选项。没有为了版本号虚构原生交互或全网站兼容。
 
@@ -83,5 +83,6 @@ Blocked：原生ChatGPT数据获取及无数据的完整交互恢复。Unverifie
 - v0.1接手：保留成果，先复现，不按README判断完成。
 - v0.2：建立static边界、真实扩展E2E、视觉优先与合规Gate；历史资产不覆盖。
 - v0.3：以离线数据入口和版本化IR形成独立可用闭环；拆分职责、增加会话级storage而不扩大网站权限；纯诊断与正文分离。
+- v0.4：选择性交互正式进入Decision；三种策略与格式分离，受控模型输入输出等价测试，外部声明不授予执行权，HTML/ZIP离线验证。
 - 当前许可证保持UNLICENSED。MIT/Apache-2.0/保留所有权的依据见[依赖与许可](docs/DEPENDENCIES.md)，所有者未决定前不授予新的复用许可。
 - 用户仅授权本轮本地分支提交；不推送、合并、建PR或上架。
