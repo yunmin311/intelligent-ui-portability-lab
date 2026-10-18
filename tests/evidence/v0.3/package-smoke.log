@@ -1,14 +1,14 @@
-[WebServer] 127.0.0.1 - - [18/Oct/2026 18:51:10] "GET / HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:52:29] "GET / HTTP/1.1" 200 -
 
 Running 2 tests using 1 worker
 
-(node:19222) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:21713) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
-[WebServer] 127.0.0.1 - - [18/Oct/2026 18:51:12] "GET /interactive-demo.html HTTP/1.1" 200 -
-[WebServer] 127.0.0.1 - - [18/Oct/2026 18:51:12] code 404, message File not found
-[WebServer] 127.0.0.1 - - [18/Oct/2026 18:51:12] "GET /favicon.ico HTTP/1.1" 404 -
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:52:31] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:52:31] code 404, message File not found
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:52:31] "GET /favicon.ico HTTP/1.1" 404 -
   ✓  1 tests/mv3.spec.mjs:47:1 › real toolbar Popup → selection → preview → download → open + pixel golden (1.4s)
 
   ✓  2 tests/mv3.spec.mjs:128:1 › local HTML hostile file → isolated conversion → IR roundtrip → ZIP offline checksums (2.6s)
 
-  2 passed (6.1s)
+  2 passed (6.0s)

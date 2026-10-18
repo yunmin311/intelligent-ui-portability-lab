@@ -2,11 +2,13 @@
 
 日期：2026-10-18。审查基线：main `4a494540c46080e4034744418638d4436c77cb9a`（开始前已 fetch，未发现更新）。工作分支：`work/v0.3-portable-snapshots`。v0.2 原有源码历史、证据和发行资产保留。
 
+**结果：PASS。10 项单元测试 + 15 项浏览器测试全部通过；最终安装 ZIP 解压后另有 2 项真实 MV3 测试通过。依赖审计报告 0 漏洞。**
+
 ## 运行与证据
 
 本地环境：WSL2 Ubuntu-24.04、Node 24.21.0、Playwright 1.64.1、Chromium **156.0.8078.4 / Linux**。测试扩展 manifest 0.3.0，最低声明 Chrome 114；声明最低版本不等于已经在该版本验收。
 
-完整执行 `npm test`：静态语法/权限检查、schema 同步检查、**10 项 Node 单元测试和 15 项浏览器测试**。其中 **14 项为真实 MV3 扩展测试、1 项为普通页面选择器回归**。结果以 [完整日志](evidence/v0.3/final-test.log)、[运行版本](evidence/v0.3/runtime.json)和[已测扩展逐文件 hash](evidence/v0.3/verified-build.json)为准。依赖检查见 [npm audit](evidence/v0.3/npm-audit.json)。构建不会加载远程执行代码，产品无运行时 npm 依赖。
+完整执行 `npm test`：静态语法/权限检查、schema 同步检查、**10 项 Node 单元测试和 15 项浏览器测试**。其中 **14 项为真实 MV3 扩展测试、1 项为普通页面选择器回归**。结果以 [完整日志](evidence/v0.3/final-test.log)、[运行版本](evidence/v0.3/runtime.json)和[已测扩展逐文件 hash](evidence/v0.3/verified-build.json)为准。依赖检查见 [npm audit](evidence/v0.3/npm-audit.json)。构建不会加载远程执行代码，产品无运行时 npm 依赖。最终扩展 build-info 关联源码提交 `b1c08592d4262a9259548fb0a6777c178d97d70e`，构建时工作区干净；后续提交仅补充构建记录与对应验收证据。
 
 测试以 persistent Chromium 实际加载 unpacked extension，CDP `Extensions.triggerAction` 触发真实工具栏 Popup、授予 activeTab；在真实 Popup DOM 操作按钮，没有 mock Chrome 权限或消息 API。随后进行区域指针/键盘操作、扩展预览、真实 download event、检查下载失败、写盘并打开 file://。这不是 Windows 桌面鼠标操作托盘的人工验收。测试参数 `--enable-unsafe-extension-debugging` 仅用于浏览器测试，不进入产品。
 
@@ -62,7 +64,8 @@ Linux 缺系统库时按 Playwright 安装依赖。`npm test` 在测试前构建
 ```bash
 UIP_EXTENSION_PATH=/absolute/extracted/extension \
 UIP_EVIDENCE_DIR=/absolute/separate-evidence \
-npx playwright test tests/mv3.spec.mjs --grep 'real toolbar Popup|local HTML hostile'
+npx playwright test tests/mv3.spec.mjs --output=/absolute/separate-results \
+  --grep 'real toolbar Popup|local HTML hostile'
 ```
 
 人工验收：加载扩展后刷新来源页，按 README 启动 fixtures 服务；选择协议表格并下载打开 HTML；调滑块后保存当前图形（不可继续运算）；从 Popup 进入本地导入，提供 HTML/SVG/JSON/PNG，查看遗漏并分别下载完整快照和纯诊断。取消浏览器下载或组织策略阻止时，查看浏览器下载列表；无 downloads 权限，UI 仅承诺已发起请求。

@@ -1,7 +1,7 @@
 {
   "version": "0.3.0",
-  "revision": "4a494540c46080e4034744418638d4436c77cb9a",
-  "workingTreeModified": true,
+  "revision": "b1c08592d4262a9259548fb0a6777c178d97d70e",
+  "workingTreeModified": false,
   "sourceDigest": "4e5c93bced953fe7c957d848475b917b839a5c249121e4d6dac4249f2702b7ba",
   "files": {
     "background.js": "483e340ba12889d8f37612bfb322cea0ad016726956dc047684e5cd18cc7241b",
