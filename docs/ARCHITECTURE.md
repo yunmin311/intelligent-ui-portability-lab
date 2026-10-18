@@ -1,38 +1,70 @@
-# v0.2 实际架构
+# v0.3 实际架构 · Decision
 
-2026-10-16。沿用原 MV3 Popup + picker 的结构，保留原 Markdown/白名单捕获基础，在上面修复与增补；没有引入生产捕获依赖。
+源码使用原生 ES modules，无前端框架、后端或生产 npm 库。esbuild 只将内容脚本和隔离导入器打成两个随包分发的 IIFE；其他扩展页使用本地 ESM。
 
-```text
-用户工具栏调用（activeTab 临时授权）
- → popup.js 检查协议/ChatGPT Gate、选择格式、executeScript
- → picker.js 独立存活于原标签页；Shadow Overlay 选择/调整/取消
- → safeClone：白名单、计算样式、输入脱敏、资源过滤、容量检查
- → 一个净化 DOM → HTML / Markdown / SVG / static-snapshot JSON
- → background.js 校验消息来源/大小 → 内存 Map → 打开 preview.html?id=UUID
- → preview.js 请求快照 → sandbox iframe 静态预览 / pre 文本预览
- → 用户点击 → Blob + 原生 a.download → 下载列表 → 本地文件
+## 数据流与职责
+
+```mermaid
+flowchart LR
+ P[Popup] --> O[Overlay 选择/进度/取消]
+ O --> C[capture/dom 独立上下文]
+ F[本地文件] --> I[import 入口]
+ I --> S[无扩展权限 sandbox HTML/SVG]
+ S --> C
+ I --> W[Worker JSON/资源校验]
+ C --> B[background 来源/协议/IR/hash 校验]
+ W --> B
+ B --> SS[storage.session TTL/配额]
+ SS --> V[preview 沙箱静态画布]
+ V --> R[Worker 纯 IR 渲染/归档]
+ R --> D[用户下载]
 ```
 
-## 文件职责与生命周期
-
-| 文件 | 职责 |
+| 文件 | 唯一职责 |
 |---|---|
-| manifest.json | MV3，activeTab + scripting，action Popup、service worker，打包内 JS |
-| popup.html/js、ui.css | 产品 UI；失败反馈；标签页 URL Gate；格式通过 isolated-world 变量传给 picker |
-| picker.js | 重复注入先移除旧监听和 Overlay；语义候选、父/子链、同步净化、序列化；不直接下载 |
-| background.js | 捕获来源必须是 HTTP(S) 顶层标签页且非 ChatGPT；消息上限；临时快照与逐 tab 状态；打开预览 |
-| preview.html/js | 只接收扩展后台返回的净化产物，文本节点呈现报告；iframe 无 sandbox allow 权限；原生下载 |
+| `src/capture/picker.js` | 选容器、Overlay、清理监听、独立 AbortController、进度与重试 |
+| `src/capture/dom.js` | 有界 DOM→树/样式/资源；每次新 omissions/stats/id 映射；不负责格式 |
+| `src/core/policy.js` | 标签、属性、样式与 CSS 函数白名单、本地 SVG 引用规则 |
+| `src/core/ir.js` / `raster.js` | 版本、契约、有限状态、哈希/签名/编码像素检查、迁移、纯诊断 |
+| `src/core/render.js` | 校验后的 IR→HTML/Markdown/JSON/SVG；不访问原网站 |
+| `src/core/archive.js` | 确定性 ZIP STORE/CRC32、文件 SHA-256/manifest |
+| `src/core/session.js` | TTL、最多3份、保守配额与淘汰 |
+| `background.js` | 发送者/消息/来源验证、串行会话写入、创建预览 |
+| `import.js` / `src/import-sandbox.js` | 本地文件路由；未净化 HTML 永不进入有扩展权限 DOM |
+| `src/jobs.js` / `src/worker.js` | 独立 Worker 校验/序列化/ZIP；超10秒 terminate |
+| `preview.js` | 展示、格式最新任务隔离、有限 PNG、显式下载与过期状态 |
 
-Popup 关闭不移除 picker。每标签页各有 isolated world，切换 tab 不移动选择器；再次点击工具栏可继续查看状态或重新选择。取消清除原页监听；捕获成功也清除。遍历失败保留原选择器和错误，可取消缩小重试。页面重载/导航会丢失选择。
+## Snapshot IR 1.0.0
 
-后台至多 3 份，后到逐出最早一份，期限 10 分钟，过期清理在消息到来时执行。SW 终止会清空内存，预览按钮保持禁用并提示重捕获。此策略选择不持久保存正文，暂不支持长期打开预览。状态 Map 在 tab 关闭时清理。结果提示是“已发起下载”，不假装能观测系统最终写盘成功；E2E 独立检查 download.failure、读取保存文件并打开。
+机器结构见 [snapshot.schema.json](snapshot.schema.json)，完整安全语义以 `validateSnapshot` + `verifyResources` 为准。JSON Schema 不能代替样式函数、标签/属性组合、引用一致性和资源 hash 校验；CI 检查 schema 生成无漂移。
 
-## 数据合同与格式
+顶层：schemaVersion/kind、创建时间、来源类型与脱敏 origin、dimensions/background、tree、resources、provenance、capability、omissions、limitations、security、可选 stats。来源不保存查询串、路径、文件名或身份。节点含白名单 tag/ns/attrs/style/children、组件类型、有限滚动状态和来源 evidence；资源为允许栅格的 base64/MIME/SHA-256，不接收远程地址。
 
-JSON 字段：`schemaVersion:0.2.0`、`kind:static-snapshot`、`capability:static`、UTC capturedAt、origin（无路径/query/title）、dimensions、stats、limitations、omissions、html、text。不是正式 IR；没有组件数据模型、state machine 或适配器注册系统。
+来源方法区分 DOM、local-file、raster-import、migrated-v02。节点 `captured` 和 `unsupported` 显式区分；当前拒绝 `reconstructed`，未来须引入有证据的版本/渲染器。能力仅 `static` 或 `visual-only`；拒绝伪造的 state-preserved/reconstructed-tested。有限状态记录不等于原生逻辑复原。它不是 ChatGPT 原生组件协议。
 
-HTML 中所有样式均来自净化白名单与当前计算值；根重置放置坐标和 margin、固定来源 border-box 尺寸，body 仅归零并补最近不透明祖先背景。无品牌页眉或自定义卡片。HTML meta 与 SVG metadata 内嵌能力/遗漏；Markdown 用注释；独立报告不含 html/text。HTML 的安全 CSP 禁止连接、脚本、表单和远程资源；预览再叠一层无脚本 sandbox。
+当前版本读写往返稳定；未知版本失败关闭。v0.2 `static-snapshot` 的 HTML 必须重新通过隔离净化，缺失结构/状态不可恢复。未来新增 schema 必须显式迁移、兼容测试；不可悄悄将未知版本当当前版。
 
-## 限制与后续
+## 生命周期与有界处理
 
-同步遍历会短暂阻塞页面，3 秒预算只在节点间检查，单次昂贵 Canvas/样式计算不能被强制中断。固定尺寸利于当前态复现，不等于跨 viewport 响应式恢复。CSS 白名单不覆盖全部排版语义。普通网页已允许启动，页面应授权与能力覆盖仍由用户/许可决定。正式 IR、资源打包、官方包导入及可测试重建均属 Proposed。
+新增 `storage` 有必要性：SW 内存 Map 无法跨休眠恢复。只使用 `storage.session`，访问级别 TRUSTED_CONTEXTS；浏览器会话内保留，未写 local/sync。每条消息先验证发送者 id、页 URL/顶层 frame 与字段；capture 只允许允许的网页内容脚本或本地 importer，getCapture 只允许 preview。内容来源 origin 必须与 sender 一致。
+
+保存最多3份；估算 UTF-8序列化×2 总量不超过7,500,000字节，以低于10MB API配额留余量。10分钟后拒绝读取；下一条消息清理过期记录，预览定时禁用下载并移除画布。没有 alarms 定时物理清理或安全擦除承诺。会话结束/扩展重载可更早失效。
+
+| 边界 | 实施 |
+|---|---|
+| DOM/IR | 最多5000访问节点、75层、100万文本字符、4MB序列化IR |
+| 尺寸 | 单轴1–12000；Canvas/栅格最多100万像素、单轴4096 |
+| 文件 | HTML/SVG/图片2MB，JSON4MB；单资源base64≤200万字符，捕获资源总≤250万字符 |
+| DOM遍历 | 预检入栈即限制总节点；每64节点让出，捕获每16节点让出并查取消 |
+| Worker | 可 terminate 的10秒超时；每次独立任务，不共享不可信状态 |
+| sandbox | 独立无权限 frame，15秒移除；浏览器单次原生同步调用不能保证硬抢占 |
+
+单次 computedStyle、Canvas、解码与 DOMParser 属浏览器原生调用；协作取消不是硬 CPU 超时。图片先读编码尺寸再解码；文件/树/像素限额降低峰值，不能承诺任意敌意网页在共享渲染线程绝不卡顿。
+
+## 导出封装
+
+HTML 固定画布、来源样式、禁止网络/脚本的 CSP；SVG 属性和函数级净化，不依赖 HTML CSP。预览空 sandbox。MD 结构渲染；不内嵌执行脚本。PNG 仅 SVG 根或已有 PNG；HTML 截图未实现。
+
+ZIP 含 index.html、snapshot.json、notes.md、diagnostic.json、已获得的 resources/、可用的 graphic.svg、manifest.json、SHA256SUMS。manifest列实际内容文件的 bytes/hash，SHA256SUMS再覆盖manifest；两者不自引用。只封装已验证资源，无抓取。诊断接口不含 tree/正文/HTML/资源data；JSON下载明确是完整快照。
+
+构建信息的 revision 是构建基准提交，workingTreeModified 标注是否含未提交内容；sourceDigest/逐文件hash才定义实际构建。测试前后 hash 必须一致；打包再次比对测试证明，拒绝过期产物。

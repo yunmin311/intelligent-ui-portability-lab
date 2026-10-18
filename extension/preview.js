@@ -1,30 +1,20 @@
-'use strict';
-const message=document.getElementById('message');
-function download(name,body,mime){
- const url=URL.createObjectURL(new Blob([body],{type:mime}));
- const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();
- setTimeout(()=>URL.revokeObjectURL(url),60000);
- message.textContent='已向浏览器发起下载；请在下载列表确认完成。若受限，可再次点击下载。';
-}
-(async()=>{
- const payload=await chrome.runtime.sendMessage({type:'getCapture',id:new URLSearchParams(location.search).get('id')});
- if(payload.error)throw Error(payload.error);
- const {report,page,md,svg,format}=payload;
- const info=document.getElementById('report');
- for(const text of [`${report.dimensions.width} × ${report.dimensions.height} px · ${report.stats.elements} 个元素 · ${format.toUpperCase()}`, '仅为 static 静态呈现。可见状态已尽力捕获，未验证原生交互恢复。']){const p=document.createElement('p');p.textContent=text;info.append(p);}
- const details=document.createElement('details');details.open=report.omissions.length>0;
- const summary=document.createElement('summary');summary.textContent=`差异与遗漏（${report.omissions.length} 项）`;details.append(summary);
- const ul=document.createElement('ul');for(const item of report.omissions){const li=document.createElement('li');li.textContent=item;ul.append(li);}details.append(ul);info.append(details);
- const ext=format==='md'?'md':format;
- const body=format==='json'?JSON.stringify(report,null,2):format==='md'?md:format==='svg'?svg:page;
- if(!body)throw Error('SVG 格式只能选择 SVG 根元素，请返回原页重选或改用 HTML。');
- const viewport=document.getElementById('viewport');
- if(format==='html'||format==='svg'){
-  const iframe=document.createElement('iframe');iframe.title='安全静态快照预览';iframe.setAttribute('sandbox','');iframe.style.width=`${report.dimensions.width}px`;iframe.style.height=`${report.dimensions.height}px`;iframe.srcdoc=page;viewport.append(iframe);
- }else{const pre=document.createElement('pre');pre.textContent=body;viewport.append(pre);}
- const basename='ui-export-'+report.capturedAt.replace(/[:.]/g,'-');
- document.getElementById('save').disabled=false;document.getElementById('saveReport').disabled=false;
- document.getElementById('save').onclick=()=>download(basename+'.'+ext,body,format==='html'?'text/html;charset=utf-8':format==='svg'?'image/svg+xml;charset=utf-8':format==='json'?'application/json;charset=utf-8':'text/markdown;charset=utf-8');
- document.getElementById('saveReport').onclick=()=>{const {html,text,...metadata}=report;download(basename+'-report.json',JSON.stringify(metadata,null,2),'application/json');};
- message.textContent='捕获完成。检查预览与遗漏后下载。';
+import {job} from './src/jobs.js';
+import {diagnostic,resourceBytes} from './src/core/ir.js';
+import {svg} from './src/core/render.js';
+const message=document.getElementById('message'),save=document.getElementById('save'),reportButton=document.getElementById('saveReport'),formatSelect=document.getElementById('format');
+function download(name,body,mime){const url=URL.createObjectURL(new Blob([body],{type:mime}));const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);message.textContent='已向浏览器发起下载；请在下载列表确认完成。若受限，可再次点击下载。';}
+async function png(s){const graphic=svg(s);if(!graphic){if(s.tree.tag==='img'&&s.tree.resourceId){const r=s.resources.find(r=>r.id===s.tree.resourceId);if(r.mime==='image/png')return resourceBytes(r);}throw Error('PNG 仅支持 SVG 根元素或导入图片；HTML 尚不支持截图回退');}if(s.dimensions.width*s.dimensions.height>1000000)throw Error('PNG 超过 100 万像素');const blob=new Blob([graphic],{type:'image/svg+xml'}),url=URL.createObjectURL(blob);try{const img=new Image();img.src=url;await img.decode();const c=document.createElement('canvas');c.width=s.dimensions.width;c.height=s.dimensions.height;c.getContext('2d').drawImage(img,0,0);return new Uint8Array(await (await new Promise(resolve=>c.toBlob(resolve,'image/png'))).arrayBuffer());}finally{URL.revokeObjectURL(url);}}
+(async()=>{const payload=await chrome.runtime.sendMessage({type:'getCapture',id:new URLSearchParams(location.search).get('id')});if(payload.error)throw Error(payload.error);const s=payload.snapshot;await job({operation:'render',snapshot:s,format:'json'});
+ document.getElementById('capability').textContent=s.capability+' · 不含原始交互';
+ const info=document.getElementById('report');for(const text of [`${s.dimensions.width} × ${s.dimensions.height} px · ${s.stats?.elements??1} 个元素`,...s.limitations,'正文/图像中的敏感信息可能仍存在，请自行检查。','会话保存 10 分钟；后台休眠可恢复，浏览器重启或扩展重载会清空。']){const p=document.createElement('p');p.textContent=text;info.append(p);}
+ const details=document.createElement('details');details.open=!!s.omissions.length;const summary=document.createElement('summary');summary.textContent=`差异与遗漏（${s.omissions.length} 项）`;details.append(summary);const ul=document.createElement('ul');for(const text of s.omissions){const li=document.createElement('li');li.textContent=text;ul.append(li);}details.append(ul);info.append(details);
+ const frame=document.createElement('iframe');frame.title='安全静态快照预览';frame.setAttribute('sandbox','');frame.style.width=s.dimensions.width+'px';frame.style.height=s.dimensions.height+'px';frame.srcdoc=await job({operation:'render',snapshot:s,format:'html'});document.getElementById('viewport').append(frame);
+ const basename='ui-export-'+s.createdAt.replace(/[:.]/g,'-');let body,mime,busy=false,generation=0,preparedFormat='';
+ const expired=()=>Date.now()>=payload.expiresAt;
+ async function prepare(){const token=++generation,format=formatSelect.value;busy=true;save.disabled=true;try{if(expired())throw Error('预览已过期，请重新捕获');const result=format==='zip'?await job({operation:'archive',snapshot:s}):format==='png'?await png(s):await job({operation:'render',snapshot:s,format});if(token!==generation||expired())return;body=result;preparedFormat=format;mime=({html:'text/html;charset=utf-8',md:'text/markdown;charset=utf-8',json:'application/json',svg:'image/svg+xml',png:'image/png',zip:'application/zip'})[format];message.textContent='已就绪。预览始终显示原始静态外观；下载格式为 '+format.toUpperCase();save.disabled=false;}catch(error){if(token===generation)message.textContent='无法导出：'+error.message;}finally{if(token===generation)busy=false;}}
+
+ formatSelect.value=payload.format;formatSelect.onchange=prepare;await prepare();reportButton.disabled=false;
+ save.onclick=()=>{if(!busy&&!expired())download(basename+'.'+preparedFormat,body,mime);else message.textContent='会话已过期或转换中，请重新捕获';};
+ reportButton.onclick=()=>{if(!expired())download(basename+'-report.json',JSON.stringify(diagnostic(s),null,2),'application/json');};
+ setTimeout(()=>{save.disabled=true;reportButton.disabled=true;frame.remove();body=null;message.textContent='会话已过期，请重新捕获或导入';chrome.runtime.sendMessage({type:'getCapture',id:new URLSearchParams(location.search).get('id')}).catch(()=>{});},Math.max(0,payload.expiresAt-Date.now()));
 })().catch(error=>{message.textContent='预览失败：'+error.message;});

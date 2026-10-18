@@ -1,0 +1,1110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ui-portability:snapshot:1.0.0",
+  "title": "UI Portability Snapshot IR 1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "kind": {
+      "const": "ui-portability-snapshot"
+    },
+    "capability": {
+      "enum": [
+        "static",
+        "visual-only"
+      ]
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "maxLength": 30
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "page",
+            "html",
+            "svg",
+            "json",
+            "image"
+          ]
+        },
+        "origin": {
+          "type": "string",
+          "maxLength": 300
+        }
+      },
+      "required": [
+        "type",
+        "origin"
+      ]
+    },
+    "dimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "width": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 12000
+        },
+        "height": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 12000
+        }
+      },
+      "required": [
+        "width",
+        "height"
+      ]
+    },
+    "background": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "tree": {
+      "$ref": "#/$defs/node"
+    },
+    "resources": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^r[0-9]+$"
+          },
+          "mime": {
+            "enum": [
+              "image/png",
+              "image/jpeg",
+              "image/webp"
+            ]
+          },
+          "data": {
+            "type": "string",
+            "maxLength": 2000000,
+            "contentEncoding": "base64"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "status": {
+            "const": "captured"
+          }
+        },
+        "required": [
+          "id",
+          "mime",
+          "data",
+          "sha256",
+          "status"
+        ]
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "enum": [
+            "sanitized-dom",
+            "local-file",
+            "raster-import",
+            "migrated-v02"
+          ]
+        },
+        "status": {
+          "const": "captured"
+        }
+      },
+      "required": [
+        "method",
+        "status"
+      ]
+    },
+    "omissions": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      }
+    },
+    "security": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "redacted": {
+          "const": true
+        },
+        "remoteResources": {
+          "const": false
+        },
+        "scripts": {
+          "const": false
+        }
+      },
+      "required": [
+        "redacted",
+        "remoteResources",
+        "scripts"
+      ]
+    },
+    "stats": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "elements": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "omittedImages": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "canvasImages": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "omittedFrames": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "redactedControls": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "externalLinks": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "svg": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "kind",
+    "capability",
+    "createdAt",
+    "source",
+    "dimensions",
+    "background",
+    "tree",
+    "resources",
+    "provenance",
+    "omissions",
+    "limitations",
+    "security"
+  ],
+  "$defs": {
+    "node": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "type": "string",
+              "maxLength": 1000000
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "tag": {
+              "enum": [
+                "a",
+                "article",
+                "aside",
+                "blockquote",
+                "br",
+                "button",
+                "caption",
+                "code",
+                "dd",
+                "details",
+                "div",
+                "dl",
+                "dt",
+                "em",
+                "figcaption",
+                "figure",
+                "h1",
+                "h2",
+                "h3",
+                "h4",
+                "h5",
+                "h6",
+                "header",
+                "hr",
+                "i",
+                "kbd",
+                "label",
+                "li",
+                "main",
+                "mark",
+                "ol",
+                "p",
+                "pre",
+                "q",
+                "s",
+                "samp",
+                "section",
+                "small",
+                "span",
+                "strong",
+                "sub",
+                "summary",
+                "sup",
+                "output",
+                "table",
+                "tbody",
+                "td",
+                "th",
+                "thead",
+                "tfoot",
+                "time",
+                "tr",
+                "u",
+                "ul",
+                "svg",
+                "g",
+                "defs",
+                "path",
+                "rect",
+                "circle",
+                "ellipse",
+                "line",
+                "polyline",
+                "polygon",
+                "text",
+                "tspan",
+                "lineargradient",
+                "radialgradient",
+                "stop",
+                "clippath",
+                "mask",
+                "pattern",
+                "title",
+                "desc",
+                "math",
+                "mrow",
+                "mi",
+                "mn",
+                "mo",
+                "mtext",
+                "mfrac",
+                "msqrt",
+                "mroot",
+                "msup",
+                "msub",
+                "msubsup",
+                "munder",
+                "mover",
+                "munderover",
+                "mtable",
+                "mtr",
+                "mtd",
+                "mfenced",
+                "mspace",
+                "menclose",
+                "mstyle",
+                "mpadded",
+                "input",
+                "img",
+                "linearGradient",
+                "radialGradient",
+                "clipPath"
+              ]
+            },
+            "ns": {
+              "enum": [
+                "html",
+                "svg",
+                "math"
+              ]
+            },
+            "attrs": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "viewBox": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "width": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "height": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "x": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "y": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "x1": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "x2": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "y1": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "y2": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "cx": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "cy": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "r": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "rx": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "ry": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "d": {
+                  "type": "string",
+                  "maxLength": 100000
+                },
+                "points": {
+                  "type": "string",
+                  "maxLength": 100000
+                },
+                "transform": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "fill": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "stroke": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "stroke-width": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "stroke-linecap": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "stroke-linejoin": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "opacity": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "fill-opacity": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "stroke-opacity": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "offset": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "stop-color": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "stop-opacity": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "preserveAspectRatio": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "xmlns": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "vector-effect": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "clip-path": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "mask": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "stroke-dasharray": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "stroke-dashoffset": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "text-anchor": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "dominant-baseline": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "colspan": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "rowspan": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "id": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "open": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "disabled": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "type": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "checked": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "min": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "max": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "step": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "alt": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "gradientUnits": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "gradientTransform": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "clipPathUnits": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "maskUnits": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "patternUnits": {
+                  "type": "string",
+                  "maxLength": 1000
+                }
+              }
+            },
+            "style": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "visibility": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "direction": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "writing-mode": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "color-scheme": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "background-image": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "background-size": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "background-position": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "background-repeat": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-collapse": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-spacing": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "table-layout": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "caption-side": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "list-style-type": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "list-style-position": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "font-variant": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "font-stretch": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "word-break": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "overflow-wrap": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "text-indent": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "text-transform": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "text-overflow": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "text-shadow": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "float": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "clear": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "align-self": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "align-content": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "justify-items": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "justify-self": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "column-gap": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "row-gap": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "grid-auto-flow": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "grid-auto-rows": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "grid-auto-columns": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "flex-grow": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "flex-shrink": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "flex-basis": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "order": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "aspect-ratio": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "max-height": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "object-position": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "fill": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "stroke": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "stroke-width": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "stroke-linecap": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "stroke-linejoin": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "fill-opacity": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "stroke-opacity": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "stop-color": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "stop-opacity": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "text-anchor": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "dominant-baseline": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "clip-path": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "mask": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "transform": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "transform-origin": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "display": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "position": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "top": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "right": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "bottom": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "left": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "z-index": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "box-sizing": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "color": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "background-color": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "font-family": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "font-size": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "font-weight": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "font-style": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "line-height": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "letter-spacing": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "text-align": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "white-space": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "width": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "height": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "max-width": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "min-width": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "min-height": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "margin": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "margin-top": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "margin-right": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "margin-bottom": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "margin-left": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "padding": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "padding-top": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "padding-right": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "padding-bottom": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "padding-left": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-width": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-style": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-color": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-radius": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "box-shadow": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "opacity": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "vertical-align": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "flex": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "flex-direction": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "flex-wrap": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "align-items": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "justify-content": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "gap": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "grid-template-columns": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "grid-template-rows": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "grid-column": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "grid-row": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "overflow": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "text-decoration": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "object-fit": {
+                  "type": "string",
+                  "maxLength": 2000
+                }
+              }
+            },
+            "children": {
+              "type": "array",
+              "maxItems": 5000,
+              "items": {
+                "$ref": "#/$defs/node"
+              }
+            },
+            "component": {
+              "enum": [
+                "container",
+                "table",
+                "graphic",
+                "formula",
+                "control",
+                "image"
+              ]
+            },
+            "resourceId": {
+              "type": "string",
+              "pattern": "^r[0-9]+$"
+            },
+            "state": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "scrollTop": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1000000
+                },
+                "scrollLeft": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1000000
+                }
+              },
+              "required": [
+                "scrollTop",
+                "scrollLeft"
+              ]
+            },
+            "evidence": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "enum": [
+                    "captured",
+                    "unsupported"
+                  ]
+                },
+                "method": {
+                  "enum": [
+                    "computed-dom",
+                    "rasterized",
+                    "redacted",
+                    "placeholder",
+                    "flattened-shadow",
+                    "generated-pseudo",
+                    "scroll-flattened"
+                  ]
+                }
+              },
+              "required": [
+                "status",
+                "method"
+              ]
+            }
+          },
+          "required": [
+            "tag",
+            "ns",
+            "attrs",
+            "style",
+            "children"
+          ]
+        }
+      ]
+    }
+  },
+  "$comment": "Structural schema only. Runtime ir.js ALSO enforces namespaces/tag pairs, safe CSS and URL references, total node/depth/text/byte limits, disabled controls, source origin, MIME signatures and SHA-256. Both must pass before use."
+}

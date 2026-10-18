@@ -1,0 +1,35 @@
+{
+  "browser": "156.0.8078.4",
+  "platform": "linux",
+  "manifest": {
+    "manifest_version": 3,
+    "name": "UI Portability Lab (Prototype)",
+    "description": "Local static UI snapshots with safe preview and omission reports. ChatGPT integration remains blocked.",
+    "version": "0.3.0",
+    "minimum_chrome_version": "114",
+    "permissions": [
+      "activeTab",
+      "scripting",
+      "storage"
+    ],
+    "action": {
+      "default_title": "UI Portability Lab",
+      "default_popup": "popup.html"
+    },
+    "content_security_policy": {
+      "extension_pages": "script-src 'self'; object-src 'self'",
+      "sandbox": "sandbox allow-scripts; default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'"
+    },
+    "background": {
+      "service_worker": "background.js",
+      "type": "module"
+    },
+    "sandbox": {
+      "pages": [
+        "import-sandbox.html"
+      ]
+    }
+  },
+  "popup": "CDP Extensions.triggerAction on real toolbar tab, Runtime evaluation of actual popup DOM; no permission mocks",
+  "date": "2026-10-18T10:49:44.091Z"
+}

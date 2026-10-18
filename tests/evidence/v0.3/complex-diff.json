@@ -1,0 +1,37 @@
+{
+  "conditions": "same browser, viewport, state, font readiness; threshold channel16; source vs export, no baseline replacement",
+  "metrics": [
+    {
+      "width": 1200,
+      "theme": "light",
+      "pixelWidth": 920,
+      "pixelHeight": 389,
+      "changedPixelRatio": 0.0023108304459595395,
+      "meanAbsoluteChannelError": 0.22764613837040348
+    },
+    {
+      "width": 1200,
+      "theme": "dark",
+      "pixelWidth": 920,
+      "pixelHeight": 389,
+      "changedPixelRatio": 0.0023275958421817367,
+      "meanAbsoluteChannelError": 0.1696089937036623
+    },
+    {
+      "width": 640,
+      "theme": "light",
+      "pixelWidth": 592,
+      "pixelHeight": 588,
+      "changedPixelRatio": 0.0023757813936385367,
+      "meanAbsoluteChannelError": 0.23100428234356807
+    },
+    {
+      "width": 640,
+      "theme": "dark",
+      "pixelWidth": 592,
+      "pixelHeight": 588,
+      "changedPixelRatio": 0.002372908622908623,
+      "meanAbsoluteChannelError": 0.17125639670282528
+    }
+  ]
+}

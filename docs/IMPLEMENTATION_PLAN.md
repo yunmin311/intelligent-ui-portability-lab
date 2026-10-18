@@ -1,14 +1,25 @@
-# v0.2 执行范围（2026-10-16）
+# v0.3 实施与状态（2026-10-18）
 
-依据用户已确认决策，在既有代码上修复，不重建项目。
+基线：fetch 后 main / origin/main 均为 4a494540c46080e4034744418638d4436c77cb9a，工作区干净。工作分支 work/v0.3-portable-snapshots；禁止推送。用户已授权本轮全部实现和必要技术选择。
 
-1. 完整读取 v0.1，冻结 picker 基线，真实加载扩展复现选择/视觉问题。
-2. 获取五个参考项目当前 main 快照的 README、关键代码及截图引用；用文件 SHA-256 标记实际内容，不冒充 commit SHA；核验官方条款、数据导出、UI 接口、MV3 政策。
-3. 延续既有白名单克隆及 Markdown 转换；修复 SVG 样式、尺寸/背景、节点预算、安全过滤；静态能力标识及遗漏报告。
-4. 选择器增加锁定、父/子层级、取消/重复注入清理；Popup 状态；扩展沙箱预览与显式下载，后台只协调当前会话，不采集网络。
-5. 真 Chromium 加载 MV3，Popup → 注入 → 选择 → 预览 → 下载 → 文件打开；固定 viewport 的像素比较、安全/异常测试，SnapDOM 同条件对照。
-6. 更新核心项目书及设计、架构、安全、能力矩阵、测试报告；交付源码与可安装 ZIP。
+## Decision
 
-架构选择：仅 activeTab+scripting；不增加持久站点权限。捕获结果经 runtime 消息交给扩展 service worker，创建预览页；内存结果有 TTL，worker 重启明确失败可重新捕获，不持久保存用户内容。下载由预览页用户手势触发，避免来源页策略干扰。HTML 保留静态源布局，不加品牌页眉。所有结果标记 static；不推出未经证实的 state-preserved/reconstructed-tested。
+保留 v0.2 选择器与样式白名单，拆成 src/capture、src/core 及扩展页；原生 JS + esbuild 单一内容脚本，扩展页 ESM。正式 IR 1.0.0，仅允许受验证的树/资源/有限状态，renderers 不接触来源。后台 storage.session 仅 TRUSTED_CONTEXTS，3 份/7.5 MB估算 总量/10 分钟，消息校验与串行写入。JSON 是完整 IR，diagnostic-report 永不含正文/HTML/资源。离线 HTML/SVG 在无扩展权限的 sandbox 中解析和渲染，图片标记 visual-only，JSON 校验与资源 hash 重验。工作 Worker 可 terminate；DOM 遍历协作取消，单次浏览器原生样式/Canvas 调用不是硬超时。
 
-执行结果：本地基础实现与真实MV3验收已完成，见 tests/TEST_REPORT.md。SingleFile当前运行UI截图、Edge/Windows与真实ChatGPT接入仍未验证；不将待办项视为已完成。
+## 顺序与验收
+
+- [x] 基线 npm test 与故障复现；独立 Node 单元测试先失败，覆盖 schema/迁移/净化/资源/ZIP/诊断边界。
+- [x] core/policy.js、ir.js、render.js、archive.js：严格、版本化、资源 SHA-256；验证失败不渲染。测试恶意/超大树、非法状态、schema 版本、ZIP CRC/hash。
+- [x] capture/dom.js + picker.js：每次独立上下文、分批取消、局部 SVG 引用重映射、MathML、伪元素/开放 Shadow、滚动当前可见裁剪。原有 9 项测试保留语义并修正已升级行为断言。
+- [x] background.js src/core/session.js：来源/schema/消息大小/TTL/容量/并发写入；SW 真终止重启测试、过期/删除/报告隔离。
+- [x] importer sandbox + import/preview UI：HTML/SVG/IR/PNG/JPEG/WebP 文件入口，隔离/无网络/限额/超时清理/格式选择；HTML/JSON 往返和 PNG/ZIP 实际下载打开。
+- [x] 复杂 fixture 深浅/宽窄 golden、注入攻击与失败重试、压力与取消，自动记录图片和指标；自有交互重建为可选，若做须独立输出与等价测试。
+- [x] CI lint/单元/E2E/audit/打包；构建与实际测试源码 hash 关联；文档更新单一事实来源；许可证保留 UNLICENSED 并解释候选。本地提交完成后打包校验，不推送。
+
+## Exploration / Proposal / Deprecated
+
+Exploration：复杂 fixture 与 SnapDOM 对照判断是否值得集成；原生调用阻塞和跨进程隔离限制需如实报告。
+Proposal：PDF、官方账户包适配（无真实授权样本）、专用原生交互恢复。
+Deprecated：v0.2 内存 Map、非版本化 static-snapshot、picker 承担所有序列化；已有 v0.2 dist/evidence 历史保留，不覆盖。
+
+Decision：独立审查的5项确定性缺陷已修复并增加回归。交互重建未进入实现范围，保持 Proposal；不标注 reconstructed-tested。CI已提交配置，远端执行须由后续明确授权的推送触发，本轮不推送。

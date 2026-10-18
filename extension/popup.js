@@ -23,3 +23,5 @@ button.addEventListener('click', async () => {
     button.disabled = false;
   }
 });
+
+document.getElementById('import').onclick=()=>{chrome.tabs.create({url:chrome.runtime.getURL('import.html')});window.close();};
