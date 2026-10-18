@@ -2,7 +2,8 @@ import {test,expect,chromium} from '@playwright/test';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {PNG} from 'pngjs';
-const evidence=path.resolve('tests/evidence');
+const evidence=path.resolve(process.env.UIP_EVIDENCE_DIR||'tests/artifacts/v0.3');
+const extensionPath=path.resolve(process.env.UIP_EXTENSION_PATH||'extension');
 let context,cdp,page,extensionId;
 let seq=0;
 async function popup(format='html',capture=false){
@@ -36,10 +37,10 @@ async function exportTarget(selector,format='html'){
 async function save(preview,name){const pending=preview.waitForEvent('download');await preview.locator('#save').click();const download=await pending;expect(await download.failure()).toBeNull();const target=path.join(evidence,name);await download.saveAs(target);return target;}
 test.beforeAll(async()=>{
  await fs.mkdir(evidence,{recursive:true});
- context=await chromium.launchPersistentContext('',{...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{channel:'chromium'}),headless:true,acceptDownloads:true,viewport:{width:1200,height:900},args:['--enable-unsafe-extension-debugging',`--disable-extensions-except=${path.resolve('extension')}`,`--load-extension=${path.resolve('extension')}`]});
+ context=await chromium.launchPersistentContext('',{...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{channel:'chromium'}),headless:true,acceptDownloads:true,viewport:{width:1200,height:900},args:['--enable-unsafe-extension-debugging',`--disable-extensions-except=${extensionPath}`,`--load-extension=${extensionPath}`]});
  const worker=context.serviceWorkers()[0]||await context.waitForEvent('serviceworker');extensionId=new URL(worker.url()).hostname;
  cdp=await context.browser().newBrowserCDPSession();page=await context.newPage();
- await fs.writeFile(path.join(evidence,'runtime.json'),JSON.stringify({browser:context.browser().version(),platform:process.platform,manifest:JSON.parse(await fs.readFile('extension/manifest.json','utf8')),popup:'CDP Extensions.triggerAction on real toolbar tab, Runtime evaluation of actual popup DOM; no permission mocks',date:new Date().toISOString()},null,2));
+ await fs.writeFile(path.join(evidence,'runtime.json'),JSON.stringify({browser:context.browser().version(),platform:process.platform,manifest:JSON.parse(await fs.readFile(path.join(extensionPath,'manifest.json'),'utf8')),popup:'CDP Extensions.triggerAction on real toolbar tab, Runtime evaluation of actual popup DOM; no permission mocks',date:new Date().toISOString()},null,2));
 });
 test.afterAll(async()=>{await context?.close();});
 test.beforeEach(async()=>{await page.goto('http://127.0.0.1:18787/interactive-demo.html');});
@@ -102,7 +103,7 @@ test('SnapDOM controlled comparison and explicit omission reports',async()=>{
  const findings={version:'3.3.4',sourceDimensions:[a.width,a.height],snapdomDimensions:[b.width,b.height],changedPixelRatio:a.width===b.width&&a.height===b.height?changed/(a.width*a.height):null,containsForeignObject:result.raw.includes('foreignObject'),unredactedTextInputInCapture:raw.includes('SNAPDOM_VISIBLE_SECRET'),decision:'Keep dev-only. Table baseline already close; raw core is not a sanitizer and captures text input. No product integration.'};
  await fs.writeFile(path.join(evidence,'snapdom-comparison.json'),JSON.stringify(findings,null,2));expect(findings.unredactedTextInputInCapture).toBe(true);
  await page.addStyleTag({content:'#table-demo::before{content:"Pseudo marker"}'});await page.locator('#table-demo').evaluate(el=>{el.insertAdjacentHTML('beforeend','<svg width="60" height="30"><defs><linearGradient id="g"><stop stop-color="red"/></linearGradient></defs><rect width="50" height="20" fill="url(#g)"/></svg>');});
- const preview=await exportTarget('#table-demo h2','json');const file=await save(preview,'omissions.json');const report=JSON.parse(await fs.readFile(file,'utf8'));expect(report.omissions.join()).toContain('伪元素');expect(report.omissions.join()).toContain('渐变');await preview.close();
+ const preview=await exportTarget('#table-demo h2','json');const file=await save(preview,'omissions.json');const report=JSON.parse(await fs.readFile(file,'utf8'));expect(JSON.stringify(report.tree)).toContain('Pseudo marker');expect(report.tree).toBeTruthy();await preview.close();
 });
 test('ChatGPT gate and browser internal page failure via actual Popup',async()=>{
  await context.route('https://chatgpt.com/**',route=>route.fulfill({body:'<h1>offline gate test</h1>',contentType:'text/html'}));await page.goto('https://chatgpt.com/');let pop=await popup();await expect.poll(()=>pop.evaluate('document.getElementById("status").textContent')).toContain('合规闸门');await cdp.send('Extensions.triggerAction',{id:extensionId,targetId:(await cdp.send('Target.getTargets',{filter:[{type:'tab',exclude:false}]})).targetInfos.find(t=>t.url===page.url()).targetId});
@@ -116,10 +117,67 @@ test('golden grid, formula fallback, checkbox, Markdown table and depth failure'
  await expect(opened.locator('output')).toHaveText('7² = 49');await expect(opened.locator('input[type=checkbox]')).toBeChecked();await expect(opened.locator('button')).toBeDisabled();
  expect(await opened.locator('.grid').count()).toBe(0); // Source classes are deliberately not copied; computed layout is.
  expect(await opened.locator('output').evaluate(e=>getComputedStyle(e.parentElement).display)).toBe('grid');
- expect(await opened.locator('meta[name=ui-portability-report]').getAttribute('content')).toContain('math');
+ expect(await opened.locator('math mfrac').count()).toBe(1);
  await opened.screenshot({path:path.join(evidence,'calculator-export.png')});await opened.close();await preview.close();
  const mdPreview=await exportTarget('#calculator h2','md');const md=await save(mdPreview,'calculator.md');expect(await fs.readFile(md,'utf8')).toContain('a \\| b');await mdPreview.close();
  await popup('html','dark');await page.keyboard.press('Escape');
  await page.locator('#calculator').evaluate(el=>{let parent=el;for(let i=0;i<80;i++){const child=document.createElement('div');parent.append(child);parent=child;}});
  await start();await page.locator('#calculator h2').click();await page.keyboard.press('Enter');await expect(page.locator('[data-uip-picker] #error')).toContainText('75');await page.keyboard.press('Escape');
+});
+async function importFile(name,buffer){const importer=await context.newPage();await importer.goto(`chrome-extension://${extensionId}/import.html`);const pending=context.waitForEvent('page',p=>p.url().includes('/preview.html'));await importer.locator('#file').setInputFiles({name,mimeType:'application/octet-stream',buffer:Buffer.from(buffer)});const preview=await pending;await expect(preview.locator('#save')).toBeEnabled();return {importer,preview};}
+test('local HTML hostile file → isolated conversion → IR roundtrip → ZIP offline checksums',async()=>{
+ const requests=[];const listener=r=>{if(r.url().includes('attacker.invalid'))requests.push(r.url());};context.on('request',listener);
+ const input='<!doctype html><html><head><style>body{margin:0}section{width:400px;padding:12px;color:#123456}h2{font-size:20px}@import url(https://attacker.invalid/css);</style></head><body><section onclick="alert(1)"><h2>本地资产</h2><p>中文 | text</p><input value="IMPORT_SECRET"><img src="https://attacker.invalid/track"><svg width="50" height="30"><script>alert(1)</script><foreignObject>evil</foreignObject><rect width="30" height="20" fill="red"/></svg></section><script>location="https://attacker.invalid/js"</script><iframe src="https://attacker.invalid/frame"></iframe></body></html>';
+ const {importer,preview}=await importFile('private.html',input);await importer.screenshot({path:path.join(evidence,'importer.png')});
+ await preview.locator('#format').selectOption('json');await expect(preview.locator('#save')).toBeEnabled();const json=await save(preview,'imported.json');const snapshot=JSON.parse(await fs.readFile(json,'utf8'));expect(snapshot.schemaVersion).toBe('1.0.0');expect(snapshot.source).toEqual({type:'html',origin:'local'});expect(JSON.stringify(snapshot)).not.toContain('IMPORT_SECRET');expect(snapshot.tree).toBeTruthy();
+ const round=await importFile('roundtrip.json',await fs.readFile(json));await round.preview.locator('#format').selectOption('json');await expect(round.preview.locator('#save')).toBeEnabled();const json2=await save(round.preview,'roundtrip.json');expect(JSON.parse(await fs.readFile(json2,'utf8'))).toEqual(snapshot);
+ await preview.locator('#format').selectOption('zip');await expect(preview.locator('#save')).toBeEnabled();const archive=await save(preview,'imported.zip');
+ const {execFileSync}=await import('node:child_process');const unpack=path.join(evidence,'unpacked');execFileSync('python3',['-c',`import zipfile,hashlib,json,pathlib; p=pathlib.Path(${JSON.stringify(unpack)}); z=zipfile.ZipFile(${JSON.stringify(archive)}); z.extractall(p); m=json.loads(z.read('manifest.json')); assert all(hashlib.sha256(z.read(e['path'])).hexdigest()==e['sha256'] for e in m['entries']); assert z.testzip() is None`]);
+ const opened=await context.newPage();const network=[];opened.on('request',r=>{if(/^https?:/.test(r.url()))network.push(r.url());});await opened.goto('file://'+unpack+'/index.html');await expect(opened.locator('h2')).toHaveText('本地资产');expect(await opened.locator('script,iframe,[onclick],[src^=http]').count()).toBe(0);expect(network).toEqual([]);expect(requests).toEqual([]);context.off('request',listener);
+ const htmlRound=await importFile('roundtrip.html',await fs.readFile(unpack+'/index.html'));await htmlRound.preview.locator('#format').selectOption('json');await expect(htmlRound.preview.locator('#save')).toBeEnabled();const htmlJSON=JSON.parse(await fs.readFile(await save(htmlRound.preview,'html-roundtrip.json'),'utf8'));expect(JSON.stringify(htmlJSON.tree)).toContain('本地资产');expect(JSON.stringify(htmlJSON.tree)).not.toContain('IMPORT_SECRET');await htmlRound.preview.close();await htmlRound.importer.close();
+ await opened.close();await preview.close();await importer.close();await round.preview.close();await round.importer.close();
+});
+test('SVG import gradients, PNG download; raster visual-only and malformed file recovery',async()=>{
+ const requests=[];const listener=r=>{if(r.url().includes('attacker.invalid'))requests.push(r.url());};context.on('request',listener);
+ const input='<svg style="background-image:image-set(&quot;https://attacker.invalid/svg&quot; 1x)" xmlns="http://www.w3.org/2000/svg" width="160" height="80"><defs><linearGradient id="a"><stop stop-color="red"/><stop offset="1" stop-color="blue"/></linearGradient></defs><rect width="160" height="80" fill="url(#a)"/></svg>';
+ const {importer,preview}=await importFile('chart.svg',input);await preview.locator('#format').selectOption('png');await expect(preview.locator('#save')).toBeEnabled();const file=await save(preview,'import.png');const pixels=PNG.sync.read(await fs.readFile(file));expect([pixels.width,pixels.height]).toEqual([160,80]);expect(pixels.data[0]).toBeGreaterThan(pixels.data[2]);
+ await preview.locator('#format').selectOption('svg');await expect(preview.locator('#save')).toBeEnabled();const svgFile=await save(preview,'imported-graphic.svg');const openedSVG=await context.newPage();await openedSVG.goto('file://'+svgFile);expect(requests).toEqual([]);await openedSVG.close();context.off('request',listener);
+ const raster=await importFile('pixel.png',await fs.readFile(file));await expect(raster.preview.locator('#capability')).toContainText('visual-only');await raster.preview.locator('#format').selectOption('json');await expect(raster.preview.locator('#save')).toBeEnabled();const json=await save(raster.preview,'raster.json');expect(JSON.parse(await fs.readFile(json,'utf8')).resources[0].sha256).toMatch(/^[a-f0-9]{64}$/);
+ await importer.locator('#file').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{bad')});await expect(importer.locator('#status')).toContainText('失败');await expect(importer.locator('#file')).toBeEnabled();
+ await preview.close();await importer.close();await raster.preview.close();await raster.importer.close();
+});
+test('worker restart restores session; expiry and sender/schema rejection',async()=>{
+ const preview=await exportTarget('#table-demo h2','json');const url=preview.url();
+ const targets=(await cdp.send('Target.getTargets')).targetInfos;const sw=targets.find(t=>t.type==='service_worker'&&t.url.includes(extensionId));await cdp.send('Target.closeTarget',{targetId:sw.targetId});
+ await preview.reload();await expect(preview.locator('#save')).toBeEnabled();expect(preview.url()).toBe(url);
+ const rejected=await preview.evaluate(async()=>chrome.runtime.sendMessage({type:'capture',format:'html',snapshot:{}}));expect(rejected.error).toContain('来源');
+ await preview.evaluate(async()=>{const {captures}=await chrome.storage.session.get('captures');captures.forEach(c=>c.created=Date.now()-600001);await chrome.storage.session.set({captures});});await preview.reload();await expect(preview.locator('#message')).toContainText('过期');await expect(preview.locator('#save')).toBeDisabled();await preview.close();
+});
+test('capture failure retry resets omissions; cancellation during bounded work',async()=>{
+ await page.locator('#table-demo').evaluate(el=>{const image=document.createElement('img');image.src='data:image/png;base64,'+'A'.repeat(2000004);el.append(image);});await start();await page.locator('#table-demo h2').click();await page.keyboard.press('Enter');await expect(page.locator('[data-uip-picker] #error')).toContainText('超过');
+ await page.locator('#table-demo').evaluate(el=>el.querySelector('img').remove());const pending=context.waitForEvent('page',p=>p.url().includes('/preview.html'));await page.keyboard.press('Enter');const preview=await pending;await expect(preview.locator('#save')).toBeEnabled();await preview.locator('#format').selectOption('json');await expect(preview.locator('#save')).toBeEnabled();const file=await save(preview,'retry.json');const s=JSON.parse(await fs.readFile(file,'utf8'));expect(s.resources).toHaveLength(0);expect(s.omissions.join()).not.toContain('超过');await preview.close();
+ await page.locator('#table-demo').evaluate(el=>{for(let i=0;i<1000;i++)el.append(document.createElement('span'));});await start();await page.locator('#table-demo h2').click();await page.keyboard.press('Enter');await page.keyboard.press('Escape');await expect(page.locator('[data-uip-picker]')).toHaveCount(0);await page.waitForTimeout(200);expect(context.pages().filter(p=>p.url().includes('/preview.html'))).toHaveLength(0);
+});
+test('complex fixture paired pixel goldens across viewports and themes + SnapDOM control',async()=>{
+ const metrics=[];
+ for(const width of [1200,640])for(const theme of ['light','dark']){
+ await page.setViewportSize({width,height:900});await page.emulateMedia({colorScheme:theme});await page.goto('http://127.0.0.1:18787/complex-components.html');await page.evaluate(()=>document.fonts.ready);
+ const preview=await exportTarget('#complex h2');const file=await save(preview,`complex-${width}-${theme}.html`);const source=await page.locator('#complex').screenshot({path:path.join(evidence,`complex-${width}-${theme}-source.png`)});
+ const opened=await context.newPage();await opened.setViewportSize({width,height:900});await opened.emulateMedia({colorScheme:theme});await opened.goto('file://'+file);await opened.evaluate(()=>document.fonts.ready);const output=await opened.locator('body>section').screenshot({path:path.join(evidence,`complex-${width}-${theme}-export.png`)});
+ const a=PNG.sync.read(source),b=PNG.sync.read(output);expect([a.width,a.height]).toEqual([b.width,b.height]);let changed=0,mae=0;for(let i=0;i<a.data.length;i+=4){let max=0;for(let j=0;j<3;j++){const d=Math.abs(a.data[i+j]-b.data[i+j]);max=Math.max(max,d);mae+=d;}if(max>16)changed++;}const result={width,theme,pixelWidth:a.width,pixelHeight:a.height,changedPixelRatio:changed/(a.width*a.height),meanAbsoluteChannelError:mae/(a.width*a.height*3)};metrics.push(result);
+ await fs.writeFile(path.join(evidence,'complex-diff.json'),JSON.stringify({conditions:'same browser, viewport, state, font readiness; threshold channel16; source vs export, no baseline replacement',metrics},null,2));
+ expect(await opened.locator('linearGradient').count()).toBe(1);expect(await opened.locator('clipPath').count()).toBe(1);await expect(opened.locator('body')).toContainText('开放 Shadow 内容');await expect(opened.locator('body')).toContainText('状态：');
+ // Quantitative acceptance is intentionally bounded, not a claim of pixel identity.
+ expect(result.changedPixelRatio).toBeLessThan(.04);expect(result.meanAbsoluteChannelError).toBeLessThan(4);
+ if(width===1200&&theme==='light'){await page.addScriptTag({path:'node_modules/@zumer/snapdom/dist/snapdom.js'});const capture=await page.evaluate(async()=>{const r=await snapdom(document.querySelector('#complex'),{embedFonts:false,dpr:1});const p=await r.toPng();return p.src;});const raw=Buffer.from(capture.split(',')[1],'base64');await fs.writeFile(path.join(evidence,'snapdom-complex.png'),raw);const p=PNG.sync.read(raw);let snapChanged=0,snapError=0;if(p.width===a.width&&p.height===a.height)for(let i=0;i<a.data.length;i+=4){let max=0;for(let j=0;j<3;j++){const d=Math.abs(a.data[i+j]-p.data[i+j]);snapError+=d;max=Math.max(max,d);}if(max>16)snapChanged++;}await fs.writeFile(path.join(evidence,'snapdom-complex.json'),JSON.stringify({source:[a.width,a.height],snapdom:[p.width,p.height],changedPixelRatio:p.width===a.width&&p.height===a.height?snapChanged/(a.width*a.height):null,meanAbsoluteChannelError:p.width===a.width&&p.height===a.height?snapError/(a.width*a.height*3):null,decision:'dev-only; input privacy and foreignObject sanitizer boundary remain, see table control'},null,2));}
+ await opened.close();await preview.close();
+ }await page.setViewportSize({width:1200,height:900});await page.emulateMedia({colorScheme:'light'});
+});
+
+test('review regressions: transformed root, broad DOM, format race and unsafe SVG import',async()=>{
+ await page.evaluate(()=>{const el=document.createElement('section');el.id='transformed';el.style.cssText='box-sizing:border-box;padding:0;border:0;width:100px;height:50px;background:red;transform:scale(2);transform-origin:0 0;margin:60px';el.textContent='变换';document.body.append(el);});
+ const preview=await exportTarget('#transformed');const file=await save(preview,'transform.html');const opened=await context.newPage();await opened.goto('file://'+file);const box=await opened.locator('body>div>section').boundingBox();expect(Math.round(box.width)).toBe(200);expect(Math.round(box.height)).toBe(100);await opened.close();
+ await preview.locator('#format').selectOption('zip');await preview.locator('#format').selectOption('json');await expect(preview.locator('#save')).toBeEnabled();await expect(preview.locator('#message')).toContainText('JSON');const json=await save(preview,'format-race.json');const snapshot=JSON.parse(await fs.readFile(json,'utf8'));expect(snapshot.schemaVersion).toBe('1.0.0');await preview.close();
+ await page.locator('#table-demo').evaluate(el=>{const h=document.createElement('h2');h.textContent='wide';el.replaceChildren(h);for(let i=0;i<20000;i++)el.append(document.createElement('span'));});await start();await page.locator('#table-demo h2').click({force:true});await page.keyboard.press('Enter');await expect(page.locator('[data-uip-picker] #error')).toContainText('5000');await page.screenshot({path:path.join(evidence,'failure-node-limit.png')});await page.keyboard.press('Escape');
+ const importer=await context.newPage();await importer.goto(`chrome-extension://${extensionId}/import.html`);snapshot.tree.style['background-image']='image-set("https://attacker.test/tracker" 1x)';await importer.locator('#file').setInputFiles({name:'malicious.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(snapshot))});await expect(importer.locator('#status')).toContainText('活动样式');await importer.close();
 });

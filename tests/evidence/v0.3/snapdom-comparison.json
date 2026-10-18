@@ -1,0 +1,15 @@
+{
+  "version": "3.3.4",
+  "sourceDimensions": [
+    1000,
+    238
+  ],
+  "snapdomDimensions": [
+    1000,
+    237
+  ],
+  "changedPixelRatio": null,
+  "containsForeignObject": true,
+  "unredactedTextInputInCapture": true,
+  "decision": "Keep dev-only. Table baseline already close; raw core is not a sanitizer and captures text input. No product integration."
+}

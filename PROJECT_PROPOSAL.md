@@ -1,18 +1,14 @@
 # Intelligent UI Portability · 项目立项书与工程方案
 
-> 版本：v0.2 接手修订 · 2026-10-16。保留原立项结构；未来方案与当前实测状态分开。所有导出均为 static。
-> 当前原型：`UI Portability Lab`，一个独立的 Chrome/Edge Manifest V3 本地研究扩展。与 OpenAI 无关联、未宣称官方兼容。 
+> v0.3.0接手修订 · 2026-10-18。保留原立项结构、原项目与历史证据；当前事实按下列Decision及链接文档收敛。与OpenAI无关联，未宣称官方兼容。
 
 ## 1. 目标、非目标和判定标准
 
-**目标：** 把用户有权保存的交互式网页内容转换成独立、可验证、长期可用的存档。优先覆盖 GPT-6 Intelligent UI 类使用场景，但不得预设可获得 ChatGPT 的原生结构或事件代码。
+将用户有权保存的智能界面转换成可携带、可验证的内容。长期关注GPT-6 Intelligent UI类场景，但不得预设可获得ChatGPT的原生组件树、专有事件或代码。当前保存允许页面DOM或用户主动提供的离线文件。
 
-- 核心：选择单个界面 → 捕获用户可见内容和有限状态 → 生成带完整性声明的中间表示（IR） → 导出离线 HTML、Markdown、SVG/PNG（按能力）、JSON；未来打包为 ZIP。
-- 辅助：保留来源与日期，提示外部资源遗漏，提供用户隐私控制；对已知组件类型，可独立重建交互应用。
-- **非目标：** 无损复制 ChatGPT 客户端、反编译/提取 OpenAI 专有组件、抓取全部聊天历史、绕过登录/限流/保护措施、无依据地宣称导出 HTML 与源应用等价。
-- 不要求调用任何 LLM 或支付 API 费用才能完成静态保存。
+HTML优先保留来源视觉、比例、字体回退与当前可见状态；Markdown服务笔记，JSON承担版本化IR，SVG/PNG按真实范围输出，ZIP封装已有资源。导出不套品牌、装饰标题或AI重设计。默认本地，无后端、付费API或账号。
 
-成功不是“导出一个文件就算完成”，而是 **内容正确、隐私有边界、可溯源、无法复现的行为明确列出**。无损导出属于待研究问题，不是计划承诺。
+成功标准是内容正确、隐私有边界、结果可溯源、无法恢复的部分可见。静态快照不是原应用的无损复制；当前static和visual-only明确区分，重建交互须另行验收。
 
 ## 2. 已验证的外部事实与行业参考
 
@@ -30,153 +26,62 @@
 
 ## 3. 格式决策（Decision）
 
-| 格式 | 产品角色 | 第一版策略 | 限制 |
-|---|---|---|---|
-| **HTML** | 静态视觉保真归档的默认格式 | 优先实现 | 默认禁止执行原站 JS，不等于原始交互 |
-| **JSON/IR** | 版本化内部合同和验收依据 | 优先实现 | 结构需要持续演进，不等于原生 UI 表示 |
-| **Markdown** | Obsidian、笔记、Git 仓库 | 优先实现 | 图表及复杂布局应使用资源引用或 fallback |
-| SVG/PNG | 可视化素材 | 优先提供 SVG；PNG 候选 | 图片丢失互动；字体、Canvas、跨域等有限制 |
-| **ZIP** | 多文件交付，未来默认高级产物 | 后续实现 | 须包含 manifest/checksum 与资源清单 |
-| PDF | 打印/分享 | 后续实现 | 静态页面可打印 PDF，不解决交互 |
-| Zeplin | 设计交付平台 | 不属于核心导出格式 | 如有设计协作需求再做适配 |
+HTML为主要视觉产物；Markdown保留语义并明确复杂视觉降级；JSON为IR1.0.0完整快照，独立诊断不含正文。SVG仅根SVG，PNG仅根SVG或导入图片。ZIP实际包含HTML/IR/MD/资源/manifest/SHA-256/报告，不抓跨域资源。PDF为Proposal。各格式边界唯一详表见[保真矩阵](docs/FIDELITY_MATRIX.md)。
 
-长期推荐：**一个 IR + 多个渲染器**。对于需要真正离线交互的场景，生成可信的 HTML + JS + assets 并打包 ZIP；对尚无法重建的原生组件，只能发布静态或半结构化快照。
+## 4. 技术架构（Decision）
 
-## 4. 技术架构（Proposal）
+保留v0.2选择流程，拆成独立捕获、净化契约、格式渲染、归档、会话和扩展页模块；原生JS加轻量本地构建，不引入大型框架。每次捕获独立上下文，取消/错误不污染后续结果。渲染器只消费经过严格校验与资源hash验证的IR，不访问来源身份或网络。
 
-```text
-[用户提供的数据 / 官方数据导出 / 被许可的可见页面]
-              │
-      [Source Adapter]  ← 只允许合规输入源
-              │
-      [Capture Snapshot]  ← DOM、SVG、可见文本、有限控件状态
-              │
-      [Normalize + Sanitize]  ← 脱敏、资源策略、白名单校验
-              │
-      [IR v0.x]  ← nodes, assets, state, provenance, omissions
-              │
-       ├── Static HTML renderer
-       ├── Markdown renderer
-       ├── SVG/PNG renderer
-       ├── Archive ZIP renderer（后续）
-       └── Rebuilder（后续，只支持白名单组件）
-              │
-      [Fidelity + Safety Report]
-```
-
-**IR 草案：** `schemaVersion`、`source`（类型、日期、可信级别、脱敏的域名）、`nodes`、`assets`（本地 hash 与 MIME）、`state`（仅被明确允许的值）、`capabilities`、`omissions`、`provenance`、`securityReport`。对每个字段增加 `captureMethod` 和 `fidelity`（captured/reconstructed/unsupported）很重要。当前演示原型仅有 `static-snapshot` JSON；不能声称已实现正式组件 IR。
-
-**v0.2 实际落地：** 上图为长期方案；当前只有净化后的 static-snapshot DTO 和多格式序列化，没有正式 IR、文件/官方包导入器或 Rebuilder。现有数据流见 [ARCHITECTURE](docs/ARCHITECTURE.md)。
-
-**各层职责：** 来源适配器不负责导出；捕获层不解释平台私有行为；格式渲染器不主动访问来源站点；重建模块必须使用确定的输入和经过审查的模板，不能执行未经确认的模型生成脚本。
+离线HTML/SVG在唯一来源、无扩展API的sandbox里净化；JSON在Worker校验、未知版本失败关闭；图片编码像素预检后重新编码PNG，标记visual-only。schema定义、迁移策略、资源与状态契约、上限、数据流见[实际架构](docs/ARCHITECTURE.md)，不是ChatGPT协议。
 
 ## 5. 获取路径与合规闸门
 
-优先级按风险从低到高：
+用户主动提供的HTML/SVG/JSON/图片和明确允许的本地页面已实现。提供文件不自动证明内容处理权。官方账户包有正式导出渠道，但本轮没有真实授权样本，不猜字段或宣布专用支持。ChatGPT原生UI没有确认到正式允许的自动提取途径，Popup与后台双重禁用。
 
-1. **用户主动下载的官方数据包，离线处理。** 不需要扩展访问 ChatGPT 内部端点。缺点是包里未必有原生 UI，必须用真实样本验证。
-2. **用户主动提供的内容、复制的文本或 HTML/SVG、截图。** 本地转换不依赖抓取网站；缺点是需要手工操作、信息可能缺失。
-3. **对已获得使用许可的网站进行显式元素选择与可见区域捕获。** 技术实验可以在本地 fixture 验证；用于 ChatGPT 前必须单独完成合规评估。
-4. **私有端点、会话 cookie/token、拦截内部流、反编译客户端。** 不进入预设实施方案。不能因为某个 GitHub 项目采用过就视为被允许。
-
-**合规 Gate（强制）：** 适用的服务协议检查完成 → 明确允许的集成机制或获得授权 → 明确数据范围与用户同意 → 最小权限方案 → 再启用 ChatGPT 专用适配。未通过时必须保持 `blocked`，绝不把“用户点击了按钮”当成足以绕过条款的授权。
-
-**封号风险：** 现有使用条款允许对违反条款的账户采取限制措施，但无证据能量化特定用户主动保存行为的封号概率；不能宣传“零风险”或“必然封号”。
+不得使用Cookie/token、私有会话端点、内部流或反编译组件。浏览器activeTab授权不等于网站提取许可。完整的授权/技术稳定性/隐私与账号风险矩阵见[安全与合规](docs/SECURITY_AND_COMPLIANCE.md)。
 
 ## 6. 威胁模型和安全边界
 
-| 风险 | 典型触发 | 缓解策略 | 严重度 |
-|---|---|---|---|
-| 账号与协议风险 | 抓内部 `/backend-api/`，获取 session token | 禁止私有 API、cookie 访问；ChatGPT 适配单独 Gate | 严重 |
-| 隐私泄露 | 全页扫描、后台自动上传、自动保存输入内容 | 只读显式选中区域、本地处理、默认输入脱敏 | 严重 |
-| 导出内容 XSS | 恶意 HTML / `onerror` / `javascript:` URI | 标签/属性白名单、静态 HTML CSP、无脚本输出 | 严重 |
-| 远程资源泄露 | 导出 HTML 后加载带签名 URL 的图片 | 默认禁止网络资源加载，仅接受受控 data: 图像 | 高 |
-| 数据完整性丢失 | 虚拟列表、流式组件、Shadow DOM、iframe | 标注缺失；不声称完整；构造对照样本 | 高 |
-| UI 漂移 | 官方迭代导致 DOM 改动 | 平台适配器隔离 + fixture 回归 + 失败即停 | 高 |
-| 恶意重建代码 | AI 生成的 JS 直接在高权限扩展中执行 | 重建应用使用沙箱、无扩展权限、只允许打包内代码 | 高 |
-| 性能与内存 | 5 万节点 DOM、超大 Canvas | 节点/深度/字节数上限、超限明确失败且不生成残缺文件 | 中 |
-| 版权与素材权 | 非用户所有的图片、第三方图表 | 素材许可清单、来源标记、不保证输出具备全部再分发权 | 中 |
-| 扩展商店审核 | 广泛 host 权限、远程代码或模糊数据声明 | MV3、本地代码、最小权限、明示用途与隐私政策 | 高 |
+权限activeTab/scripting，新增storage仅供会话恢复；无host_permissions/cookies/webRequest/downloads或远程执行代码。session最多3份、7.5MB估算、10分钟访问有效期；SW重启恢复，浏览器会话结束/扩展重载清空。过期物理清理按后续访问执行，不承诺内存安全擦除。
 
-**权限原则：** Chrome/Edge MV3；初期 `activeTab` + `scripting`，不声明 `host_permissions`、`cookies`、`webRequest`、`downloads`、`storage`。页面内原生下载不需要 `chrome.downloads`。没有周期任务、远程代码、后台追踪、网络采集。
+标签/属性/样式函数白名单、资源MIME/hash/像素验证、CSP和预览sandbox共同约束不可信内容。正文与Canvas秘密不能自动识别；报告明确提示。DOM节点/深度/文本/资源限额和分批取消有真实失败测试，纯Worker转换可终止；单次浏览器原生调用不能伪称硬超时。
 
-## 7. 浏览器与平台适配矩阵（计划，非已测试支持）
+## 7. 浏览器与平台适配矩阵
 
-| 运行环境 | 优先级 | 策略 |
-|---|---|---|
-| Chrome 桌面 | P0 | MV3 解压安装，本地 fixture 验证 |
-| Edge 桌面 | P1 | 共享 Chromium 实现，独立回归 |
-| Firefox 桌面 | P2 | 封装 WebExtensions 差异，审查兼容 API |
-| Safari / iOS | P3 | 独立扩展/分享面板方案 |
-| ChatGPT 网页 | **受合规闸门约束** | 合规可行性、实际组件样本、稳定适配器 |
-| ChatGPT 原生手机应用 | 不在首期 | 浏览器扩展无法直接运行在原生 App 内；需官方入口或用户提供文件 |
-| Obsidian | P1 | Markdown+assets、YAML frontmatter、资源相对路径 |
-
-适配检测不能只看 `chatgpt.com` 域名；应考虑 streaming 阶段、页面虚拟化、暗色/浅色、移动/桌面、iframe/Shadow DOM、对话折叠、不同组件和状态。不得为适配而绕过隔离或认证设计。
+| 平台 | 状态 |
+|---|---|
+| WSL Ubuntu24.04，Playwright Chromium156.0.8078.4 | Tested：真实MV3工具栏Popup到下载文件打开；非API mock |
+| Chrome/Edge稳定版本、Windows原生GUI | Unverified：提供安装入口，不由Chromium测试推定通过 |
+| Chromium114最低声明 | Unverified：语法target与API最低要求，不是逐版本测试 |
+| Obsidian GUI各主题/版本 | Unverified：Markdown语义与转义有自动测试，无完整GUI适配承诺 |
+| ChatGPT原生提取 | Blocked：缺少确认的合法正式接入 |
 
 ## 8. 产品范围与阶段门
 
-**Exploration / P0 · 技术和合规发现（首先完成）**
+Decision：v0.3完成模块化、正式IR、离线输入、静态保真、完整归档、会话恢复、安全和自动化；不需要等待ChatGPT接入才能形成可用产品。
 
-- 收集 10–20 个可合法用于测试的组件样本：文字卡片、对比表、SVG、Chart、Slider、Form、计算器、地图、Canvas、iframe；各自记录 DOM 类型、实际可见性、是否动态、资源来源。
-- 对官方数据导出包进行本地解析验证（用户自主取得的样本）。确认是否存在足够的组件信息。
-- 用本地页面评估原生 DOM、SnapDOM、截图三条路径，输出 fidelity matrix。完成合规 Gate 文档。
+Exploration：复杂页面保真与捕获技术持续比较，SnapDOM仅开发对照，当前不引入生产。
 
-**Proposal / P1 · 静态 MVP**
+Proposal：PDF、任意HTML截图回退、官方账户包专用解析、自有源码组件的独立交互重建；本轮不将任何静态结果标为reconstructed-tested。
 
-- 显式选择 → 安全过滤 → HTML / Markdown / JSON / SVG 导出；不请求网络数据。
-- 错误、资源缺失、脱敏记录可审计；单元素不会触发原网页按钮。
-- 提供浏览器测试页、单元/烟雾测试以及真实浏览器人工验收说明。
-
-**Proposal / P2 · 正式 IR 与质量验证**
-
-- `snapshot.schema.json`、迁移策略、黄金样本、视觉差异截图、内容对照。
-- 支持资源打包、SHA-256 完整性清单、ZIP 归档和大文件失败恢复。
-
-**Proposal / P3 · 可交互恢复**
-
-- 用确定模板重建：输入/输出型计算器、图表数据切换、滑块控制的数学图像。
-- 每种类型要求输入输出等价测试；第三方地图、搜索、服务器操作不能随意伪造离线支持。
-- UI 支持等级：`static` / `state-preserved` / `reconstructed-tested`，且必须用户可见。
-
-**Proposal / P4 · 分发与集成**
-
-- Chrome/Edge 商店、安全审核、Obsidian 归档模板、多文件包与可选 PDF。
-- 只有在官方接口/条款明确允许并通过 P0 Gate 后，才评估 ChatGPT 专用适配器。
+Deprecated：v0.2内存Map、混合所有职责的picker与非版本化static-snapshot；仅作为历史保留，不作为当前架构。
 
 ## 9. 验收与失败标准
 
-- **安全：** 敏感文本输入、密码字段不进入快照；导出的 HTML 不包含 `script` / 事件处理 / 远程 URL；扩展没有持久站点权限；不获取会话身份信息。
-- **内容：** 对标准 HTML 表格，数据与顺序准确；可选 SVG 可保存几何描述；Markdown 保留公式文本和基本标题结构。
-- **视觉：** 相同 viewport/状态/字体条件下按组件边界比较来源与本地 HTML 截图；v0.2 表格 golden 已通过数值门槛，其余暗色/公式样本按结构/样式断言及真实截图记录。不能承诺所有复杂 CSS 100% 一致。
-- **交互：** P1 的 HTML 是静态快照；按钮无反应属于约定行为，不应被归类为功能失败。P3 另行规定功能等价。
-- **失效：** 对不受支持类型可解释地失败，不能静默丢失内容；超限、iframe、cross-origin 资源必须列在 omissions。
-- **回归：** 构建产物不含远程执行代码；对每个新适配器跑 golden fixtures、权限审计、脱敏与视觉回归。
-- **商店与真实 ChatGPT：** 尚未验证；不能作为当前已完成验收。
+真实Popup→Overlay→捕获→安全预览→下载→打开必须通过。离线HTML/JSON往返、SVG/PNG、ZIP解压/哈希/无网络、SW真实终止恢复/过期、失败重试状态隔离、XSS/敏感输入/超限和复杂组件深浅宽窄像素比较都自动化。严格区分测试通过、实现但平台未测、受授权限制和仅有方案。
 
-## 10. 当前实现状态（2026-10-16）
+打包必须比对完整测试前后扩展hash与实际ZIP内文件；源码与安装包包含构建基准和逐文件hash。不能通过更新视觉基线掩盖缺陷。验收证据与命令以[测试报告](tests/TEST_REPORT.md)为唯一结果来源。
 
-| 项目 | 状态 | 证据 |
-|---|---|---|
-| MV3 Popup → 选区 → 沙箱预览 → 下载 → 本地打开 | Implemented / Tested | Chrome for Testing156，真实工具栏授权/Popup，无 chrome API mock；tests/mv3.spec.mjs |
-| 容器父子选择、取消/重复/跨 tab | Implemented / Tested | 同上；原标题点击缺表格故障保留基线复现 |
-| HTML/Markdown/JSON/SVG静态导出、安全过滤/遗漏 | Implemented / Tested | security、wave、calculator 与 omissions 实际下载；全部 static |
-| 表格视觉 golden | Tested | 1000×238，变化像素阈值>16的比例0、均误差约0.0583；非全站无损 |
-| 节点/深度错误、SVG格式错误、过期预览 | Tested | 明确失败不下载，完整日志 tests/evidence/test-run.txt |
-| npm test | Tested | 全部扩展JS语法/权限检查 + 8项MV3及1项页面测试，9 passed |
-| Windows稳定版 Chrome / Edge / 商店 | Unverified | 本轮无这些浏览器运行证据；提供人工步骤，不据Chromium推断通过 |
-| GPT-6 Intelligent UI真实兼容 | Blocked | 未确认原生导出授权路径；域名阻止保留 |
-| 正式IR、导出PNG/PDF/ZIP、交互重建、官方包导入 | Proposed | 无实现声明；工程交付ZIP不等于内容导出ZIP |
+## 10. 当前实现状态（2026-10-18）
 
-详细产品规范、竞品/许可研究、保真和安全边界、验收证据分别见 docs/ 与 tests/TEST_REPORT.md。SingleFile当前运行UI截图未取得，竞品运行能力未冒充本项目验证。
+Implemented：模块化捕获、安全IR1.0.0、本地文件导入、HTML/MD/JSON及有限SVG/PNG、ZIP、独立报告、会话恢复、紧凑UI、CI配置和测试绑定打包。真实结果/截图见测试报告；CI远端运行未验证，本轮不推送。
+
+Blocked：原生ChatGPT数据获取及无数据的完整交互恢复。Unverified：其他浏览器/真实官方账户包。Proposal：PDF等上述后续选项。没有为了版本号虚构原生交互或全网站兼容。
 
 ## 11. 立项决策记录
 
-- **Decision：** HTML + IR + Markdown 是第一阶段骨架，后续 ZIP 才是可交付互动项目的适当容器。
-- **Decision：** 源适配与输出渲染解耦；任何新格式不允许影响数据获取权限。
-- **Decision：** 安全和来源透明度优先于视觉 100% 相似。
-- **Decision（v0.2）：** SnapDOM3.3.4 已做同条件对照，当前表格未见足够收益且默认捕获普通输入值；只留开发测试依赖，不进入生产扩展。复杂CSS/字体收益待后续评测。
-- **Decision（v0.2）：** HTML 来源样式不加品牌页眉/卡片；能力/遗漏放预览与不可见元数据。单个控件值保留也不升级整体能力等级。
-- **Proposal：** 对用户熟悉的公式/图表按类型实现独立解释器；模型重建代码不得拥有浏览器扩展权限。
-- **Deprecated / Rejected：** 直接调用未公开的 ChatGPT 内部接口、尝试复制客户端私有 bundle、后台批量抓取历史、输出 HTML 后宣称保留全部原始交互。
-- **Unknown：** 官方是否会提供 Intelligent UI Export API、官方数据包中包含哪些组件字段、哪些具体用户操作在适用协议下被允许。
+- v0.1接手：保留成果，先复现，不按README判断完成。
+- v0.2：建立static边界、真实扩展E2E、视觉优先与合规Gate；历史资产不覆盖。
+- v0.3：以离线数据入口和版本化IR形成独立可用闭环；拆分职责、增加会话级storage而不扩大网站权限；纯诊断与正文分离。
+- 当前许可证保持UNLICENSED。MIT/Apache-2.0/保留所有权的依据见[依赖与许可](docs/DEPENDENCIES.md)，所有者未决定前不授予新的复用许可。
+- 用户仅授权本轮本地分支提交；不推送、合并、建PR或上架。

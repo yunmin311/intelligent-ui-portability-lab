@@ -1,0 +1,67 @@
+
+> intelligent-ui-portability-lab@0.3.0 test
+> node scripts/test.mjs
+
+PASS: MV3 permissions, recursive syntax, network/credential boundaries
+✔ IR roundtrip and separate diagnostic (11.636583ms)
+✔ fail closed on active attributes, resource URLs, schema, sizes and capabilities (0.935891ms)
+✔ session boundaries, expiry, capacity and malformed dates (8.753659ms)
+✔ resource integrity and future version failure (2.286282ms)
+✔ ZIP CRC reference and deterministic bytes (0.325619ms)
+✔ deep, wide and text stress fails without partial output (0.788125ms)
+✔ SVG local refs allowed, active namespace/type tricks fail, diagnostic contains no content (0.269798ms)
+✔ review regressions: missing dimensions and CSS resource functions rejected (0.337148ms)
+✔ encoded image size checked before decoding (0.196735ms)
+✔ Markdown nested visuals are explicit rather than silently dropped (0.416838ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 121.076881
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:51:44] "GET / HTTP/1.1" 200 -
+
+Running 15 tests using 1 worker
+
+(node:20240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:51:45] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:51:45] code 404, message File not found
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:51:45] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓   1 tests/engine.spec.mjs:2:1 › engine-only overlay and semantic container regression (not extension E2E) (333ms)
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:51:46] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:51:46] code 404, message File not found
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:51:46] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓   2 tests/mv3.spec.mjs:47:1 › real toolbar Popup → selection → preview → download → open + pixel golden (1.3s)
+  ✓   3 tests/mv3.spec.mjs:63:1 › cancel, repeat injection and tab isolation (1.3s)
+  ✓   4 tests/mv3.spec.mjs:68:1 › security inputs, hidden content, XSS, URL removal and Markdown escaping (2.7s)
+  ✓   5 tests/mv3.spec.mjs:79:1 › changed slider state, SVG paths, canvas, dark mode, narrow container (2.9s)
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:51:54] "GET /interactive-demo.html HTTP/1.1" 304 -
+  ✓   6 tests/mv3.spec.mjs:89:1 › limits fail clearly; SVG wrong region; expired preview (1.1s)
+  ✓   7 tests/mv3.spec.mjs:94:1 › SnapDOM controlled comparison and explicit omission reports (996ms)
+  ✓   8 tests/mv3.spec.mjs:108:1 › ChatGPT gate and browser internal page failure via actual Popup (593ms)
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:51:57] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:51:57] "GET /golden-components.html HTTP/1.1" 200 -
+  ✓   9 tests/mv3.spec.mjs:112:1 › golden grid, formula fallback, checkbox, Markdown table and depth failure (2.2s)
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:51:59] "GET /interactive-demo.html HTTP/1.1" 200 -
+
+  ✓  10 tests/mv3.spec.mjs:128:1 › local HTML hostile file → isolated conversion → IR roundtrip → ZIP offline checksums (4.3s)
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:52:03] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  11 tests/mv3.spec.mjs:140:1 › SVG import gradients, PNG download; raster visual-only and malformed file recovery (1.4s)
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:52:04] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  12 tests/mv3.spec.mjs:149:1 › worker restart restores session; expiry and sender/schema rejection (1.2s)
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:52:06] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  13 tests/mv3.spec.mjs:156:1 › capture failure retry resets omissions; cancellation during bounded work (1.7s)
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:52:07] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:52:07] "GET /complex-components.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:52:09] "GET /complex-components.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:52:10] "GET /complex-components.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:52:11] "GET /complex-components.html HTTP/1.1" 200 -
+  ✓  14 tests/mv3.spec.mjs:161:1 › complex fixture paired pixel goldens across viewports and themes + SnapDOM control (5.1s)
+[WebServer] 127.0.0.1 - - [18/Oct/2026 18:52:12] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  15 tests/mv3.spec.mjs:177:1 › review regressions: transformed root, broad DOM, format race and unsafe SVG import (1.7s)
+
+  15 passed (30.9s)
+Verified extension digest recorded for packaging.

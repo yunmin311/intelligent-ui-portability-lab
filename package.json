@@ -1,18 +1,22 @@
 {
   "private": true,
   "name": "intelligent-ui-portability-lab",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Local proof-of-concept static UI portability",
   "scripts": {
-    "test": "npm run test:static && npm run test:e2e",
+    "test": "node scripts/test.mjs",
     "test:static": "node tests/check.mjs",
     "test:e2e": "playwright test",
-    "package": "python3 scripts/package.py"
+    "package": "python3 scripts/package.py",
+    "build": "node scripts/build.mjs",
+    "test:unit": "node --test tests/unit/*.test.mjs"
   },
   "license": "UNLICENSED",
   "devDependencies": {
     "@playwright/test": "1.64.1",
     "@zumer/snapdom": "3.3.4",
+    "esbuild": "0.28.2",
     "pngjs": "7.0.0"
-  }
+  },
+  "type": "module"
 }

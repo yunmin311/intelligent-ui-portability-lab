@@ -1,0 +1,31 @@
+{
+  "version": "0.3.0",
+  "revision": "b1c08592d4262a9259548fb0a6777c178d97d70e",
+  "workingTreeModified": false,
+  "sourceDigest": "4e5c93bced953fe7c957d848475b917b839a5c249121e4d6dac4249f2702b7ba",
+  "files": {
+    "background.js": "483e340ba12889d8f37612bfb322cea0ad016726956dc047684e5cd18cc7241b",
+    "import-sandbox.html": "c6e6c636d36804f5b17825036d88770e9f3ef7b90d6d4cf56e22a9737fa3e303",
+    "import-sandbox.js": "81fe39e068a7684cf355fd62d3a1eb8498b23061e4b5372f4f879222495546be",
+    "import.html": "09cd35910870dcde7cb05d6e45159f925a8a04b5376c589f9c13109c29033d04",
+    "import.js": "2ae10761fc5f12d6b757b73e13e5f78d680a1f0f8682d734a83a4cdc25c5f3ac",
+    "manifest.json": "db67203e5ad56c0c68c99779555319ea757773a981e0656b2f80bb36ffe09709",
+    "picker.js": "5912cb6550b6b1252bba7047f83e329645ae2941fdd2e0c7f695789cf219d74f",
+    "popup.html": "0f513d2f67ffcb107e85feac2d4a7c2076e6c7e8394e19f3cda9e81951728625",
+    "popup.js": "08db81d4175f8b69a874d81dd57da2675f3b7a8f75bcce114c63c42da7d1b471",
+    "preview.html": "9de33e8cc2dd1026c8d52f2acfbb44f2ab6476bdc5821e1bf654427b0d1c4467",
+    "preview.js": "639cbc11ba129e8b8a517388fe82cd8376d91dbfa73ee63550b9139522a13673",
+    "src/capture/dom.js": "119c2bad7475ff7cf43b5333344d8c8a22aeb9462c0bd393d725676677331877",
+    "src/capture/picker.js": "4a04483638d18cff852974baad65d0a7013735d0cded158ccd79e99e3cd090e1",
+    "src/core/archive.js": "d27582a91543c2a1c331098bf45a394ebb500e14c0b309a0b1975cf43466cf74",
+    "src/core/ir.js": "0d2ba6c8dbf506c10f5747312ed5336a77755a41f247990d27c93e24367c2d15",
+    "src/core/policy.js": "cf2642fb3d634d91506e2259155d15c25906b14ebbb88aec6e2304ee500e87c4",
+    "src/core/raster.js": "fb18910daa14e03407fe59ce800fc9b0fbc97d94adcc79a9ce1a765d07c06de8",
+    "src/core/render.js": "0bd4cb31e348f0afd64c4ca68be821ecd75b6d358448881a966140ae80f150d1",
+    "src/core/session.js": "791636027f8111ca087b3d7b462065ad43c67278c576b13f1d836339f5e82b24",
+    "src/import-sandbox.js": "dd08d8ae674bbeecaf3704296f90291dc23b3e48f28fe65eebdfb859b5e9d633",
+    "src/jobs.js": "73a6e8b2b458c7522535a6d148ac8e38845d1653ede49644ca26c451123ab5f1",
+    "src/worker.js": "d5afad861ab4ed5db2b888c31f8ff2ad2b9981dc862e1064807266dba081534c",
+    "ui.css": "3008bf25f48e248c104c01f647dd4847946e561f98789f51fd1a9fad88356a07"
+  }
+}
