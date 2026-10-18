@@ -63,7 +63,7 @@ flowchart LR
 
 ## 导出封装
 
-HTML 固定初始画布、来源样式、禁止网络的 CSP；Static script-src none，交互模式只放行构建期固定产品运行时的 SHA-256 hash。SVG 属性和函数级净化，不依赖 HTML CSP。预览使用唯一来源、无扩展API的manifest sandbox；allow-scripts仅执行产品自有允许代码。MD 结构渲染；不内嵌执行脚本。PNG 仅 SVG 根或已有 PNG；HTML 截图未实现。
+HTML 固定初始画布、来源样式、禁止网络的 CSP；Static script-src none，交互模式只放行构建期固定产品运行时的 SHA-256 hash。SVG 属性和函数级净化，不依赖 HTML CSP。预览使用唯一来源、无扩展API的manifest sandbox；allow-scripts仅执行产品自有允许代码。MD 结构渲染；不内嵌执行脚本。PNG 仅 SVG 根或已导入栅格图片；HTML 截图未实现。
 
 ZIP 含 index.html、snapshot.json、notes.md、diagnostic.json、已获得的 resources/、可用的 graphic.svg、interaction-report.json、snapshot.css、需要时的interaction-runtime.js审阅副本、manifest.json、SHA256SUMS。manifest列实际内容文件的 bytes/hash，SHA256SUMS再覆盖manifest；两者不自引用。只封装已验证资源，无抓取。诊断接口不含 tree/正文/HTML/资源data；JSON下载明确是完整快照。
 

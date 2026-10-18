@@ -1,9 +1,9 @@
 {
   "version": "0.4.0",
-  "testedAt": "2026-10-18T11:36:52.392Z",
+  "testedAt": "2026-10-18T11:38:27.968Z",
   "files": {
     "background.js": "5bfcee13518d1f3aadc3fc86f13554a7c57ca693a9583713444d33e00ce89a2f",
-    "build-info.json": "0c94480234ecf7b7c9d185db8150d35f7c943c6ffa1aece9400c008e7f0f94a2",
+    "build-info.json": "a780d0b35bb17c2962cb878ec304c26639cd873395b98ce5b006c5d076ae6f10",
     "import-sandbox.html": "c6e6c636d36804f5b17825036d88770e9f3ef7b90d6d4cf56e22a9737fa3e303",
     "import-sandbox.js": "fc427e71248b87149be31fc65226e19a88039fa830b532edec12bc498b78fc4c",
     "import.html": "09cd35910870dcde7cb05d6e45159f925a8a04b5376c589f9c13109c29033d04",

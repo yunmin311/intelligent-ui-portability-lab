@@ -2,7 +2,7 @@
 
 日期：2026-10-18。开始前 fetch：实际 origin/main 为 `2e49833f5ecf37f6adf5a119bb904bf21ae6ef49`；原工作区干净。实现分支 `work/v0.4-selective-interactions`。v0.3 源码历史与验收资产保留。本轮仅本地提交，不推送、合并或发布。
 
-**Implemented / Tested：18 项单元 + 18 项浏览器测试通过。** 浏览器中 17 项实际加载 MV3 扩展，1 项普通页面选择器回归。依赖审计 0 漏洞。最终安装包的独立复测记录见下方“包与复现”。
+**Implemented / Tested：18 项单元 + 18 项浏览器测试通过。** 浏览器中 17 项实际加载 MV3 扩展，1 项普通页面选择器回归。依赖审计 0 漏洞。最终安装包独立复测另有4项真实MV3全部通过，记录见下方“包与复现”。
 
 ## 环境与证据边界
 
@@ -59,7 +59,7 @@ npm audit --audit-level=high
 npm run package
 ```
 
-测试前构建，测试前后比较扩展逐文件hash；打包拒绝未测或修改的扩展字节。`dist/v0.4.0/` 含extension/source ZIP、SHA256SUMS、package-manifest.json；安装ZIP解压后加载 `extension/`。build-info记录源码提交和构建时是否有改动，最终产物以逐文件hash为准。CHANGELOG v0.4节可作正式Release说明草稿，当前没有公开Release。
+测试前构建，测试前后比较扩展逐文件hash；打包拒绝未测或修改的扩展字节。`dist/v0.4.0/` 含extension/source ZIP、SHA256SUMS、package-manifest.json；安装ZIP解压后加载 `extension/`。build-info记录源码提交和构建时是否有改动，最终产物以逐文件hash为准。最终构建关联源码提交 `9d97937177e4ed9c0d66b4fc961d78f0aeaf9f05`，构建时工作区干净；之后的本地提交仅收口构建记录、文档与测试证据。CHANGELOG v0.4节可作正式Release说明草稿，当前没有公开Release。
 
 最终安装包解压后，另执行4项真实MV3：原主链路及全部3项v0.4案例，证据为 [package-smoke.log](evidence/v0.4/package-smoke.log)。不重新构建包内文件：
 

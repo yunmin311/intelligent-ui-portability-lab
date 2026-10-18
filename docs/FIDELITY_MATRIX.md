@@ -26,7 +26,7 @@ Markdown保留语义，不承诺像素；复杂SVG/MathML以文字提示查看HT
 
 ## 量化验证与技术选择
 
-详见 [测试报告](../tests/TEST_REPORT.md) 和 [实测指标](../tests/evidence/v0.3/complex-diff.json)。同一Chromium、viewport、主题、控件状态、font readiness下，直接对来源和导出组件截图比较，不更换基线来掩盖差异。检查尺寸一致、RGB通道差>16的像素比例及平均绝对通道误差；复杂样本门槛4%/4，不能推广为所有网页的准确率。
+详见 [测试报告](../tests/TEST_REPORT.md) 和 [实测指标](../tests/evidence/v0.4/complex-diff.json)。同一Chromium、viewport、主题、控件状态、font readiness下，直接对来源和导出组件截图比较，不更换基线来掩盖差异。检查尺寸一致、RGB通道差>16的像素比例及平均绝对通道误差；复杂样本门槛4%/4，不能推广为所有网页的准确率。
 
 SnapDOM 3.3.4仅开发依赖：简单表格与复杂样本实际对照，记录尺寸/差异；其SVG foreignObject路径与本项目严格SVG边界不同，且对输入的截图可能保留秘密。当前不集成、不声称通用截图回退已实现。来源视觉难以保留时报告差异，不通过AI重设计替代。
 
