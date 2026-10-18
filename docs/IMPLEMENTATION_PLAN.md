@@ -1,6 +1,6 @@
 # v0.4 实施与状态
 
-基准：2026-10-18 fetch 后 origin/main = 2e49833f5ecf37f6adf5a119bb904bf21ae6ef49；独立 work/v0.4-selective-interactions；初始工作区干净。v0.3 基线 10 单元 + 15 浏览器通过。当前 main CI run 39121539504 success。rulesets=[]，main protection API 返回 Branch not protected；只读核实，不修改管理配置。本轮只本地提交，不推送/合并/发布。
+基准：2026-10-18 fetch 后 origin/main = 2e49833f5ecf37f6adf5a119bb904bf21ae6ef49；独立 work/v0.4-selective-interactions；初始工作区干净。v0.3 基线 10 单元 + 15 浏览器通过。当前 main CI run 39121539504 success。rulesets=[]，main protection API 返回 Branch not protected；只读核实，不修改管理配置。初次交付仅本地提交；后续用户已授权验证后提交、推送、合并，Release发布仍未授权。
 
 ## Decision
 

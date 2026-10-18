@@ -4,7 +4,7 @@
 
 **当前支持选择性交互：浏览器原生折叠，以及项目自有、已验证的 Fourier 图表和筛选排序表格。未知行为静态降级，图片 `visual-only`。不复制来源脚本或完整响应式规则；ChatGPT 自动提取仍禁用。** 长期目标与当前能力见 [项目书](PROJECT_PROPOSAL.md)。
 
-当前交付入口：本轮本地 `dist/v0.4.0/` 的 extension/source ZIP、`SHA256SUMS` 和 `package-manifest.json`（先 `npm test && npm run package` 可重建）。尚未推送或发布 v0.4 Release；历史 v0.2 ZIP 仅供追溯，不是最新版。
+当前交付入口：本轮本地 `dist/v0.4.0/` 的 extension/source ZIP、`SHA256SUMS` 和 `package-manifest.json`（先 `npm test && npm run package` 可重建）。源码更新按验证后提交、推送、合并的流程交付；尚未发布 v0.4 Release；历史 v0.2 ZIP 仅供追溯，不是最新版。
 
 ## 安装与使用
 
@@ -65,4 +65,4 @@ python3 -m http.server 8765 --directory fixtures
 - [安全与合规 Gate](docs/SECURITY_AND_COMPLIANCE.md) · [依赖和许可选择](docs/DEPENDENCIES.md)
 - [测试、截图和剩余限制](tests/TEST_REPORT.md) · [变更清单](CHANGELOG.md)
 
-许可证保持 `UNLICENSED`：公开可见不代表授予复用许可。MIT、Apache-2.0 或保留所有权由所有者决定；未擅自改变授权。v0.2 历史证据和发布资产保留；本轮不推送、合并或发布商店。
+许可证保持 `UNLICENSED`：公开可见不代表授予复用许可。MIT、Apache-2.0 或保留所有权由所有者决定；未擅自改变授权。v0.2 历史证据和发布资产保留；提交、推送和合并已获授权；发布 Release 或商店仍需单独授权。

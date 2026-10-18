@@ -74,7 +74,7 @@ Deprecated：v0.2内存Map、混合所有职责的picker与非版本化static-sn
 
 ## 10. 当前实现状态（2026-10-18）
 
-Implemented：模块化捕获、安全IR1.1.0、本地文件导入、HTML/MD/JSON及有限SVG/PNG、ZIP、独立报告、会话恢复、紧凑UI、CI配置和测试绑定打包。选择性交互、IR迁移、CSS属性边界修复与外部来源信任隔离；真实结果/截图见测试报告。远端main既有CI已核实success；v0.4未推送，不能宣称v0.4远端CI通过。
+Implemented：模块化捕获、安全IR1.1.0、本地文件导入、HTML/MD/JSON及有限SVG/PNG、ZIP、独立报告、会话恢复、紧凑UI、CI配置和测试绑定打包。选择性交互、IR迁移、CSS属性边界修复与外部来源信任隔离；真实结果/截图见测试报告。远端main既有CI已核实success；v0.4远端CI以本分支Actions实际运行结果为准，不以main历史结果替代。
 
 Blocked：原生ChatGPT数据获取及无数据的完整交互恢复。Unverified：其他浏览器/真实官方账户包。Proposal：PDF等上述后续选项。没有为了版本号虚构原生交互或全网站兼容。
 

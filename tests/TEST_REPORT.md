@@ -1,6 +1,6 @@
 # v0.4 验收报告
 
-日期：2026-10-18。开始前 fetch：实际 origin/main 为 `2e49833f5ecf37f6adf5a119bb904bf21ae6ef49`；原工作区干净。实现分支 `work/v0.4-selective-interactions`。v0.3 源码历史与验收资产保留。本轮仅本地提交，不推送、合并或发布。
+日期：2026-10-18。开始前 fetch：实际 origin/main 为 `2e49833f5ecf37f6adf5a119bb904bf21ae6ef49`；原工作区干净。实现分支 `work/v0.4-selective-interactions`。v0.3 源码历史与验收资产保留。初次交付仅本地提交；后续用户已授权提交、推送、合并，Release发布仍未授权。
 
 **Implemented / Tested：18 项单元 + 18 项浏览器测试通过。** 浏览器中 17 项实际加载 MV3 扩展，1 项普通页面选择器回归。依赖审计 0 漏洞。最终安装包独立复测另有4项真实MV3全部通过，记录见下方“包与复现”。
 
@@ -75,7 +75,7 @@ npx playwright test tests/mv3.spec.mjs --output=/absolute/package-results \
 ## 工程状态与剩余边界
 
 - **Tested：** main [Actions run 39121539504](https://github.com/yunmin311/intelligent-ui-portability-lab/actions/runs/39121539504) 为success，head为2e49833。本轮保留CI并更新v0.4产物命名，配置含单元/语法/schema/MV3/audit/包验证。
-- **Unverified：** v0.4分支远端CI（未推送）、Windows Chrome/Edge、其他浏览器版本、商店、Obsidian应用及完整读屏/模糊测试。不能用main历史CI代替本轮远端执行。
+- **Unverified：** Windows Chrome/Edge、其他浏览器版本、商店、Obsidian应用及完整读屏/模糊测试。v0.4远端CI状态以Actions实际运行记录为准，不能用main历史CI代替本轮远端执行。
 - **Decision：** rulesets查询为空，main protection API显示未保护；只读检查。建议所有者后续启用PR与CI required status，具体可用性依仓库套餐/管理权限；本轮不更改管理设置。
 - **Blocked：** ChatGPT程序化获取无本项目已确认许可的接口，Gate保留；真实官方数据包适配缺授权样本。
 - **Proposal：** PDF、正式Source Adapter、其他有真实行为证据的recipe；任意来源JavaScript恢复不在当前能力内。

@@ -58,6 +58,6 @@ CSS值在进入单个声明前拒绝分号、花括号、感叹号、C0/DEL、�
 
 ZIP成员名拒绝绝对路径、反斜线、空段、点/点点段；内容只来自本地已验证IR，逐文件SHA-256。不会下载跨域资源，JS/CSS审阅副本不额外加载。实际file://回归同时检查合法行为与附加恶意脚本被CSP阻止，以及HTML/ZIP的HTTP(S)请求为零。安全证据不是形式化证明或通用第三方程序复原能力。
 
-仓库管理只读核查：main CI既有run 39121539504成功；rulesets为空，branch protection API返回未保护。建议所有者未来启用main禁止直接push、要求现有CI job成功及PR审查，先确认账户/仓库计划支持；本轮未改管理设置，未推送/发布v0.4。
+仓库管理只读核查：main CI既有run 39121539504成功；rulesets为空，branch protection API返回未保护。建议所有者未来启用main禁止直接push、要求现有CI job成功及PR审查，先确认账户/仓库计划支持；本轮未改管理设置；后续用户已授权推送、合并源码，未授权发布Release。
 
 IR 的 `security.scripts:false` 表示没有保留来源脚本，不表示 HTML 中绝无产品自身脚本。只有经过行为校验的 HTML/ZIP 才包含固定哈希白名单运行时；下载文件和扩展沙箱均实测没有 `chrome.runtime.sendMessage`。
