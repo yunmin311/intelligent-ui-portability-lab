@@ -8,6 +8,7 @@ import {svg} from '../core/render.js';
   globalThis.__uiPortabilityCleanup?.();
   globalThis.__uiPortabilityActive = true;
   const format = globalThis.__UI_PORTABILITY_FORMAT__ || 'html';
+  const controlled=globalThis.__UI_PORTABILITY_CONTROLLED__===true;
   const host = document.createElement('div');
   host.dataset.uipPicker = '';
   host.style.cssText='all:initial!important;position:fixed!important;inset:0!important;z-index:2147483647!important;pointer-events:none!important';
@@ -62,7 +63,7 @@ import {svg} from '../core/render.js';
     const signal=controller.signal;
     shadow.getElementById('error').textContent='捕获中… Esc 可取消';
     try {
-      const snapshot=await captureElement(last,{signal,exclude:host,onProgress:n=>shadow.getElementById('error').textContent=`捕获中… ${n} 节点 · Esc 可取消`});
+      const snapshot=await captureElement(last,{signal,controlled,exclude:host,onProgress:n=>shadow.getElementById('error').textContent=`捕获中… ${n} 节点 · Esc 可取消`});
       if(format==='svg'&&!svg(snapshot))throw Error('SVG 格式只能选择 SVG 根元素');
       if(signal.aborted)return;
       if(!globalThis.chrome?.runtime?.id)throw Error('请通过已安装扩展的 Popup 启动捕获');

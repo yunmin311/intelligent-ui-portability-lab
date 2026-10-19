@@ -1,4 +1,4 @@
-# v0.4.1 保真与能力矩阵
+# v0.5.0 保真与能力矩阵
 
 Decision：视觉优先，HTML/ZIP可选择性保留原生details与重建自有模型；其他内容static，图片visual-only。组件级能力与文件级能力独立，不把控件值/滚动位置解释为原始程序恢复。
 
@@ -14,7 +14,7 @@ Decision：视觉优先，HTML/ZIP可选择性保留原生details与重建自有
 | Shadow DOM | 展开开放根 | 封闭根不可读，slot分发不保证 |
 | 伪元素 | 简单字符串before/after转静态span | counter、多段、图片等提示遗漏 |
 | 嵌套滚动 | 包装内容并冻结当前偏移 | 不恢复滚动/粘性定位交互；复杂布局有差异 |
-| 滑块/复选框/按钮 | 安全当前值/勾选/禁用外观 | 未知行为禁用；仅自有Fourier/table有限recipe允许重算与筛选 |
+| 滑块/复选框/按钮 | 安全当前值/勾选/禁用外观 | 未知行为禁用；仅显式受控契约且通过模型验证的 recipe 允许有限交互 |
 | 输入/可编辑区 | 文本、密码、select、contenteditable脱敏 | 正文、Canvas和截图中的秘密用户自行检查 |
 | 未挂载/跨域/远程字体 | 记录限制，不自动加载 | 虚拟列表、未展开内容不可保证完整 |
 
@@ -30,16 +30,21 @@ Markdown保留语义，不承诺像素；复杂SVG/MathML以文字提示查看HT
 
 SnapDOM 3.3.4仅开发依赖：简单表格与复杂样本实际对照，记录尺寸/差异；其SVG foreignObject路径与本项目严格SVG边界不同，且对输入的截图可能保留秘密。当前不集成、不声称通用截图回退已实现。来源视觉难以保留时报告差异，不通过AI重设计替代。
 
-## 选择性交互范围（v0.4.1 Decision）
+## 选择性交互范围（v0.5 Decision）
 
-| 组件/来源 | Auto / Interactive | Static / 限制 |
-|---|---|---|
-| details/summary 已有内容 | native-preserved，浏览器展开折叠 | inert；懒加载/原站toggle处理器不复制 |
-| 自有loopback Fourier@1 | reconstructed-tested；N、振幅、相位重算 | 当前SVG路径/值；不推断其他滑块行为 |
-| 自有loopback table@1 | reconstructed-tested；有限数值筛选与稳定排序 | 冻结当前可见结果 |
-| 混合区域 | 支持部分交互、未知部分static-fallback，文件partial-interactive | 全部static |
-| 外部JSON/HTML/SVG | JSON已知配方独立校验后为model-validated；HTML/SVG仅安全原生details | 不继承外部来源、脱敏或测试声明 |
+| 组件 / 来源 | Auto / Interactive | Static / 限制 |
+| --- | --- | --- |
+| details/summary | native-preserved | inert；不复制懒加载或 toggle 处理器 |
+| Fourier@1 / table@1 | 显式受控契约后为 model-validated；原有限曲线/筛选排序 | 冻结当前视觉；未勾选不提取模型 |
+| tabs@1 | 2–12 个标签与面板，点击、方向键、Home/End | 只保持当前状态；不推断任意标签组件 |
+| calculator@1 | 两个 -100…100、步长 0.01 数值的加法 | 不支持表达式、任意公式或服务端计算 |
+| state@1 | checkbox 切换恰好两个面板 | 不恢复任意状态机 |
+| 合法组合 | tabs 内 Fourier、state 面板内表格等独立面板作用域 | 交叉绑定、共享节点、解析不稳定结构静态降级或拒绝 |
+| 外部 JSON | 五种内置有限 recipe 逐项验证后 model-validated | 来源、脱敏、等价声明全部清除；危险树/资源拒绝 |
+| 外部 HTML/SVG、普通 DOM | 安全原生折叠；未显式开启受控契约不检测有限模型 | 未知行为禁用，不推断来源程序 |
 
-Interactive有未知组件需确认降级，零可恢复交互时阻止导出；Auto自动局部恢复。外部JSON的模型匹配不证明来源行为等价，也不继承外部声明。
+所有网页有限模型捕获均需 Popup 显式契约，loopback 路径不自动授信。实捕证据为 model-validated-v1；fixture 来源/产物的等价性仅见真实测试报告，不写成页面自证能力。保留历史 reconstructed-tested 枚举兼容性不等于新捕获获得此声明。
 
-三个已知案例均在真实下载HTML和ZIP解压后运行测试；v0.4.1增加关闭来源页面后的JSON往返。初始视觉直接比较来源/交互/静态产物；新样本门槛变化像素<2%、MAE<2，不改旧基线掩盖失败。实际数值与失败修复证据见测试报告。动态后续布局仅有限高度自适应，不承诺原始响应式规则、事件顺序或任意嵌套CSS等价。
+Interactive 有未知组件需确认降级，零可恢复交互时阻止导出；Auto 局部恢复。JSON 现行为 IR 1.3，旧 1.0/1.1/1.2 验证后迁移；旧版本不能携带新增模型。关闭来源后的往返、重复实例、多包装结构、嵌套面板、HTML/ZIP 后续操作与实际像素结果见[测试报告](../tests/TEST_REPORT.md)，不由本矩阵虚构测试数量。
+
+Windows Chrome/Edge 与 Obsidian GUI 仍为 Unverified；WSL Chromium 不代替原生 GUI。Proposal：PDF、任意 HTML 截图和任意第三方行为恢复。Exploration：SnapDOM 开发对照。Deprecated：固定 fixture 路径自动等价授信，以及旧版仅 Fourier/table 的当前能力描述。

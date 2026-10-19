@@ -5,3 +5,5 @@ playwright-report/
 dist/
 
 tests/artifacts/
+
+.superpowers/

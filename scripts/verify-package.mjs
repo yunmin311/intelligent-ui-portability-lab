@@ -14,7 +14,7 @@ const extension=path.join(folder,'extension');
 async function verify(){for(const [file,sha] of Object.entries(manifest.extensionFiles)){if(createHash('sha256').update(await fs.readFile(path.join(extension,file))).digest('hex')!==sha)throw Error('Installed bytes differ: '+file);}}
 await verify();
 const evidence=path.resolve('tests/artifacts/v'+version+'-installed');
-const result=spawnSync('npx',['playwright','test','tests/mv3.spec.mjs'],{stdio:'inherit',env:{...process.env,UIP_EXTENSION_PATH:extension,UIP_EVIDENCE_DIR:evidence}});
+const result=spawnSync('npx',['playwright','test','tests/mv3.spec.mjs','tests/v05.spec.mjs','tests/v05-composite.spec.mjs'],{stdio:'inherit',env:{...process.env,UIP_EXTENSION_PATH:extension,UIP_EVIDENCE_DIR:evidence}});
 await verify();
 await fs.mkdir(evidence,{recursive:true});await fs.writeFile(path.join(evidence,'installed-package.json'),JSON.stringify({version,archive:entry.file,sha256:entry.sha256,extensionFiles:manifest.extensionFiles,byteComparison:'before and after installed MV3 tests',exitCode:result.status,testedAt:new Date().toISOString()},null,2));
 if(result.status!==0)process.exit(result.status||1);

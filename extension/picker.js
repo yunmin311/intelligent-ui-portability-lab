@@ -17,15 +17,35 @@
     return rows.map((_, i) => i).filter((i) => Number(rows[i][1]) >= state.minimum).sort((a, b) => (Number(rows[a][1]) - Number(rows[b][1])) * (state.direction === "asc" ? 1 : -1) || a - b);
   }
 
-  // extension/src/core/interactions.js
-  var trustFixtureURL = (url) => {
-    try {
-      const u = new URL(url);
-      return u.protocol === "http:" && ["127.0.0.1", "localhost", "[::1]"].includes(u.hostname) && u.pathname === "/selective-interactions.html";
-    } catch {
-      return false;
-    }
+  // extension/src/core/adapters.js
+  var definitions = {
+    "fourier@1": { bindings: ["root", "harmonics", "amplitude", "phase", "curve", "output"], state: ["harmonics", "amplitude", "phase"] },
+    "table@1": { bindings: ["root", "filter", "sort", "body", "output"], state: ["minimum", "direction"] },
+    "tabs@1": { bindings: ["root", "tabs", "panels"], arrays: ["tabs", "panels"], state: ["active"] },
+    "calculator@1": { bindings: ["root", "left", "right", "output"], state: ["left", "right"] },
+    "state@1": { bindings: ["root", "control", "panels"], arrays: ["panels"], state: ["active"] },
+    "native-details@1": { bindings: ["root"], state: [], native: true }
   };
+  var adapterRegistry = Object.freeze(Object.fromEntries(Object.entries(definitions).map(([recipe, d]) => [recipe, Object.freeze({ recipe, ...d, roles: Object.freeze(d.bindings.filter((k) => k !== "root").map((k) => k === "tabs" ? "tab" : k === "panels" ? "panel" : k)), arrayRoles: Object.freeze(Object.fromEntries((d.arrays || []).map((k) => [k, k === "tabs" ? "tab" : "panel"]))), bindings: Object.freeze(d.bindings), state: Object.freeze(d.state), arrays: Object.freeze(d.arrays || []), capability: d.native ? "native-preserved" : "model-validated" })])));
+  var getAdapter = (recipe) => Object.hasOwn(adapterRegistry, recipe) ? adapterRegistry[recipe] : null;
+  var bindingPaths = (b) => Object.values(b).flatMap((v) => Array.isArray(v) ? v : [v]);
+  function sumValue(left, right) {
+    for (const n of [left, right]) if (!Number.isFinite(n) || n < -100 || n > 100 || Math.abs(n * 100 - Math.round(n * 100)) > 1e-8) throw Error("\u8BA1\u7B97\u53C2\u6570\u8D85\u9650\u6216\u6B65\u957F\u4E0D\u5339\u914D");
+    return String(Number((left + right).toFixed(2)));
+  }
+
+  // extension/src/core/sources.js
+  var blocked = (h) => h === "chatgpt.com" || h.endsWith(".chatgpt.com") || h === "chat.openai.com" || h.endsWith(".chat.openai.com");
+  function sourceAdapter(url, { controlled = false, file = false } = {}) {
+    if (file) return { id: "local-file@1", level: "external-unverified", finiteModels: false, evidence: "model-validated-v1" };
+    const u = new URL(url);
+    if (!/^https?:$/.test(u.protocol) || blocked(u.hostname)) throw Error("\u6765\u6E90\u672A\u901A\u8FC7\u91C7\u96C6\u8BB8\u53EF Gate");
+    if (controlled === true) return { id: "user-contract@1", level: "controlled", finiteModels: true, evidence: "model-validated-v1" };
+    return { id: "generic-dom@1", level: "general", finiteModels: false, evidence: null };
+  }
+  var sourceContracts = Object.freeze(["user-contract@1", "generic-dom@1", "local-file@1"]);
+
+  // extension/src/core/interactions.js
   function nodes(tree) {
     const map = /* @__PURE__ */ new Map();
     function walk(n, path) {
@@ -41,7 +61,7 @@
     if (n.tag !== "tbody" || n.children.length > 200 || n.children.some((r) => r.tag !== "tr" || r.children.length !== 2 || r.children.some((c) => c.tag !== "td"))) throw Error("\u8868\u683C\u7ED3\u6784\u4E0D\u5339\u914D");
     return n.children.map((r) => r.children.map(text));
   }
-  function validateBehaviors(s) {
+  function validateLegacyBehaviors(s) {
     const bs = s.behaviors || [];
     if (!Array.isArray(bs) || bs.length > 20) throw Error("\u4EA4\u4E92\u6570\u91CF\u8D85\u9650");
     const map = nodes(s.tree), used = /* @__PURE__ */ new Set();
@@ -67,20 +87,28 @@
         const n = map.get(p);
         if (n?.ns !== "html" || !["main", "section", "div", "article", "aside", "header", "figure", "details"].includes(n.tag)) throw Error("\u7EC4\u4EF6\u7956\u5148\u7ED3\u6784\u4E0D\u5339\u914D");
       }
-      const direct = (k) => parentPath(b.bindings[k]) === b.bindings.root;
+      const safeWrappers = /* @__PURE__ */ new Set(["div", "section", "header", "label", "ul", "ol", "li"]);
+      const belowRoot = (p) => {
+        for (let q = p; q !== b.bindings.root; q = parentPath(q)) {
+          if (!q || !map.has(q) || map.get(q).ns !== "html" || !safeWrappers.has(map.get(q).tag)) return false;
+        }
+        return true;
+      };
+      const direct = (k) => belowRoot(parentPath(b.bindings[k]));
       const plain = (n) => n.children.every((c) => Object.hasOwn(c, "text"));
       if (!direct("output") || !plain(refs.output)) throw Error("\u8F93\u51FA\u7ED3\u6784\u4E0D\u5339\u914D");
       const controlPosition = (k) => direct(k) || parent(k)?.tag === "label" && parent(k)?.ns === "html" && parentPath(parentPath(b.bindings[k])) === b.bindings.root;
       if (b.recipe === "fourier@1") {
-        if (!["harmonics", "amplitude", "phase"].every(controlPosition) || parent("curve")?.tag !== "svg" || parent("curve")?.ns !== "svg" || parentPath(parentPath(b.bindings.curve)) !== b.bindings.root) throw Error("Fourier \u7ED3\u6784\u4E0D\u5339\u914D");
-      } else if (!controlPosition("filter") || !direct("sort") || !plain(refs.sort) || refs.body.ns !== "html" || parent("body")?.tag !== "table" || parent("body")?.ns !== "html" || parentPath(parentPath(b.bindings.body)) !== b.bindings.root) throw Error("\u8868\u683C\u7ED3\u6784\u4E0D\u5339\u914D");
+        if (!["harmonics", "amplitude", "phase"].every(controlPosition) || parent("curve")?.tag !== "svg" || parent("curve")?.ns !== "svg" || !belowRoot(parentPath(parentPath(b.bindings.curve)))) throw Error("Fourier \u7ED3\u6784\u4E0D\u5339\u914D");
+      } else if (!controlPosition("filter") || !direct("sort") || !plain(refs.sort) || refs.body.ns !== "html" || parent("body")?.tag !== "table" || parent("body")?.ns !== "html" || !belowRoot(parentPath(parentPath(b.bindings.body)))) throw Error("\u8868\u683C\u7ED3\u6784\u4E0D\u5339\u914D");
       const isText = (n) => Object.hasOwn(n, "text");
       const labels = new Set(keys.filter((k) => ["harmonics", "amplitude", "phase", "filter"].includes(k)).map((k) => parent(k)).filter((n) => n?.tag === "label"));
       const controls = new Set(keys.filter((k) => ["harmonics", "amplitude", "phase", "filter"].includes(k)).map((k) => refs[k]));
       for (const label of labels) if (!label.children.every((n) => isText(n) || controls.has(n))) throw Error("\u6807\u7B7E\u7ED3\u6784\u4E0D\u5339\u914D");
       const graphic = b.recipe === "fourier@1" ? parent("curve") : parent("body");
       const allowedRoot = /* @__PURE__ */ new Set([...controls, ...labels, refs.output, graphic, ...refs.sort ? [refs.sort] : []]);
-      if (!refs.root.children.every((n) => isText(n) || allowedRoot.has(n) || n.ns === "html" && ["h1", "h2", "h3", "h4", "p", "button"].includes(n.tag) && plain(n))) throw Error("\u7EC4\u4EF6\u5B50\u8282\u70B9\u7ED3\u6784\u4E0D\u5339\u914D");
+      const safeChild = (n) => isText(n) || allowedRoot.has(n) || n.ns === "html" && ["h1", "h2", "h3", "h4", "p", "button"].includes(n.tag) && plain(n) || n.ns === "html" && safeWrappers.has(n.tag) && n.children.every(safeChild);
+      if (!refs.root.children.every(safeChild)) throw Error("\u7EC4\u4EF6\u5B50\u8282\u70B9\u7ED3\u6784\u4E0D\u5339\u914D");
       if (b.recipe === "fourier@1") {
         const svgTags = /* @__PURE__ */ new Set(["svg", "g", "path", "rect", "circle", "line", "polyline", "polygon", "ellipse", "text", "tspan", "defs", "lineargradient", "radialgradient", "stop", "clippath", "mask", "title", "desc"]);
         const svgSafe = (n) => isText(n) || n.ns === "svg" && svgTags.has(n.tag.toLowerCase()) && n.children.every(svgSafe);
@@ -108,12 +136,89 @@
     }
     return bs;
   }
+  function validateBehaviors(s) {
+    const bs = s.behaviors || [];
+    if (!Array.isArray(bs) || bs.length > 20) throw Error("\u4EA4\u4E92\u6570\u91CF\u8D85\u9650");
+    const map = nodes(s.tree);
+    for (const b of bs) {
+      const adapter = getAdapter(b?.recipe);
+      if (!adapter || adapter.native || !exact(b, ["recipe", "bindings", "state", "evidence"]) || !["fixture-equivalence-v1", "model-validated-v1"].includes(b.evidence) || !exact(b.bindings, adapter.bindings)) throw Error("\u4EA4\u4E92 recipe \u6216\u5B57\u6BB5\u4E0D\u652F\u6301");
+      const paths = bindingPaths(b.bindings);
+      if (new Set(paths).size !== paths.length) throw Error("\u4EA4\u4E92\u7ED1\u5B9A\u91CD\u590D");
+      for (const path of paths) if (typeof path !== "string" || !/^0(?:\.\d{1,4}){0,75}$/.test(path) || !map.has(path) || path !== b.bindings.root && !path.startsWith(b.bindings.root + ".")) throw Error("\u4EA4\u4E92\u7ED1\u5B9A\u4E0D\u5408\u6CD5\u6216\u8D85\u51FA\u7EC4\u4EF6");
+      for (const p of paths.filter((p2) => p2 !== b.bindings.root)) for (const q of paths.filter((q2) => q2 !== b.bindings.root)) if (p !== q && p.startsWith(q + ".")) throw Error("\u7EC4\u4EF6\u7ED3\u6784\u4E0D\u5339\u914D\uFF1A\u7ED1\u5B9A\u8282\u70B9\u4E0D\u80FD\u76F8\u4E92\u5D4C\u5957");
+      if (["fourier@1", "table@1"].includes(b.recipe)) {
+        validateLegacyBehaviors({ ...s, behaviors: [b] });
+        continue;
+      }
+      if (!exact(b.state, adapter.state)) throw Error("\u72B6\u6001\u5B57\u6BB5\u4E0D\u5408\u6CD5");
+      for (const key of adapter.arrays) if (!Array.isArray(b.bindings[key]) || b.bindings[key].length < 2 || b.bindings[key].length > 12) throw Error("\u6570\u7EC4\u7ED1\u5B9A\u6570\u91CF\u4E0D\u5408\u6CD5");
+      const refs = Object.fromEntries(Object.entries(b.bindings).map(([k, v]) => [k, Array.isArray(v) ? v.map((p) => map.get(p)) : map.get(v)]));
+      const html = (n) => n?.ns === "html", plain = (n) => n.children.every((c) => Object.hasOwn(c, "text"));
+      if (!html(refs.root) || !["div", "section", "article"].includes(refs.root.tag)) throw Error("\u7EC4\u4EF6\u6839\u7ED3\u6784\u4E0D\u5339\u914D");
+      const parent = (p) => p.slice(0, p.lastIndexOf(".")), wrappers = /* @__PURE__ */ new Set(["main", "div", "section", "article", "aside", "header", "figure", "label", "ul", "ol", "li", "details"]);
+      for (const path of paths) for (let p = parent(path); p; p = parent(p)) {
+        const n = map.get(p);
+        if (!html(n) || !wrappers.has(n.tag) && !b.bindings.panels?.includes(p)) throw Error("\u7EC4\u4EF6\u7956\u5148\u7ED3\u6784\u4E0D\u5339\u914D");
+      }
+      const panelTopology = (n) => {
+        if (n.text !== void 0) return;
+        const blocks = /* @__PURE__ */ new Set(["div", "section", "article", "main", "aside", "header", "figure", "p", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li", "table", "details"]);
+        if (n.ns === "html" && ["p", "span", "strong", "em", "code", "output", "button", "label", "h1", "h2", "h3", "h4", "h5", "h6"].includes(n.tag)) {
+          for (const [, c] of nodes(n)) if (c !== n && c.ns === "html" && (blocks.has(c.tag) || n.tag === "button" && ["button", "input", "details"].includes(c.tag))) throw Error("\u9762\u677F\u540E\u4EE3\u7ED3\u6784\u4F1A\u88AB HTML \u89E3\u6790\u5668\u6539\u5199");
+        }
+        const tableChildren = { table: ["caption", "colgroup", "thead", "tbody", "tfoot"], thead: ["tr"], tbody: ["tr"], tfoot: ["tr"], tr: ["td", "th"], colgroup: ["col"] };
+        if (tableChildren[n.tag] && n.children.some((c) => c.text !== void 0 ? c.text.trim() : !tableChildren[n.tag].includes(c.tag))) throw Error("\u9762\u677F\u8868\u683C\u7ED3\u6784\u4E0D\u7A33\u5B9A");
+        n.children.forEach(panelTopology);
+      };
+      const visible = (n, on) => {
+        panelTopology(n);
+        if (!html(n) || !["div", "section", "article"].includes(n.tag) || Object.hasOwn(n.attrs, "hidden") === on || n.attrs["aria-hidden"] !== String(!on)) throw Error("\u9762\u677F\u53EF\u89C1\u72B6\u6001\u4E0D\u5339\u914D");
+      };
+      const local = (n, key, target) => {
+        if (n.attrs[key] !== void 0 && (!/^uip-\d+$/.test(n.attrs[key]) || n.attrs[key] !== target.attrs.id)) throw Error("ARIA \u5F15\u7528\u4E0D\u5339\u914D");
+      };
+      if (b.recipe === "calculator@1") {
+        const result = sumValue(b.state.left, b.state.right);
+        for (const key of ["left", "right"]) {
+          const n = refs[key];
+          if (!html(n) || n.tag !== "input" || n.attrs.type !== "number" || n.attrs.disabled !== "" || Number(n.attrs.min) !== -100 || Number(n.attrs.max) !== 100 || Number(n.attrs.step) !== 0.01 || n.attrs.value.trim() === "" || Number(n.attrs.value) !== b.state[key]) throw Error("\u8BA1\u7B97\u8F93\u5165\u6A21\u578B\u4E0D\u5339\u914D");
+        }
+        if (!html(refs.output) || refs.output.tag !== "output" || !plain(refs.output) || text(refs.output) !== result) throw Error("\u8BA1\u7B97\u8F93\u51FA\u4E0D\u5339\u914D");
+      } else if (b.recipe === "tabs@1") {
+        if (refs.tabs.length !== refs.panels.length || !Number.isInteger(b.state.active) || b.state.active < 0 || b.state.active >= refs.tabs.length) throw Error("Tabs \u72B6\u6001\u4E0D\u5408\u6CD5");
+        refs.tabs.forEach((n, i) => {
+          const on = i === b.state.active, p = refs.panels[i];
+          if (!html(n) || n.tag !== "button" || !plain(n) || n.attrs.role !== "tab" || n.attrs["aria-selected"] !== String(on) || n.attrs.tabindex !== (on ? "0" : "-1") || p.attrs.role !== "tabpanel") throw Error("Tabs \u7ED3\u6784\u6216\u72B6\u6001\u4E0D\u5339\u914D");
+          visible(p, on);
+          local(n, "aria-controls", p);
+          local(p, "aria-labelledby", n);
+        });
+      } else {
+        if (typeof b.state.active !== "boolean" || refs.panels.length !== 2 || !html(refs.control) || refs.control.tag !== "input" || refs.control.attrs.type !== "checkbox" || Object.hasOwn(refs.control.attrs, "checked") !== b.state.active) throw Error("\u5E03\u5C14\u72B6\u6001\u6A21\u578B\u4E0D\u5339\u914D");
+        refs.panels.forEach((n, i) => visible(n, i === Number(b.state.active)));
+      }
+    }
+    for (let i = 0; i < bs.length; i++) for (let j = i + 1; j < bs.length; j++) {
+      const a = bs[i], b = bs[j], ar = a.bindings.root, br = b.bindings.root;
+      if (ar === br || bindingPaths(a.bindings).some((p) => bindingPaths(b.bindings).includes(p))) throw Error("\u7EC4\u4EF6\u7ED1\u5B9A\u8303\u56F4\u91CD\u53E0");
+      const check = (outer, inner) => {
+        if (!inner.bindings.root.startsWith(outer.bindings.root + ".")) return;
+        const panels = outer.bindings.panels || [];
+        if (!panels.some((p) => inner.bindings.root.startsWith(p + "."))) throw Error("\u5D4C\u5957\u7EC4\u4EF6\u5FC5\u987B\u4F4D\u4E8E\u72EC\u7ACB\u9762\u677F");
+        for (const p of bindingPaths(outer.bindings)) if (p.startsWith(inner.bindings.root + ".")) throw Error("\u4EA4\u53C9\u7EC4\u4EF6\u7ED1\u5B9A");
+      };
+      check(a, b);
+      check(b, a);
+    }
+    return bs;
+  }
   function analyze(s, strategy = "auto", { confirmDegradation = false } = {}) {
     if (!["auto", "interactive", "static"].includes(strategy)) throw Error("\u5BFC\u51FA\u7B56\u7565\u4E0D\u5408\u6CD5");
     validateBehaviors(s);
     const map = nodes(s.tree), components = [], covered = /* @__PURE__ */ new Set();
     for (const b of s.behaviors || []) {
-      Object.values(b.bindings).forEach((p) => covered.add(p));
+      bindingPaths(b.bindings).forEach((p) => covered.add(p));
       const tested = b.evidence === "fixture-equivalence-v1" && s.provenance?.status === "captured";
       components.push({ path: b.bindings.root, recipe: b.recipe, capability: strategy === "static" ? "static-fallback" : tested ? "reconstructed-tested" : "model-validated", evidence: tested ? "owned fixture / finite model / equivalence-v1" : "finite model validated locally; source equivalence unverified" });
     }
@@ -136,10 +241,49 @@
     return { strategy, capability: active ? unsupported ? "partial-interactive" : "selective-interactive" : s.capability || "static", components, recoverable: active, staticComponents: unsupported, requiresConfirmation, degradationConfirmed, exportable: !blockedReason, blockedReason, limitations: ["\u4EC5\u6709\u5217\u51FA\u7684\u539F\u751F/\u53D7\u63A7 recipe \u53EF\u4EA4\u4E92\uFF1B\u5176\u4F59\u4E3A\u9759\u6001\u5916\u89C2", "\u6A21\u578B\u6821\u9A8C\u4E0D\u7B49\u4E8E\u6765\u6E90\u884C\u4E3A\u7B49\u4EF7\u8BC1\u660E\uFF1B\u4E0D\u662F\u539F\u59CB\u7A0B\u5E8F\u6216\u54CD\u5E94\u5F0F\u89C4\u5219\u7684\u65E0\u635F\u590D\u5236"] };
   }
 
+  // extension/src/capture/adapters.js
+  function detectCandidates(selected, contract) {
+    if (!contract.finiteModels) return [];
+    return [selected, ...selected.querySelectorAll("[data-uip-recipe]")].filter((root) => root.hasAttribute("data-uip-recipe")).map((root) => ({ root, recipe: root.getAttribute("data-uip-recipe") }));
+  }
+  function componentRoles(root) {
+    const roles = /* @__PURE__ */ new Map();
+    for (const el of root.querySelectorAll("[data-uip-role]")) if (el.closest("[data-uip-recipe]") === root) {
+      const key = el.getAttribute("data-uip-role");
+      roles.set(key, [...roles.get(key) || [], el]);
+    }
+    return roles;
+  }
+  function extractCandidate({ root, recipe }, captured, paths, evidence) {
+    const adapter = getAdapter(recipe);
+    if (!adapter) throw Error("\u672A\u77E5\u6216\u4E0D\u517C\u5BB9\u7684\u9002\u914D\u5668\uFF1A" + recipe);
+    const roles = componentRoles(root), bindings = { root: paths.get(captured.get(root)) };
+    const arrayRole = Object.fromEntries(Object.entries(adapter.arrayRoles).map(([binding, role]) => [role, binding]));
+    for (const [role, elements] of roles) {
+      if (arrayRole[role]) bindings[arrayRole[role]] = elements.map((el) => paths.get(captured.get(el)));
+      else {
+        if (elements.length !== 1) throw Error("\u91CD\u590D\u7EC4\u4EF6\u7ED1\u5B9A\uFF1A" + role);
+        bindings[role] = paths.get(captured.get(elements[0]));
+      }
+    }
+    const value = (k) => {
+      const el = roles.get(k)?.[0];
+      if (!el) throw Error("\u7F3A\u5931\u7ED1\u5B9A\uFF1A" + k);
+      return Number(el.value);
+    };
+    let state;
+    if (recipe === "fourier@1") state = { harmonics: value("harmonics"), amplitude: value("amplitude"), phase: value("phase") };
+    else if (recipe === "table@1") state = { minimum: value("filter"), direction: root.dataset.direction || "asc" };
+    else if (recipe === "tabs@1") state = { active: (roles.get("tab") || []).findIndex((el) => el.getAttribute("aria-selected") === "true") };
+    else if (recipe === "calculator@1") state = { left: value("left"), right: value("right") };
+    else if (recipe === "state@1") state = { active: roles.get("control")?.[0]?.checked === true };
+    return { recipe, bindings, state, evidence };
+  }
+
   // extension/src/core/policy.js
   var allowedHtml = new Set("a article aside blockquote br button caption code dd details div dl dt em figcaption figure h1 h2 h3 h4 h5 h6 header hr i kbd label li main mark ol p pre q s samp section small span strong sub summary sup output table tbody td th thead tfoot time tr u ul".split(" "));
   var allowedSvg = new Set("svg g defs path rect circle ellipse line polyline polygon text tspan lineargradient radialgradient stop clippath mask pattern title desc".split(" "));
-  var allowedAttributes = new Set("viewBox width height x y x1 x2 y1 y2 cx cy r rx ry d points transform fill stroke stroke-width stroke-linecap stroke-linejoin opacity fill-opacity stroke-opacity offset stop-color stop-opacity preserveAspectRatio xmlns vector-effect clip-path mask stroke-dasharray stroke-dashoffset text-anchor dominant-baseline colspan rowspan".split(" "));
+  var allowedAttributes = new Set("role aria-selected aria-hidden aria-controls aria-labelledby tabindex hidden viewBox width height x y x1 x2 y1 y2 cx cy r rx ry d points transform fill stroke stroke-width stroke-linecap stroke-linejoin opacity fill-opacity stroke-opacity offset stop-color stop-opacity preserveAspectRatio xmlns vector-effect clip-path mask stroke-dasharray stroke-dashoffset text-anchor dominant-baseline colspan rowspan".split(" "));
   var styleProps = ["visibility", "direction", "writing-mode", "color-scheme", "background-image", "background-size", "background-position", "background-repeat", "border-collapse", "border-spacing", "table-layout", "caption-side", "list-style-type", "list-style-position", "font-variant", "font-stretch", "word-break", "overflow-wrap", "text-indent", "text-transform", "text-overflow", "text-shadow", "float", "clear", "align-self", "align-content", "justify-items", "justify-self", "column-gap", "row-gap", "grid-auto-flow", "grid-auto-rows", "grid-auto-columns", "flex-grow", "flex-shrink", "flex-basis", "order", "aspect-ratio", "max-height", "object-position", "fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin", "fill-opacity", "stroke-opacity", "stop-color", "stop-opacity", "text-anchor", "dominant-baseline", "clip-path", "mask", "transform", "transform-origin", "display", "position", "top", "right", "bottom", "left", "z-index", "box-sizing", "color", "background-color", "font-family", "font-size", "font-weight", "font-style", "line-height", "letter-spacing", "text-align", "white-space", "width", "height", "max-width", "min-width", "min-height", "margin", "margin-top", "margin-right", "margin-bottom", "margin-left", "padding", "padding-top", "padding-right", "padding-bottom", "padding-left", "border", "border-width", "border-style", "border-color", "border-radius", "box-shadow", "opacity", "vertical-align", "flex", "flex-direction", "flex-wrap", "align-items", "justify-content", "gap", "grid-template-columns", "grid-template-rows", "grid-column", "grid-row", "overflow", "text-decoration", "object-fit"];
   var rejectTags = new Set("script style iframe frame object embed template link meta base audio video source track noscript foreignobject animate animatetransform set use".split(" "));
   var allowedMath = new Set("math mrow mi mn mo mtext mfrac msqrt mroot msup msub msubsup munder mover munderover mtable mtr mtd mfenced mspace menclose mstyle mpadded".split(" "));
@@ -156,7 +300,7 @@
   }
 
   // extension/src/core/ir.js
-  var VERSION = "1.2.0";
+  var VERSION = "1.3.0";
   var LIMITS = Object.freeze({ nodes: 5e3, depth: 75, text: 1e6, bytes: 4e6, dimension: 12e3, resource: 2e6 });
   var own = (o, keys) => {
     if (!o || typeof o !== "object" || Array.isArray(o) || Object.keys(o).some((k) => !keys.includes(k))) throw Error("IR \u5B57\u6BB5\u4E0D\u5408\u6CD5");
@@ -174,7 +318,7 @@
   }
   function validateSnapshot(s) {
     own(s, ["schemaVersion", "kind", "capability", "createdAt", "source", "dimensions", "background", "tree", "resources", "provenance", "omissions", "limitations", "security", "stats", "behaviors"]);
-    if (![VERSION, "1.0.0", "1.1.0"].includes(s.schemaVersion)) throw Error("\u4E0D\u652F\u6301\u7684 schemaVersion\uFF1B\u8BF7\u8FC1\u79FB\u6216\u4F7F\u7528\u539F\u7248\u672C");
+    if (![VERSION, "1.0.0", "1.1.0", "1.2.0"].includes(s.schemaVersion)) throw Error("\u4E0D\u652F\u6301\u7684 schemaVersion\uFF1B\u8BF7\u8FC1\u79FB\u6216\u4F7F\u7528\u539F\u7248\u672C");
     if (s.kind !== "ui-portability-snapshot" || !["static", "visual-only"].includes(s.capability)) throw Error("\u672A\u7ECF\u6D4B\u8BD5\u7684\u80FD\u529B\u7B49\u7EA7");
     str(s.createdAt, 30);
     if (!Number.isFinite(Date.parse(s.createdAt))) throw Error("\u521B\u5EFA\u65F6\u95F4\u4E0D\u5408\u6CD5");
@@ -233,7 +377,10 @@
         if (!["d", "points"].includes(k) && !safeCss(v) && !localReference(v)) throw Error("\u5C5E\u6027\u8D44\u6E90\u8BED\u6CD5\u4E0D\u5408\u6CD5");
         if (k === "id" && !/^uip-\d+$/.test(v)) throw Error("ID \u4E0D\u5408\u6CD5");
       }
-      if (n.tag === "input" && (!["range", "checkbox", "radio"].includes(n.attrs.type) || n.attrs.disabled !== "") || n.tag === "button" && n.attrs.disabled !== "") throw Error("\u63A7\u4EF6\u5FC5\u987B\u9759\u6001\u7981\u7528");
+      for (const k of ["aria-controls", "aria-labelledby"]) if (n.attrs[k] !== void 0 && !/^uip-\d+$/.test(n.attrs[k])) throw Error("ARIA \u5F15\u7528\u5FC5\u987B\u4E3A\u672C\u5730 ID");
+      if (n.attrs.role !== void 0 && !["tab", "tabpanel", "tablist"].includes(n.attrs.role) || n.attrs.tabindex !== void 0 && !["0", "-1"].includes(n.attrs.tabindex) || ["aria-selected", "aria-hidden"].some((k) => n.attrs[k] !== void 0 && !["true", "false"].includes(n.attrs[k])) || n.attrs.hidden !== void 0 && n.attrs.hidden !== "") throw Error("\u53EF\u8BBF\u95EE\u72B6\u6001\u4E0D\u5408\u6CD5");
+      if (n.tag === "input" && n.attrs.type === "number" && (!["min", "max", "step", "value"].every((k) => typeof n.attrs[k] === "string" && n.attrs[k].trim() !== "" && Number.isFinite(Number(n.attrs[k]))) || Number(n.attrs.min) !== -100 || Number(n.attrs.max) !== 100 || Number(n.attrs.step) !== 0.01 || Number(n.attrs.value) < -100 || Number(n.attrs.value) > 100)) throw Error("\u6570\u5B57\u63A7\u4EF6\u9759\u6001\u6570\u503C\u4E0D\u5408\u6CD5");
+      if (n.tag === "input" && (!["range", "checkbox", "radio", "number"].includes(n.attrs.type) || n.attrs.disabled !== "") || n.tag === "button" && n.attrs.disabled !== "") throw Error("\u63A7\u4EF6\u5FC5\u987B\u9759\u6001\u7981\u7528");
       own(n.style, styleProps);
       for (const v of Object.values(n.style)) if (!safeCss(v) && !localReference(v)) throw Error("\u6D3B\u52A8\u6837\u5F0F\u4E0D\u5408\u6CD5");
       if (n.state) {
@@ -246,6 +393,7 @@
       n.children.forEach((c) => walk(c, depth + 1));
     }
     walk(s.tree, 0);
+    if (s.schemaVersion !== "1.3.0" && s.behaviors?.some((b) => !["fourier@1", "table@1"].includes(b.recipe))) throw Error("\u65E7\u7248\u4E0D\u652F\u6301\u65B0\u9002\u914D\u5668");
     if (s.schemaVersion === "1.1.0" && s.behaviors?.some((b) => b.evidence !== "fixture-equivalence-v1")) throw Error("IR 1.1 \u4E0D\u652F\u6301\u6A21\u578B\u6821\u9A8C\u6807\u8BB0");
     if (s.schemaVersion === "1.0.0" && s.behaviors) throw Error("\u65E7\u7248\u4E0D\u5141\u8BB8\u4EA4\u4E92");
     validateBehaviors(s);
@@ -259,13 +407,15 @@
 
   // extension/src/capture/dom.js
   async function captureElement(selected, { signal, exclude, onProgress = () => {
-  }, source = { type: "page", origin: location.origin }, method = "sanitized-dom" } = {}) {
+  }, source = { type: "page", origin: location.origin }, method = "sanitized-dom", controlled = false } = {}) {
     if (!selected?.isConnected) throw Error("\u6240\u9009\u533A\u57DF\u5DF2\u88AB\u9875\u9762\u79FB\u9664");
     const rect = selected.getBoundingClientRect();
     if (rect.width < 1 || rect.height < 1 || rect.width > 12e3 || rect.height > 12e3) throw Error("\u533A\u57DF\u5C3A\u5BF8\u987B\u5728 1\u201312000 px \u4E4B\u95F4");
     const captured = /* @__PURE__ */ new WeakMap();
+    const contract = sourceAdapter(location.href, { controlled, file: method !== "sanitized-dom" });
+    const originallyHidden = /* @__PURE__ */ new Set(), controlledPanels = /* @__PURE__ */ new Set();
     let visited = 0, textSize = 0, resourceSize = 0;
-    const resources = [], ids = /* @__PURE__ */ new Map();
+    const resources = [], ids = /* @__PURE__ */ new Map(), ambiguousIDs = /* @__PURE__ */ new Set();
     const stats = { elements: 0, omittedImages: 0, canvasImages: 0, omittedFrames: 0, redactedControls: 0, externalLinks: 0, truncated: false, svg: 0 };
     const omissions = /* @__PURE__ */ new Set(["\u672A\u4FDD\u5B58\u6765\u6E90\u811A\u672C\u548C\u4E8B\u4EF6\uFF1B\u53EF\u6062\u590D\u7684\u539F\u751F\u884C\u4E3A\u4E0E\u81EA\u6709 recipe \u4EE5\u4EA4\u4E92\u62A5\u544A\u4E3A\u51C6", "\u81EA\u5B9A\u4E49\u5B57\u4F53\u6587\u4EF6\u672A\u5D4C\u5165\uFF1B\u79BB\u7EBF\u7AEF\u53EF\u80FD\u4F7F\u7528\u7CFB\u7EDF\u56DE\u9000\u5B57\u4F53", "\u53EA\u6355\u83B7\u5F53\u524D\u5DF2\u6302\u8F7D DOM\uFF1B\u4E0D\u4FDD\u8BC1\u865A\u62DF\u5217\u8868\u3001\u672A\u5C55\u5F00\u6216\u672A\u52A0\u8F7D\u5185\u5BB9\u5B8C\u6574", "\u6B63\u6587\u548C Canvas \u4E2D\u7684\u654F\u611F\u4FE1\u606F\u4E0D\u80FD\u81EA\u52A8\u8BC6\u522B\uFF0C\u8BF7\u4E0B\u8F7D\u524D\u68C0\u67E5"]);
     const scan = [{ node: selected, depth: 0 }];
@@ -273,7 +423,10 @@
     while (scan.length) {
       const { node: node2, depth } = scan.pop();
       if (++seen > 5e3 || depth > 75) throw Error("\u6355\u83B7\u8D85\u8FC7 5000 \u8282\u70B9\u6216 75 \u5C42\uFF0C\u8BF7\u7F29\u5C0F\u533A\u57DF");
-      if (node2.nodeType === 1 && node2.id) ids.set(node2.id, "uip-" + ids.size);
+      if (node2.nodeType === 1 && node2.id) {
+        if (ids.has(node2.id)) ambiguousIDs.add(node2.id);
+        else ids.set(node2.id, "uip-" + ids.size);
+      }
       signal?.throwIfAborted();
       const enqueue = (child) => {
         if (seen + scan.length >= 5e3) throw Error("\u6355\u83B7\u8D85\u8FC7 5000 \u8282\u70B9\u6216 75 \u5C42\uFF0C\u8BF7\u7F29\u5C0F\u533A\u57DF");
@@ -286,6 +439,13 @@
         signal?.throwIfAborted();
       }
     }
+    for (const id of ambiguousIDs) ids.delete(id);
+    if (ambiguousIDs.size) omissions.add("\u91CD\u590D\u6765\u6E90 ID \u7684\u6807\u8BC6\u4E0E\u5F15\u7528\u5DF2\u79FB\u9664\uFF0C\u907F\u514D\u7ED1\u5B9A\u5230\u9519\u8BEF\u8282\u70B9");
+    signal?.throwIfAborted();
+    const candidates = detectCandidates(selected, contract);
+    if (candidates.length > 20) throw Error("\u7EC4\u4EF6\u5019\u9009\u8D85\u8FC7 20 \u4E2A\uFF0C\u8BF7\u7F29\u5C0F\u533A\u57DF");
+    const controlledNumbers = new Set(candidates.filter((c) => c.recipe === "calculator@1").flatMap((c) => [...componentRoles(c.root).get("left") || [], ...componentRoles(c.root).get("right") || []]));
+    signal?.throwIfAborted();
     function cssValue(value) {
       if (/url\s*\(/i.test(value)) {
         const match = value.match(/^url\(["']?(?:[^#"')]*#)([^"')]+)["']?\)$/);
@@ -315,6 +475,15 @@
       return { tag, ns, attrs: {}, style: {}, children: [], evidence: { status: "captured", method: "computed-dom" } };
     }
     async function clone(original, depth = 0) {
+      if (!originallyHidden.has(original)) return cloneVisible(original, depth);
+      original.hidden = false;
+      try {
+        return await cloneVisible(original, depth);
+      } finally {
+        original.hidden = true;
+      }
+    }
+    async function cloneVisible(original, depth = 0) {
       if (++visited > 5e3 || depth > 75) throw Error("\u6355\u83B7\u8D85\u8FC7 5000 \u8282\u70B9\u6216 75 \u5C42");
       if (visited % 16 === 0) {
         onProgress(visited);
@@ -340,15 +509,24 @@
       captured.set(original, target);
       target.style = styles(css);
       stats.elements++;
+      if (controlledPanels.has(original)) {
+        try {
+          const authored = original.computedStyleMap?.().get("height");
+          if (authored?.toString() === "auto") target.style.height = "auto";
+          else if (!authored) omissions.add("\u5F53\u524D\u6D4F\u89C8\u5668\u65E0\u6CD5\u786E\u8BA4\u9762\u677F\u81EA\u7136\u9AD8\u5EA6\uFF0C\u4FDD\u7559\u6355\u83B7\u5C3A\u5BF8");
+        } catch {
+          omissions.add("\u5F53\u524D\u6D4F\u89C8\u5668\u65E0\u6CD5\u786E\u8BA4\u9762\u677F\u81EA\u7136\u9AD8\u5EA6\uFF0C\u4FDD\u7559\u6355\u83B7\u5C3A\u5BF8");
+        }
+      }
       if (["input", "textarea", "select"].includes(name) || original.isContentEditable) {
         stats.redactedControls++;
         target.evidence = { status: "unsupported", method: "redacted" };
         omissions.add("\u8F93\u5165\u53CA\u53EF\u7F16\u8F91\u5185\u5BB9\u5DF2\u8131\u654F\uFF1B\u672A\u77E5\u63A7\u4EF6\u4EC5\u663E\u793A\u5B89\u5168\u9759\u6001\u72B6\u6001");
-        if (name === "input" && ["range", "checkbox", "radio"].includes(original.type)) {
+        if (name === "input" && (["range", "checkbox", "radio"].includes(original.type) || original.type === "number" && controlledNumbers.has(original))) {
           target.tag = "input";
           target.component = "control";
           target.attrs = { type: original.type, disabled: "" };
-          if (original.type === "range") for (const k of ["min", "max", "step", "value"]) target.attrs[k] = String(original[k]).slice(0, 30);
+          if (["range", "number"].includes(original.type)) for (const k of ["min", "max", "step", "value"]) target.attrs[k] = String(original[k]).slice(0, 30);
           else if (original.checked) target.attrs.checked = "";
         } else target.children = [{ text: "[\u8F93\u5165\u5185\u5BB9\u5DF2\u8131\u654F]" }];
         return target;
@@ -408,7 +586,18 @@
       target.component = ns === "svg" ? "graphic" : ns === "math" ? "formula" : name === "table" ? "table" : "container";
       if (name === "svg") stats.svg++;
       if (original.id && ids.has(original.id)) target.attrs.id = ids.get(original.id);
+      if (originallyHidden.has(original)) target.attrs.hidden = "";
+      const finiteAttributes = { role: ["tab", "tabpanel", "tablist"], "aria-selected": ["true", "false"], "aria-hidden": ["true", "false"], tabindex: ["0", "-1"] };
+      for (const [key, allowed] of Object.entries(finiteAttributes)) {
+        const value = original.getAttribute(key);
+        if (allowed.includes(value)) target.attrs[key] = value;
+      }
+      for (const key of ["aria-controls", "aria-labelledby"]) {
+        const value = original.getAttribute(key);
+        if (value && ids.has(value)) target.attrs[key] = ids.get(value);
+      }
       for (const attr of original.attributes) {
+        if (["role", "aria-selected", "aria-hidden", "tabindex", "hidden", "aria-controls", "aria-labelledby"].includes(attr.name)) continue;
         if (allowedAttributes.has(attr.name) || ["gradientUnits", "gradientTransform", "clipPathUnits", "maskUnits", "patternUnits"].includes(attr.name)) {
           if (attr.value.length >= (["d", "points"].includes(attr.name) ? 1e5 : 1e3)) throw Error("SVG \u5C5E\u6027\u8D85\u8FC7\u5B89\u5168\u5927\u5C0F\u9650\u5236");
           const v = ["d", "points"].includes(attr.name) && !/url\s*\(|javascript:|data:|[<>\\@]/i.test(attr.value) ? attr.value : cssValue(attr.value);
@@ -468,21 +657,16 @@
       }
       return target;
     }
-    const revealed = [];
-    if (method === "sanitized-dom" && trustFixtureURL(location.href)) for (const el of selected.querySelectorAll('[data-uip-recipe="table@1"] tr[hidden]')) {
-      revealed.push(el);
-      el.hidden = false;
+    for (const c of candidates) {
+      if (["tabs@1", "state@1"].includes(c.recipe)) for (const el of componentRoles(c.root).get("panel") || []) controlledPanels.add(el);
+      if (!["table@1", "tabs@1", "state@1"].includes(c.recipe)) continue;
+      for (const el of c.root.querySelectorAll(c.recipe === "table@1" ? "tr[hidden]" : '[data-uip-role="panel"][hidden]')) {
+        if (el.closest("[data-uip-recipe]") !== c.root) continue;
+        originallyHidden.add(el);
+      }
     }
-    if (method === "sanitized-dom" && trustFixtureURL(location.href) && selected.matches('[data-uip-recipe="table@1"]')) for (const el of selected.querySelectorAll("tr[hidden]")) {
-      revealed.push(el);
-      el.hidden = false;
-    }
-    let tree;
-    try {
-      tree = await clone(selected);
-    } finally {
-      for (const el of revealed) el.hidden = true;
-    }
+    const treeCaptured = await clone(selected);
+    let tree = treeCaptured;
     if (!tree) throw Error("\u8FD9\u4E2A\u533A\u57DF\u6CA1\u6709\u53EF\u4EE5\u5BFC\u51FA\u7684\u53EF\u89C1\u5185\u5BB9");
     const rootCss = getComputedStyle(selected), rootWidth = rootCss.transform === "none" ? rect.width : selected.offsetWidth || rect.width, rootHeight = rootCss.transform === "none" ? rect.height : selected.offsetHeight || rect.height;
     Object.assign(tree.style, { "margin": "0", "position": "relative", "top": "auto", "right": "auto", "bottom": "auto", "left": "auto", "box-sizing": "border-box", "width": rootWidth + "px", "height": rootHeight + "px" });
@@ -513,20 +697,17 @@
       }
     }
     if (background === "transparent") background = matchMedia("(prefers-color-scheme: dark)").matches ? "#202124" : "#fff";
-    const behaviors = [];
-    if (method === "sanitized-dom" && trustFixtureURL(location.href)) {
-      const paths = new Map([...nodes(tree)].map(([p, n]) => [n, p]));
-      for (const root of [selected, ...selected.querySelectorAll("[data-uip-recipe]")]) {
-        const recipe = root.getAttribute("data-uip-recipe");
-        if (!["fourier@1", "table@1"].includes(recipe)) continue;
-        const bindings = { root: paths.get(captured.get(root)) };
-        for (const el of root.querySelectorAll("[data-uip-role]")) bindings[el.getAttribute("data-uip-role")] = paths.get(captured.get(el));
-        const value = (key) => Number(root.querySelector(`[data-uip-role="${key}"]`).value);
-        const state = recipe === "fourier@1" ? { harmonics: value("harmonics"), amplitude: value("amplitude"), phase: value("phase") } : { minimum: value("filter"), direction: root.dataset.direction || "asc" };
-        behaviors.push({ recipe, bindings, state, evidence: "fixture-equivalence-v1" });
+    const behaviors = [], paths = new Map([...nodes(tree)].map(([p, n]) => [n, p]));
+    for (const candidate of candidates) {
+      try {
+        const behavior = extractCandidate(candidate, captured, paths, contract.evidence);
+        validateBehaviors({ tree, behaviors: [...behaviors, behavior] });
+        behaviors.push(behavior);
+      } catch (error) {
+        omissions.add(`\u7EC4\u4EF6 ${candidate.recipe} \u9759\u6001\u964D\u7EA7\uFF1A${error.message}`);
       }
     }
-    const s = { schemaVersion: "1.2.0", behaviors, kind: "ui-portability-snapshot", capability: "static", createdAt: (/* @__PURE__ */ new Date()).toISOString(), source, dimensions: { width: Math.ceil(rect.width), height: Math.ceil(rect.height) }, background, tree, resources, provenance: { method, status: "captured" }, stats, omissions: [...omissions], limitations: ["\u4E0D\u662F\u539F\u59CB\u4EA4\u4E92\u7684\u65E0\u635F\u590D\u5236", "\u56FA\u5B9A\u5C3A\u5BF8\u9759\u6001\u5E03\u5C40\uFF1B\u4E0D\u4FDD\u8BC1\u5B8C\u6574\u54CD\u5E94\u5F0F\u89C4\u5219"], security: { redacted: true, remoteResources: false, scripts: false } };
+    const s = { schemaVersion: VERSION, behaviors, kind: "ui-portability-snapshot", capability: "static", createdAt: (/* @__PURE__ */ new Date()).toISOString(), source, dimensions: { width: Math.ceil(rect.width), height: Math.ceil(rect.height) }, background, tree, resources, provenance: { method, status: "captured" }, stats, omissions: [...omissions], limitations: ["\u4E0D\u662F\u539F\u59CB\u4EA4\u4E92\u7684\u65E0\u635F\u590D\u5236", "\u56FA\u5B9A\u5C3A\u5BF8\u9759\u6001\u5E03\u5C40\uFF1B\u4E0D\u4FDD\u8BC1\u5B8C\u6574\u54CD\u5E94\u5F0F\u89C4\u5219"], security: { redacted: true, remoteResources: false, scripts: false } };
     return validateSnapshot(s);
   }
 
@@ -546,7 +727,7 @@
         });
       }
     }
-    const bindings = new Set(active ? (s.behaviors || []).flatMap((b) => Object.values(b.bindings)) : []);
+    const bindings = new Set(active ? (s.behaviors || []).flatMap((b) => bindingPaths(b.bindings)) : []);
     function render(n, path = "0") {
       if (Object.hasOwn(n, "text")) return escape(n.text);
       const r = resources.get(n.resourceId);
@@ -560,11 +741,11 @@
       const style = { ...n.style };
       const recipeAncestor = (s.behaviors || []).some((b) => b.bindings.root === path || b.bindings.root.startsWith(path + "."));
       const nativeAncestor = active && analysis.components.some((c) => c.recipe === "native-details@1" && (c.path === path || c.path.startsWith(path + ".")));
-      if (recipeAncestor || nativeAncestor) {
+      if (active && recipeAncestor || nativeAncestor) {
         style.height = "auto";
         if (style.display === "grid") style["grid-template-rows"] = "none";
       }
-      if ((s.behaviors || []).some((b) => b.recipe === "table@1" && path.startsWith(b.bindings.root + ".") && ["table", "tbody", "tr", "td", "th"].includes(n.tag))) style.height = "auto";
+      if (active && (s.behaviors || []).some((b) => b.recipe === "table@1" && path.startsWith(b.bindings.root + ".") && ["table", "tbody", "tr", "td", "th"].includes(n.tag))) style.height = "auto";
       const css = Object.entries(style).map(([k, v]) => `${k}:${v}`).join(";");
       const tag = `<${n.tag}${Object.entries(attrs).map(([k, v]) => ` ${k}="${escape(v)}"`).join("")}${css ? ` style="${escape(css)}"` : ""}>`;
       return tag + (["img", "input", "br", "hr"].includes(n.tag) ? "" : n.children.map((c, i) => render(c, path + "." + i)).join("") + `</${n.tag}>`);
@@ -584,6 +765,7 @@
     globalThis.__uiPortabilityCleanup?.();
     globalThis.__uiPortabilityActive = true;
     const format = globalThis.__UI_PORTABILITY_FORMAT__ || "html";
+    const controlled = globalThis.__UI_PORTABILITY_CONTROLLED__ === true;
     const host = document.createElement("div");
     host.dataset.uipPicker = "";
     host.style.cssText = "all:initial!important;position:fixed!important;inset:0!important;z-index:2147483647!important;pointer-events:none!important";
@@ -679,7 +861,7 @@
       const signal = controller.signal;
       shadow.getElementById("error").textContent = "\u6355\u83B7\u4E2D\u2026 Esc \u53EF\u53D6\u6D88";
       try {
-        const snapshot = await captureElement(last, { signal, exclude: host, onProgress: (n) => shadow.getElementById("error").textContent = `\u6355\u83B7\u4E2D\u2026 ${n} \u8282\u70B9 \xB7 Esc \u53EF\u53D6\u6D88` });
+        const snapshot = await captureElement(last, { signal, controlled, exclude: host, onProgress: (n) => shadow.getElementById("error").textContent = `\u6355\u83B7\u4E2D\u2026 ${n} \u8282\u70B9 \xB7 Esc \u53EF\u53D6\u6D88` });
         if (format === "svg" && !svg(snapshot)) throw Error("SVG \u683C\u5F0F\u53EA\u80FD\u9009\u62E9 SVG \u6839\u5143\u7D20");
         if (signal.aborted) return;
         if (!globalThis.chrome?.runtime?.id) throw Error("\u8BF7\u901A\u8FC7\u5DF2\u5B89\u88C5\u6269\u5C55\u7684 Popup \u542F\u52A8\u6355\u83B7");

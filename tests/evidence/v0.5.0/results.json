@@ -1,0 +1,146 @@
+{
+  "a-light": {
+    "variant": "a",
+    "theme": "light",
+    "sourceClosed": true,
+    "behaviors": 5,
+    "html": "PASS",
+    "zip": "PASS",
+    "static": "PASS",
+    "pixel": {
+      "ratio": 0,
+      "mae": 6.943528894748406e-05,
+      "threshold": {
+        "ratio": 0.02,
+        "mae": 2
+      }
+    },
+    "staticPixel": {
+      "ratio": 0.00022280817402768624,
+      "mae": 0.021592617007251153,
+      "threshold": {
+        "ratio": 0.02,
+        "mae": 2
+      }
+    },
+    "externalRequests": [],
+    "runtimeErrors": []
+  },
+  "a-dark": {
+    "variant": "a",
+    "theme": "dark",
+    "sourceClosed": true,
+    "behaviors": 5,
+    "html": "PASS",
+    "zip": "PASS",
+    "static": "PASS",
+    "pixel": {
+      "ratio": 0,
+      "mae": 5.141727092946605e-05,
+      "threshold": {
+        "ratio": 0.02,
+        "mae": 2
+      }
+    },
+    "staticPixel": {
+      "ratio": 0.00022280817402768624,
+      "mae": 0.018499670402109425,
+      "threshold": {
+        "ratio": 0.02,
+        "mae": 2
+      }
+    },
+    "externalRequests": [],
+    "runtimeErrors": []
+  },
+  "b-light": {
+    "variant": "b",
+    "theme": "light",
+    "sourceClosed": true,
+    "behaviors": 5,
+    "html": "PASS",
+    "zip": "PASS",
+    "static": "PASS",
+    "pixel": {
+      "ratio": 0,
+      "mae": 0.00013159873665212813,
+      "threshold": {
+        "ratio": 0.02,
+        "mae": 2
+      }
+    },
+    "staticPixel": {
+      "ratio": 0.0005295282498621347,
+      "mae": 0.05128381878645076,
+      "threshold": {
+        "ratio": 0.02,
+        "mae": 2
+      }
+    },
+    "externalRequests": [],
+    "runtimeErrors": []
+  },
+  "b-dark": {
+    "variant": "b",
+    "theme": "dark",
+    "sourceClosed": true,
+    "behaviors": 5,
+    "html": "PASS",
+    "zip": "PASS",
+    "static": "PASS",
+    "pixel": {
+      "ratio": 0,
+      "mae": 9.399909760866295e-05,
+      "threshold": {
+        "ratio": 0.02,
+        "mae": 2
+      }
+    },
+    "staticPixel": {
+      "ratio": 0.0005295282498621347,
+      "mae": 0.043938311525542686,
+      "threshold": {
+        "ratio": 0.02,
+        "mae": 2
+      }
+    },
+    "externalRequests": [],
+    "runtimeErrors": []
+  },
+  "composite": {
+    "light": {
+      "theme": "light",
+      "width": 1200,
+      "sourceClosed": true,
+      "recipes": [
+        "tabs@1",
+        "fourier@1",
+        "state@1",
+        "table@1"
+      ],
+      "html": "PASS",
+      "zip": "PASS",
+      "scope": "inner chart/table and outer tabs/state independently operated",
+      "archiveSHA256": "PASS",
+      "externalRequests": [],
+      "runtimeErrors": []
+    },
+    "dark": {
+      "theme": "dark",
+      "width": 375,
+      "sourceClosed": true,
+      "recipes": [
+        "tabs@1",
+        "fourier@1",
+        "state@1",
+        "table@1"
+      ],
+      "html": "PASS",
+      "zip": "PASS",
+      "scope": "inner chart/table and outer tabs/state independently operated",
+      "archiveSHA256": "PASS",
+      "externalRequests": [],
+      "runtimeErrors": []
+    }
+  }
+}

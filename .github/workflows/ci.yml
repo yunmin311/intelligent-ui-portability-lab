@@ -21,9 +21,10 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: v041-verification
+          name: v050-verification
           path: |
             tests/artifacts/v0.4.1
-            tests/artifacts/v0.4.1-installed
+            tests/artifacts/v0.5.0-installed
+            tests/artifacts/v0.5.0
             test-results
-            dist/v0.4.1
+            dist/v0.5.0

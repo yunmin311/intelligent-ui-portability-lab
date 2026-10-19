@@ -1,0 +1,37 @@
+{
+  "developmentFailures": [
+    {
+      "test": "legacy local HTML import / format race",
+      "cause": "two assertions expected IR1.2 instead of current1.3",
+      "fix": "update expected schemaVersion only; content/security checks retained"
+    },
+    {
+      "test": "malformed recipe topology",
+      "cause": "stricter validator emitted a new nesting diagnosis without prior structure category",
+      "fix": "retain structure mismatch category plus specific nesting reason"
+    }
+  ],
+  "independentSecurityReview": [
+    {
+      "finding": "localhost path inferred source identity/equivalence",
+      "resolution": "all-page explicit tab/origin consent; model evidence only"
+    },
+    {
+      "finding": "parser reparenting exposes hidden panel descendants",
+      "resolution": "parser-stable panel tags and topology checks"
+    },
+    {
+      "finding": "ordinary role/tabindex caused whole capture rejection",
+      "resolution": "finite attribute filtering and diagnostics"
+    },
+    {
+      "finding": "unbounded recipe scans before node preflight",
+      "resolution": "node/depth/abort first, candidate max20"
+    },
+    {
+      "finding": "Static/active fixed panel height changed to auto",
+      "resolution": "render retains panel height; capture TypedOM confirms authored auto"
+    }
+  ],
+  "finalScopedReview": "all five resolved; 11/11 v05 unit tests independently rerun"
+}
