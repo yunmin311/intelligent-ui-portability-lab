@@ -1,51 +1,14 @@
-# v0.4.1 验收报告
+# v0.5.0 验收报告 · 2026-10-19
 
-日期：2026-10-19。开始前 `git fetch origin`；实际main/origin/main为 `5bc8cfffd362a68b45379c6da8f9406fc03bdd58`，工作区干净。工作分支 `codex/v0.4.1-roundtrip`。测试/包字节校验、当前远端CI结果分别如下；不以v0.4历史报告代替本轮测试。
+Decision：在已有项目内开发；开始前 fetch，实际 main/origin/main `22da495b300d080e1aa0840c2494cdfbbea21e2c`，工作区干净。工作分支 `codex/v0.5-adapters`。历史 v0.4.1 报告可从该基准提交读取，历史 evidence 均保留。
 
-## 当前结果与环境
+## 实现与能力
 
-**Implemented：** IR1.2版本化安全交互往返、明确三种策略、单独降级确认及核心渲染校验、诊断与UI、1.0/1.1迁移、完整安装包MV3复测脚本和CI。权限仍仅 activeTab/scripting/storage，未改变许可或ChatGPT Gate。
+**Implemented：** 关闭式版本化 Registry，Source Adapter 契约，tabs@1、calculator@1（有界求和）、state@1（布尔双面板）；Fourier/table/native-details 整合到统一能力系统。IR1.3，1.0/1.1/1.2 迁移、逐项校验、固定运行时和 HTML/ZIP 统一策略。Popup 显式受控契约，预览紧凑操作栏及有界可展开报告。详见 [架构](../docs/ARCHITECTURE.md)、[能力矩阵](../docs/FIDELITY_MATRIX.md)、[UI 审查与实际截图](../docs/V05_UI_AUDIT.md)。
 
-**Tested：** `npm test` 包含27项单元与22项浏览器测试（21项真实Chromium MV3、1项普通页面选择器测试）。最终结果见 [完整日志](evidence/v0.4.1/final-test.log) 与 [逐文件验证证明](evidence/v0.4.1/verified-build.json)。依赖审计结果见 [npm-audit.json](evidence/v0.4.1/npm-audit.json)。安装ZIP独立复测和远端CI状态见下文，不将中间构建结果当最终包证明。
+识别与模型校验严格分离；页面标记、域名、localhost 路径均不能授予来源等价证据。所有页面有限模型捕获都需用户显式请求，后台绑定 tab/origin/5分钟授权；控件仍须逐项通过校验。实捕、导入均只给 `model-validated`；受控 fixture 的输入输出等价证据保留在本报告，不冒充任意来源程序证明。新捕获不授予 `reconstructed-tested`。
 
-WSL2 Ubuntu24.04、Node24.21.0、Python3.12、Playwright1.64.1、Chromium156.0.8078.4 / Linux。实际 [运行环境记录](evidence/v0.4.1/runtime.json)。Windows Chrome/Edge、Obsidian GUI为 **Unverified**，见 [人工验收](MANUAL_ACCEPTANCE.md) 和 [平台记录](evidence/v0.4.1/platform-status.json)。发现安装/进程不是功能通过；当前桌面工具无法在此WSL路径初始化。
-
-## P0交互往返与安全
-
-真实流程：自有fixture改变Fourier到N=8/A=1.3/φ=-0.75，表格筛选30降序，浅/暗折叠初态分别闭合/打开 → 工具栏真实Popup获得activeTab → 选区域捕获 → 浏览器下载完整JSON → **关闭来源页和原预览** → 从本地导入JSON → Interactive确认部分降级 → 下载HTML/ZIP → file://打开、实际操作。
-
-[浅色行为结果](evidence/v0.4.1/v041-light-roundtrip-result.json)、[暗色行为结果](evidence/v0.4.1/v041-dark-roundtrip-result.json)：HTML及解压ZIP中各3组Fourier参数与模型逐点相同，表格初始降序/筛选30→升序→清空0严格匹配，details反复4次开合，未知按钮保持禁用。请求监听均零HTTP(S)；ZIP逐项SHA-256验证。
-
-外部入口清除source/provenance/security声明，验证基础树、资源，再逐项校验内置Fourier@1/table@1名称/版本、精确字段、范围、数值类型/步长、唯一组件内绑定、命名空间、当前曲线/表格、有限根/label/output/表格/SVG子树语法与常规HTML祖先。仅固定产品运行时执行；外部代码和表达式从不执行。通过的是 `model-validated`；文件不能伪造 `reconstructed-tested`。原生details另标 `native-preserved`。未知/不匹配配方静态降级并报告；不安全树、资源或未来IR版本拒绝。
-
-单元负样本涵盖未知/错版本recipe、额外code、假evidence、冒用chatgpt.com来源/captured与脱敏声明、跨组件/重复/重叠绑定、缺节点、非法命名空间、超范围、数值字符串/null/表达式、步长不符、曲线不符、资源缺失、XSS和CSS注入。既有恶意SVG、资源URL/MIME/hash/像素、ZIP路径、消息来源、CSP附加脚本阻止等测试保留。导入页与后台重复验证，遗漏说明去重，不保留外部执行权。
-
-IR1.0/1.1迁移到1.2；1.0不允许behavior字段，1.1仅旧证据契约，1.2显式增加model-validated-v1。JSON Schema生成无漂移；结构schema之外仍必须通过运行时资源/CSS/模型语义校验。JSON完整快照与纯诊断分离。
-
-## 策略及格式验收
-
-| 策略 | HTML / ZIP实际行为 | 测试 |
-|---|---|---|
-| Auto | 安全已知交互自动恢复；未知组件静态并报告 | 自有及外部JSON混合页离线操作 |
-| Interactive | 零可恢复则禁止导出；有未知部分需显式勾选降级；切格式/策略重置确认 | UI禁用、提示、确认及核心HTML/ZIP直接调用均验证 |
-| Static | 不含运行时，全部控件与details静态化 | 无script、无意外操作/网络及既有静态视觉 |
-
-Markdown/SVG/PNG以static分析，策略控件不可操作；JSON保存含模型的IR但本身不执行。报告逐组件/整体及确认状态可审计；ZIP diagnostic与interaction-report一致。PDF未实现。
-
-## 视觉与真实截图
-
-关闭原页面后的JSON导入HTML，与关闭前来源截图比较。相同Chromium、viewport1200×900、主题、控件状态及字体条件；尺寸严格相同，通道差>16记为变化像素。**保留原有<2%变化比例、MAE<2阈值**，没有更新基线掩盖回归。
-
-| 条件 | 变化像素 | MAE（0–255） |
-|---|---|---|
-| 浅色，N8/A1.3/φ-0.75，filter30降序 | 0.177485% | 0.193121 |
-| 暗色，同状态且details打开 | 0.189051% | 0.197194 |
-
-[浅色指标](evidence/v0.4.1/v041-light-roundtrip-visual.json)、[暗色指标](evidence/v0.4.1/v041-dark-roundtrip-visual.json)。[浅色来源](evidence/v0.4.1/v041-light-source.png) / [导出](evidence/v0.4.1/v041-light-roundtrip.png)，[暗色来源](evidence/v0.4.1/v041-dark-source.png) / [导出](evidence/v0.4.1/v041-dark-roundtrip.png)，[真实确认界面](evidence/v0.4.1/v041-light-confirmation.png)。
-
-既有复杂组件多视口/主题、MathML/Canvas/Shadow DOM/伪元素、根变换、20000节点/80层DOM拒绝、取消/重试/切目标、session后台终止恢复及过期、所有已实现格式与CSP回归全部继续运行。[复杂比较](evidence/v0.4.1/complex-diff.json)、[表格比较](evidence/v0.4.1/table-diff.json)、[SnapDOM开发对照](evidence/v0.4.1/snapdom-complex.json)。未引入生产捕获依赖。视觉结果只证明这些固定样本，不代表任意来源无损复制。
-
-## 可复现产物与打包
+## 测试范围和可复现命令
 
 ```sh
 npm ci
@@ -56,39 +19,51 @@ npm run package
 npm run test:package
 ```
 
-`npm test` 构建并核对测试前后每个扩展文件hash；`package.py`拒绝扩展字节或版本不匹配。extension/source两个ZIP都核对内含扩展字节。`test:package`只解压最终安装ZIP到独立临时目录，加载该目录，运行完整21项MV3 E2E；前后比对每个文件hash，不重建再替换包。单独的普通页面选择器测试已经在npm test运行。安装包实测见 [完整日志](evidence/v0.4.1/installed-test.log) 与 [版本/hash/逐文件证明](evidence/v0.4.1/installed-package.json)。
+最终日志与 hash 证明在 [本轮 evidence](evidence/v0.5.0/)；完整生成数据在忽略目录 `tests/artifacts/v0.5.0/` 与 CI Artifact，不再次提交数万行快照。
 
-本地资产目录 `dist/v0.4.1/`：extension.zip、source.zip（完整名称见 [Release说明草稿](../docs/RELEASE_NOTES_0.4.1.md)）、SHA256SUMS、package-manifest.json。build-info记录基准提交和工作区修改标志，sourceDigest及逐文件hash界定实际构建；不把含改动构建标成纯提交产物。Release未公开发布。
+`npm test`：语法/权限/版本、JSON Schema 无漂移、38项单元、33项浏览器测试。其中28项真实 Linux Chromium MV3（原21项、新增7项），1项普通页面选择器、4项源模块捕获安全测试；后5项不冒充扩展 E2E。完整保留原覆盖，旧 schema 版本断言更新至1.3，不放宽视觉阈值。
 
-真实离线文件：[浅色HTML](evidence/v0.4.1/v041-light-roundtrip.html)、[暗色HTML](evidence/v0.4.1/v041-dark-roundtrip.html)、[完整JSON](evidence/v0.4.1/v041-light-snapshot.json)、[ZIP](evidence/v0.4.1/v041-light-roundtrip.zip)。这些来自自有fixture，不是ChatGPT原生界面或真实账号导出。
+真实 Popup 使用 CDP `Extensions.triggerAction` 点击工具栏，操作实际弹窗 DOM；无权限或 chrome API mock。涵盖选择、取消、重复注入、下载/打开、本地文件、失败恢复、session重启/过期、恶意消息、格式竞争和资源校验。最终安装包另解压到独立临时目录，加载该 ZIP 的原字节运行全部28项 MV3：**28项通过**；不重建替换包。见 [安装包测试日志](evidence/v0.5.0/installed-test.log) 和 [逐文件hash证明](evidence/v0.5.0/installed-package.json)。
 
-## 复现故障与修复
+环境：WSL2 Ubuntu24.04、Node24、Python3.12、Playwright1.64.1、Chromium156.0.8078.4 / Linux。精确运行记录见 [runtime.json](evidence/v0.5.0/runtime.json)。依赖审计全级别0漏洞，锁定依赖及许可不变，SnapDOM仅开发对照。
 
-- 原JSON导入剥离全部behaviors，单元先失败：[red-unit.log](evidence/v0.4.1/failures/red-unit.log)。改为独立验证、固定运行时、清除等价声明后往返通过。
-- 后台旧规则仍阻止已校验外部模型：[background-import-gate.log](evidence/v0.4.1/failures/background-import-gate.log)。后台改为重复规范化验证，而非直接信任或一律剥离。
-- 共享label样式覆盖hidden，零交互仍显示无用确认：[hidden-confirmation.log](evidence/v0.4.1/failures/hidden-confirmation.log)。产品CSS显式保障hidden，保留浏览器回归。
-- 完整测试期间编辑扩展会被测试后字节检查拒绝出证明；最终冻结后重新完整验证。真实预览发现重复校验产生重复警告，增加幂等断言并去重。
+## 行为、往返和视觉
 
-- 独立审查复现表格体脱离table、嵌套table、SVG混入HTML、输出节点包裹控件，原来可保留配方却在浏览器解析或首次操作时失效。现逐项拒绝不匹配配方并静态降级，其他合格配方继续运行；真实MV3负样本验证无运行时异常，见[降级截图](evidence/v0.4.1/v041-topology-downgrade.png)。
-- 空HTML元素包含后代会使渲染丢失已校验配方：新增[先失败的测试](evidence/v0.4.1/failures/void-red.log)，IR与schema共同拒绝input/img/br/hr非空children，单元及真实导入拒绝均通过。[拓扑负例先失败日志](evidence/v0.4.1/failures/topology-red.log)。
+A/B两种不同 DOM 层级 × 浅/暗主题，1200/375视口：操作两个独立tabs、加法计算、布尔开关与details内第二计算器 → 重置到明确初态 → 真实捕获保存JSON → **关闭原来源和原预览** → 导入 → 重新验证 → HTML/ZIP → file://实际操作。多组数字含边界、精度及非法输入；键盘、ARIA、当前状态、组件独立性均断言。
 
-- 原生details位于SVG祖先时会被浏览器解析成SVGElement，现仅在可确认的HTML结构中标native-preserved，否则static-fallback；Interactive零可恢复时阻断。新增[先失败日志](evidence/v0.4.1/failures/native-red.log)及真实导入回归。
+嵌套复合 fixture 两种主题分别验证：tabs内Fourier、状态面板内筛选表格；切换外层与内层参数不串扰。ZIP逐资源SHA-256，HTML/ZIP监听零HTTP(S)请求及零运行时错误。未知控件不获得行为。
 
-## 源码修改清单
+初始来源与重导入HTML、Static使用同浏览器/viewport/主题/状态/字体截图，尺寸严格相同。像素通道差>16计变化；沿用变化比例<2%、MAE<2，未改门槛或替换历史基线。四组详细数字见 [results.json](evidence/v0.5.0/results.json)。[代表性来源](evidence/v0.5.0/a-light-source.png) / [重导入输出](evidence/v0.5.0/a-light-roundtrip.png)，[真实离线HTML](evidence/v0.5.0/a-light-roundtrip.html)。样本来自自有fixture，不是ChatGPT。
 
-- `extension/src/core/import-snapshot.js`（新增）：真实外部JSON入口、身份清除、迁移与资源校验；`ir.js`及`docs/snapshot.schema.json`/`scripts/schema.mjs`：IR1.2与结构约束。
-- `extension/src/core/interactions.js`：有限模型、拓扑校验、逐配方降级、三策略语义；`render.js`/`archive.js`：统一核心策略与归档报告。`runtime.js`保持原有限运行时。
-- `extension/background.js`/`src/worker.js`：重复验证与转换参数；`src/capture/dom.js`：当前schema号；`preview.html/js`、`ui.css`：降级确认、格式反馈与hidden修复。`picker.js`/`import-sandbox.js`/`build-info.json`由构建更新。
-- `package.json`/lock、manifest、`tests/check.mjs`：0.4.1版本；`scripts/test.mjs`/`package.py`/新增`verify-package.mjs`及workflow：测试字节绑定、安装ZIP独立回归。
-- 新增`tests/unit/v041.test.mjs`，扩展`tests/mv3.spec.mjs`；旧unit合法SVG样本及版本断言同步，原覆盖保留。`tests/evidence/v0.4.1/`保存本轮实测与故障证据。
-- README、项目书、CHANGELOG及架构/设计/保真/安全/实施文档按实际能力更新；新增Release草稿、人工验收，未改授权。完整逐行改动由本轮Git提交/PR保留。
+Auto 自动恢复合格有限模型，其余报告静态降级。Interactive：零恢复阻断；混合未知组件需显式确认，HTML/ZIP一致。Static 无固定运行时、原生details也冻结，保留当前状态；静态格式不显示可执行能力。固定面板高度保留；Typed OM确认auto才保存自然高度，无法判定则保守保留并报告。
 
-## 工程与发布状态
+## 安全与修复证据
 
-远端初始main最新CI [39191685384](https://github.com/yunmin311/intelligent-ui-portability-lab/actions/runs/39191685384) 为success，head5bc8cff；这是基线结果。v0.4.1远端运行状态在提交推送后独立核对，最终交付提供当前运行链接及HEAD；本地 `dist/v0.4.1/ci-status.json` 保存交付时读取的远端结果，不拿本段基线代替。当前workflow `chromium` 运行audit、构建/静态/schema、单元、浏览器、打包及完整安装包回归，上传日志与包。
+保持 activeTab/scripting/storage，无新增持久网站权限、cookies/webRequest/远程执行。外部JSON清除来源、安全、脱敏与等价声明，逐模型精确字段、版本、范围/步长、命名空间、绑定唯一性、状态/输出及资源hash校验；未知配方局部降级，不执行代码/表达式。
 
-2026-10-19只读核查rulesets为空，main protection返回404 Branch not protected。建议所有者开启PR合并、必需检查 `chromium`、禁止force push/删除main，按团队需要增加审查和管理员例外。**本轮未修改仓库管理规则**。
+负样本覆盖未知/恶意recipe、假来源/证据、跨组件/重复/逃逸绑定、非法输入、CSS/XSS/SVG、CSP附加代码、URL/MIME/hash、ZIP路径。新增对HTML解析器重排的面板语法约束，避免隐藏内容被浏览器移出面板；普通ARIA属性安全省略、重复ID与引用省略并诊断；5000节点/75层预检及abort先于候选扫描，候选最多20。固定/自动高度回归通过。独立安全审查的5项发现均已修复并专项复核。
 
-**Blocked：** ChatGPT正式自动提取缺已确认接口/授权；官方账户包专用适配缺真实授权样本。Gate保留。**Unverified：** Windows真实浏览器、Obsidian GUI、Chromium114最低声明与其他版本、完整读屏、真实峰值内存。**Proposal：** PDF、其他有真实证据的recipe、正式Source Adapter；无任意第三方脚本恢复承诺。
+中间全套回归曾出现3项失败：两个测试仍断言IR1.2，一个测试依赖旧拓扑诊断类别。已同步版本并保留“结构不匹配”类别；最终重跑和安装包复测为交付依据，失败摘要保留于 [failures.json](evidence/v0.5.0/failures.json)。未通过增大阈值或删除断言消除失败。
 
-**限制：** 模型校验不证明外部原来源行为等价。封闭Shadow/iframe/虚拟或未挂载内容、复杂伪元素/3D、远程图片/字体/动画仍有遗漏；响应式CSS未完整保留。正文和图像秘密不能完整自动识别。Worker可终止，但浏览器同步样式/Canvas调用不是硬超时。session十分钟为逻辑访问过期、物理清理由访问触发。许可保持UNLICENSED。历史v0.2/v0.3/v0.4证据及Git历史保留。
+## 打包、CI与状态
+
+测试前后对全部扩展文件hash比对，测试通过才生成 verified-build。package脚本检查两个 ZIP 内含扩展与该证明逐字节相同；安装包实测前后再次比对。当前资产见 `dist/v0.5.0/`，安装/源码 ZIP、SHA256SUMS及package-manifest。构建记录基准提交和dirty标志，实际sourceDigest/文件hash界定内容，不称为纯基准构建。Release仅[草稿](../docs/RELEASE_NOTES_0.5.0.md)，未公开发布。
+
+当前workflow `chromium` 运行audit、构建/静态/schema、单元、浏览器、打包和安装包验证，上传完整证据与包。远端本轮运行需在提交推送后独立核对，最终交付列当前链接及HEAD；不使用历史main成功代替。建议main保护要求PR和必需检查 `chromium`、禁force push/删除；本轮未变更仓库规则或授权。
+
+**Unverified：** Windows Chrome/Edge、Obsidian GUI。实际尝试Windows桌面桥初始化，工具返回 `sandboxCwd is not a local file URI: file:///mnt/e/...`，在应用操作前失败；不能声称已安装或功能通过。最短步骤见 [人工验收](MANUAL_ACCEPTANCE.md) 与 [platform-status.json](evidence/v0.5.0/platform-status.json)。其他Chromium版本/最低114、读屏、真实峰值内存亦未完整验证。
+
+**Blocked：** ChatGPT自动提取缺公开确认接口/授权；官方账户包适配缺真实授权样本。Gate保持。
+
+**Proposal：** PDF、更多有明确模型/授权的适配器、真实第三方来源等价验证。**Exploration：** SnapDOM仍开发比较，不增加生产捕获依赖。**Deprecated：** 固定页面路径授予fixture身份的旧规则，历史版本入口不作为当前能力。
+
+仍有限制：任意第三方业务JS、远程资源、未挂载/虚拟内容、封闭Shadow、完整响应式CSS未恢复；正文/Canvas秘密无法全面自动脱敏；浏览器同步style/Canvas调用不是硬超时；session逻辑过期10分钟，访问触发物理清理。许可保持UNLICENSED。
+
+## 源码变更索引
+
+- 新增 core/adapters.js、sources.js、capture/adapters.js；更新 interactions/ir/policy/runtime/render/import-snapshot 和 capture/dom/picker；schema生成与IR迁移。
+- background/popup：tab授权、来源契约及重复后台校验；preview/ui：报告层级和下载操作；构建picker/import-sandbox/runtime-source/build-info由脚本生成。
+- 新增 adapters-a/b/composite fixture、v05单元与浏览器/安全/组合测试；旧MV3版本断言与显式契约同步。
+- 版本/lock/manifest、安装包验证、CI Artifact、生成证据治理；项目书/README/架构/设计/安全/保真/变更日志及当前Release草稿。
+
+完整逐行变更由本轮Git提交/PR保留；未删除既有成果或重写历史。

@@ -1,4 +1,4 @@
-# v0.4.1 实际架构 · Decision
+# v0.5.0 实际架构 · Decision
 
 源码使用原生 ES modules，无前端框架、后端或生产 npm 库。esbuild 只将内容脚本和隔离导入器打成随包分发的 IIFE 与产品自有有限运行时；其他扩展页使用本地 ESM。
 
@@ -35,15 +35,15 @@ flowchart LR
 | `src/jobs.js` / `src/worker.js` | 独立 Worker 校验/序列化/ZIP；超10秒 terminate |
 | `preview.js` | 展示、格式最新任务隔离、有限 PNG、显式下载与过期状态 |
 
-## Snapshot IR 1.2.0
+## Snapshot IR 1.3.0
 
 机器结构见 [snapshot.schema.json](snapshot.schema.json)，完整安全语义以 `validateSnapshot` + `verifyResources` 为准。JSON Schema 不能代替样式函数、标签/属性组合、引用一致性和资源 hash 校验；CI 检查 schema 生成无漂移。
 
 顶层：schemaVersion/kind、创建时间、来源类型与脱敏 origin、dimensions/background、tree、resources、provenance、capability、omissions、limitations、security、可选 stats。来源不保存查询串、路径、文件名或身份。节点含白名单 tag/ns/attrs/style/children、组件类型、有限滚动状态和来源 evidence；资源为允许栅格的 base64/MIME/SHA-256，不接收远程地址。
 
-来源方法区分 DOM、local-file、raster-import、migrated-v02。节点 `captured` 和 `unsupported` 显式区分；静态树自身的能力仍为 `static` 或 `visual-only`。可选 behaviors 存储 recipe 名称/版本、数字节点路径绑定、有限 state 和固定测试证据标记；不存代码。分析器根据校验结果、来源入口和导出策略派生组件/文件能力，不把外部 evidence 当认证。有限状态记录不等于原生逻辑复原。它不是 ChatGPT 原生组件协议。
+来源方法区分 DOM、local-file、raster-import、migrated-v02。节点 `captured` 和 `unsupported` 显式区分；静态树自身的能力仍为 `static` 或 `visual-only`。可选 behaviors 存储 recipe 名称/版本、数字节点路径绑定、有限 state 和有界证据标记；不存代码。分析器根据校验结果、来源入口和导出策略派生组件/文件能力，不把外部 evidence 当认证。有限状态记录不等于原生逻辑复原。它不是 ChatGPT 原生组件协议。
 
-原生1.2快照读写稳定；1.0验证后补空behaviors，1.1保留合法旧配方并迁移1.2；未知版本失败关闭。1.0不允许行为字段，1.1只接受旧证据枚举。新1.2增加 `model-validated-v1`，区分模型校验与 `fixture-equivalence-v1`。外部入口始终清除来源、脱敏和等价声明；即使伪造 captured / fixture-equivalence，也只能得到 model-validated。v0.2 static-snapshot 的 HTML 必须重新通过隔离净化，缺失信息不恢复。
+原生 1.3 快照读写；1.0/1.1/1.2 先按原版本验证再迁移 1.3。旧版本不得携带新增 recipe，1.0 不允许 behaviors，1.1 只接受旧证据枚举。未知版本失败关闭。外部入口始终清除来源、脱敏和等价声明；即使伪造 captured / fixture-equivalence，也只能得到 model-validated。v0.2 static-snapshot 的 HTML 必须重新经过隔离净化，缺失信息不恢复。
 
 `import-snapshot.js` 先约束JSON字节/版本，强制local与external-unverified，剥离行为后验证基础树/资源；`interactions.externalImport` 再逐项独立验证候选（最多20），仅保留内置模型匹配项并重写证据。后台对导入消息重复执行该边界；资源完整性验证失败拒绝整个快照。未知或结构不符的行为保留静态树并产生诊断，不运行外部代码、字符串表达式或来源脚本。格式渲染器只读已校验IR；迁移不重新获取来源。
 
@@ -76,6 +76,27 @@ ZIP 含 index.html、snapshot.json、notes.md、diagnostic.json、已获得的 r
 
 `interactions.js` 独立校验/分析能力；`recipes.js` 是自有纯数值模型；`runtime.js` 绑定白名单节点并用 textContent / SVG d / replaceChildren 更新，不使用 eval、innerHTML 或网络。构建生成 runtime-source.js 与 CSP hash；render 只将固定脚本及验证过的数据写入单文件。ZIP保留相同可直接打开的HTML，另附JS/CSS审阅副本，不隐式执行第二份运行时。
 
-原生 details/summary 不依赖原站JS。Fourier recipe有限N=1..12、振幅0..1.5、相位±3.14；241点、600×180曲线。表格≤200行、每格≤100字、数值0..50，稳定排序/筛选。绑定必须唯一、存在、位于组件根内，并与标签/范围/当前模型输出一致。捕获IR中的未知recipe拒绝；外部导入未知recipe逐项静态降级；未知网页控件禁用。来源识别用于自有loopback fixture的捕获证据，不是签名或通用网站行为提取。外部文件可以匹配同一安全模型，但不获得来源等价证明。
+原生 details/summary 不依赖原站JS。Fourier recipe有限N=1..12、振幅0..1.5、相位±3.14；241点、600×180曲线。表格≤200行、每格≤100字、数值0..50，稳定排序/筛选。绑定必须唯一、存在、位于组件根内，并与标签/范围/当前模型输出一致。合法面板组合允许嵌套，具体见下节。捕获IR中的未知recipe拒绝；外部导入未知recipe逐项静态降级；未知网页控件禁用。所有网页均需显式受控契约才能检测有限模型；loopback 路径没有自动授信能力。外部文件可以匹配同一安全模型，但不获得来源等价证明。
 
-Auto恢复通过有限模型的已知行为，其余静态。Interactive在零可恢复交互时拒绝导出；混合组件必须由用户显式确认降级。render.html和archive共用exportPolicy，直接调用也不能绕过。确认记录于交互报告，切格式/策略重置确认。Static无脚本且details inert。HTML/ZIP保留局部原生/重建，MD/SVG/PNG静态、JSON保存结构。已知交互所在祖先允许高度随内容增长；这不构成完整响应式CSS恢复。未来Source Adapter只在有正式授权和真实样本后接入IR，当前没有ChatGPT适配器。
+Auto恢复通过有限模型的已知行为，其余静态。Interactive在零可恢复交互时拒绝导出；混合组件必须由用户显式确认降级。render.html和archive共用exportPolicy，直接调用也不能绕过。确认记录于交互报告，切格式/策略重置确认。Static无脚本且details inert。HTML/ZIP保留局部原生/重建，MD/SVG/PNG静态、JSON保存结构。已知交互所在祖先允许高度随内容增长；这不构成完整响应式CSS恢复。当前 Source Adapter 仅表达数据入口权限与有限模型开关，没有 ChatGPT 适配器。
+
+## v0.5 Source Adapter 与组件注册表（Decision）
+
+`src/core/sources.js` 将 HTTP(S) 通用 DOM、用户受控契约、本地文件分开：`generic-dom@1` 不提取有限 recipe；Popup `#controlledSource` 显式开启 `user-contract@1` 后才允许候选提取；`local-file@1` 不从 HTML/SVG 猜测有限模型。`ownedFixtureURL` 仅是测试路径辅助，不能赋予运行时信任；不存在自动所有权认证或按路径授信的来源类型。所有实捕模型使用 `model-validated-v1`。fixture 输入输出等价性由实际测试证明并写入报告，不能由路径或勾选框生成。
+
+`src/core/adapters.js` 为封闭版本注册表；`src/capture/adapters.js` 负责候选和绑定提取；`interactions.js` 校验结构/状态/组合边界；`runtime.js` 执行固定模型。没有动态插件执行、字符串表达式或外部代码入口。
+
+| recipe | 绑定与有限状态 | 运行范围 |
+| --- | --- | --- |
+| fourier@1 | root / harmonics / amplitude / phase / curve / output | 保留原数值模型 |
+| table@1 | root / filter / sort / body / output | 保留有限筛选与稳定排序 |
+| tabs@1 | root / tabs[] / panels[]；active 整数 | 2–12 个匹配面板；点击与方向键、Home/End；检查 ARIA 和当前可见状态 |
+| calculator@1 | root / left / right / output；两个有限数值 | 只做加法，两输入各 -100…100、步长 0.01；不接受任意表达式 |
+| state@1 | root / control / panels[]；active 布尔值 | 一个 checkbox 控制恰好两个面板，不恢复任意状态机 |
+| native-details@1 | 浏览器原生结构分析 | 不存为自有 behaviors，不依赖来源脚本 |
+
+绑定数组有界、路径唯一、引用存在且在组件根内；不同组件不得共享绑定。嵌套仅允许子组件位于父组件独立面板中，禁止交叉绑定；面板结构必须经 HTML 解析后稳定。捕获为已校验有限模型保留所需隐藏面板/表格行，不能据此读取任意隐藏内容；其他隐藏内容仍不捕获。受控加法数字输入为模型保留值，普通输入继续脱敏。
+
+`fixtures/adapters-a.html`、`adapters-b.html` 提供不同包装结构和重复实例；`adapters-composite.html` 包含 tabs 内 Fourier、state 面板内表格。它们是项目测试素材，不是第三方适配器认证。
+
+Proposal：任意第三方行为、官方账户包专用适配与 PDF。Exploration：SnapDOM 开发对照。Deprecated：v0.2 内存 Map、非版本化快照，以及按固定 fixture 路径自动授予实捕等价声明。当前安装入口为本地 `dist/v0.5.0/`，没有公开 v0.5 Release；执行结果以[测试报告](../tests/TEST_REPORT.md)为准。

@@ -1,6 +1,6 @@
 # Intelligent UI Portability · 项目立项书与工程方案
 
-> v0.4.1迭代 · 2026-10-19。保留原立项结构、原项目与历史证据；当前事实按下列Decision及链接文档收敛。与OpenAI无关联，未宣称官方兼容。
+> v0.5.0迭代 · 2026-10-19。保留原立项结构、原项目与历史证据；当前事实按下列Decision及链接文档收敛。与OpenAI无关联，未宣称官方兼容。
 
 ## 1. 目标、非目标和判定标准
 
@@ -26,7 +26,7 @@ HTML优先保留来源视觉、比例、字体回退与当前可见状态；Mark
 
 ## 3. 格式决策（Decision）
 
-HTML为主要视觉产物；Markdown保留语义并明确复杂视觉降级；JSON为IR1.2.0完整快照，独立诊断不含正文。SVG仅根SVG，PNG仅根SVG或导入图片。ZIP实际包含HTML/IR/MD/资源/manifest/SHA-256/报告，不抓跨域资源。HTML/ZIP支持Auto、Interactive、Static策略；组件能力与文件能力分离。PDF为Proposal。各格式边界唯一详表见[保真矩阵](docs/FIDELITY_MATRIX.md)。
+HTML为主要视觉产物；Markdown保留语义并明确复杂视觉降级；JSON为IR1.3.0完整快照，独立诊断不含正文。SVG仅根SVG，PNG仅根SVG或导入图片。ZIP实际包含HTML/IR/MD/资源/manifest/SHA-256/报告，不抓跨域资源。HTML/ZIP支持Auto、Interactive、Static策略；组件能力与文件能力分离。PDF为Proposal。各格式边界唯一详表见[保真矩阵](docs/FIDELITY_MATRIX.md)。
 
 ## 4. 技术架构（Decision）
 
@@ -58,7 +58,7 @@ HTML为主要视觉产物；Markdown保留语义并明确复杂视觉降级；JS
 
 ## 8. 产品范围与阶段门
 
-Decision：v0.4.1沿用v0.3模块化、离线输入与静态基线，加入原生details、自有Fourier/表格有限recipe和局部降级；外部JSON不能自行授予执行权；内置模型经过本地独立校验可安全恢复，但不继承来源等价声明。Auto自动部分恢复，Interactive要求显式降级确认或阻止空交互，Static禁用全部行为。不需要等待ChatGPT接入。
+Decision：v0.5 沿用模块化、离线输入与静态基线，提供原生 details，以及 Fourier/表格/tabs/限定加法/布尔双面板的封闭注册表和局部降级；外部JSON不能自行授予执行权；内置模型经过本地独立校验可安全恢复，但不继承来源等价声明。Auto自动部分恢复，Interactive要求显式降级确认或阻止空交互，Static禁用全部行为。不需要等待ChatGPT接入。
 
 Exploration：复杂页面保真与捕获技术持续比较，SnapDOM仅开发对照，当前不引入生产。
 
@@ -74,7 +74,7 @@ Deprecated：v0.2内存Map、混合所有职责的picker与非版本化static-sn
 
 ## 10. 当前实现状态（2026-10-19）
 
-Implemented：模块化捕获、安全IR1.2.0、本地文件导入、HTML/MD/JSON及有限SVG/PNG、ZIP、独立报告、会话恢复、紧凑UI、CI配置和测试绑定打包。选择性交互、IR迁移、CSS属性边界修复与外部来源信任隔离；真实结果/截图见测试报告。本轮CI、安装包逐字节复测和平台未验证项统一见测试报告，不以历史CI代替。
+Decision / Implemented：模块化捕获、安全IR1.3.0、本地文件导入、HTML/MD/JSON及有限SVG/PNG、ZIP、独立报告、会话恢复、紧凑UI、CI配置和测试绑定打包。选择性交互、IR迁移、CSS属性边界修复与外部来源信任隔离；真实结果/截图见测试报告。本轮CI、安装包逐字节复测和平台未验证项统一见测试报告，不以历史CI代替。
 
 Blocked：原生ChatGPT数据获取及无数据的完整交互恢复。Unverified：其他浏览器/真实官方账户包。Proposal：PDF等上述后续选项。没有为了版本号虚构原生交互或全网站兼容。
 
@@ -87,3 +87,16 @@ Blocked：原生ChatGPT数据获取及无数据的完整交互恢复。Unverifie
 - 当前许可证保持UNLICENSED。MIT/Apache-2.0/保留所有权的依据见[依赖与许可](docs/DEPENDENCIES.md)，所有者未决定前不授予新的复用许可。
 - 用户已授权更新后提交、推送、合并；不公开发布Release或商店。
 - v0.4.1：IR1.2安全模型往返；清除外部等价声明；Interactive显式确认；全安装包MV3回归。
+
+
+## 12. v0.5 收敛决策（Decision）
+
+所有网页有限模型提取须由用户在 Popup 显式勾选受控组件契约；本地 fixture 不例外。Source Adapter 分离普通 DOM、用户受控契约和本地文件，路径不能认证所有权；实捕模型证据一律 model-validated-v1。外部 JSON 独立校验后也只能获得模型证明，来源等价性只由真实测试在报告中记录。
+
+IR 1.3 增加 tabs@1、calculator@1、state@1，保留 Fourier/table。加法输入各 -100…100、步长 0.01；布尔状态只控制两个面板。合法组合允许独立面板内的嵌套组件，禁止交叉绑定；具体范围以架构与保真矩阵为准。
+
+插件 UI 保留已有令牌与布局语义，分组工具栏、单一主操作、有界报告、折叠遗漏与逐组件证据；实际截图见 [UI 审查](docs/V05_UI_AUDIT.md)。当前交付为本地 dist/v0.5.0 安装与源码 ZIP，没有公开 v0.5 Release。历史版本链接不作为当前入口。
+
+Windows Chrome/Edge 与 Obsidian GUI 继续 Unverified：本轮 Windows GUI 工具因 sandboxCwd 启动失败，不能据此声称原生应用已验收。测试数量、运行平台、完整安装包结果统一引用[测试报告](tests/TEST_REPORT.md)。ChatGPT Gate 与 UNLICENSED 不变。
+
+Proposal / Exploration / Deprecated 的既有边界继续有效；新增 Deprecated 项为按固定 fixture 路径自动授予捕获等价声明。官方资料章节保留既有核对记录，本轮未重新核验外部条款与产品信息。

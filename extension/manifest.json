@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "UI Portability Lab (Prototype)",
   "description": "Local visual snapshots and selective, verified offline interactions. ChatGPT integration remains blocked.",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "minimum_chrome_version": "114",
   "permissions": [
     "activeTab",
@@ -15,7 +15,7 @@
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'",
-    "sandbox": "sandbox allow-scripts; default-src 'none'; script-src 'self' 'sha256-ZACeuzh8xLLsRJpAQ/oS5Ooe5WqNKJ6olGi1dA/OGXI='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'"
+    "sandbox": "sandbox allow-scripts; default-src 'none'; script-src 'self' 'sha256-IhMNfhBiLKqiS29H2m4cIGBT7yB8mlXxv9pycQW2HdQ='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'"
   },
   "background": {
     "service_worker": "background.js",

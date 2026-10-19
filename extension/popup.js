@@ -15,7 +15,9 @@ button.addEventListener('click', async () => {
     const host = new URL(tab.url).hostname.toLowerCase();
     if (host === 'chatgpt.com' || host.endsWith('.chatgpt.com') || host === 'chat.openai.com' || host.endsWith('.chat.openai.com')) throw new Error('ChatGPT 合规闸门：尚无已确认的原生 UI 导出授权路径。请在本地测试页面或其他获准页面使用。');
     const format = document.getElementById('format').value;
-    await chrome.scripting.executeScript({target:{tabId:tab.id},func:f=>{globalThis.__UI_PORTABILITY_FORMAT__=f;},args:[format]});
+    const controlled=document.getElementById('controlledSource')?.checked===true;
+    const grant=await chrome.runtime.sendMessage({type:'sourceContract',tabId:tab.id,controlled});if(grant.error)throw Error(grant.error);
+    await chrome.scripting.executeScript({target:{tabId:tab.id},func:(f,c)=>{globalThis.__UI_PORTABILITY_FORMAT__=f;globalThis.__UI_PORTABILITY_CONTROLLED__=c;},args:[format,controlled]});
     await chrome.scripting.executeScript({target:{tabId:tab.id},files:['picker.js']});
     window.close();
   } catch (error) {
