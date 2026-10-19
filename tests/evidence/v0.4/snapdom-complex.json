@@ -1,0 +1,13 @@
+{
+  "source": [
+    920,
+    389
+  ],
+  "snapdom": [
+    920,
+    389
+  ],
+  "changedPixelRatio": 0.017162177266122722,
+  "meanAbsoluteChannelError": 0.639227301516337,
+  "decision": "dev-only; input privacy and foreignObject sanitizer boundary remain, see table control"
+}

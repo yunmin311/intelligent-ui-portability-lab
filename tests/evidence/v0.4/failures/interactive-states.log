@@ -1,0 +1,73 @@
+[WebServer] 127.0.0.1 - - [18/Oct/2026 19:27:08] "GET / HTTP/1.1" 200 -
+
+Running 2 tests using 1 worker
+
+(node:38716) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [18/Oct/2026 19:27:10] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [18/Oct/2026 19:27:10] code 404, message File not found
+[WebServer] 127.0.0.1 - - [18/Oct/2026 19:27:10] "GET /favicon.ico HTTP/1.1" 404 -
+[WebServer] 127.0.0.1 - - [18/Oct/2026 19:27:10] "GET /selective-interactions.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [18/Oct/2026 19:27:10] "GET /recipes.js HTTP/1.1" 200 -
+
+  ✓  1 tests/mv3.spec.mjs:185:1 › v0.4 selective strategies, native details, Fourier/table equivalence, HTML + ZIP offline (11.3s)
+  ✘  2 tests/mv3.spec.mjs:212:1 › v0.4 changed initial states / dark visual; imported JSON cannot authorize runtime; CSP blocks extra code (1.7s)
+
+
+  1) tests/mv3.spec.mjs:212:1 › v0.4 changed initial states / dark visual; imported JSON cannot authorize runtime; CSP blocks extra code 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+        680,
+    -   936,
+    +   865,
+      ]
+
+      217 |  // Reset to captured state for a paired visual measurement, not a replacement baseline.
+      218 |  await opened.locator('input').nth(3).evaluate(e=>{e.value=30;e.dispatchEvent(new Event('input',{bubbles:true}));});
+    > 219 |  const a=PNG.sync.read(await page.locator('#mixed').screenshot({path:path.join(evidence,'v04-dark-source.png')})),b=PNG.sync.read(await opened.locator('body>main').screenshot({path:path.join(evidence,'v04-dark-export.png')}));expect([a.width,a.height]).toEqual([b.width,b.height]);let changed=0,mae=0;for(let i=0;i<a.data.length;i+=4){let d=0;for(let j=0;j<3;j++){const v=Math.abs(a.data[i+j]-b.data[i+j]);d=Math.max(d,v);mae+=v;}if(d>16)changed++;}const metrics={ratio:changed/(a.width*a.height),mae:mae/(a.width*a.height*3),state:'N=8 / filter30 descending / details open',theme:'dark',threshold:{ratio:0.02,mae:2}};await fs.writeFile(path.join(evidence,'v04-dark-visual.json'),JSON.stringify(metrics,null,2));expect(metrics.ratio).toBeLessThan(0.02);expect(metrics.mae).toBeLessThan(2);
+          |                                                                                                                                                                                                                                                              ^
+      220 |  await preview.locator('#format').selectOption('json');await expect(preview.locator('#save')).toBeEnabled();const json=await save(preview,'v04-trusted.json');const original=JSON.parse(await fs.readFile(json,'utf8'));expect(original.behaviors).toHaveLength(2);
+      221 |  const imported=await importFile('claimed.json',JSON.stringify(original));await expect(imported.preview.locator('#interactionReport')).not.toContainText('reconstructed-tested');const safe=await save(imported.preview,'v04-imported-static.html');const safeBody=await fs.readFile(safe,'utf8');expect(safeBody).not.toContain('<script>');const safePage=await context.newPage();await safePage.goto('file://'+safe);await expect(safePage.locator('input').first()).toBeDisabled();
+      222 |  await imported.preview.locator('#format').selectOption('json');await expect(imported.preview.locator('#save')).toBeEnabled();const normalized=JSON.parse(await fs.readFile(await save(imported.preview,'v04-normalized.json'),'utf8'));expect(normalized.source).toEqual({type:'json',origin:'local'});expect(normalized.provenance.status).toBe('external-unverified');expect(normalized.security.redacted).toBe(false);expect(normalized.behaviors).toEqual([]);
+        at /mnt/e/30_项目/intelligent-ui-portability-lab/tests/mv3.spec.mjs:219:254
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-changed-initial-s-a2293-ntime-CSP-blocks-extra-code/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-changed-initial-s-a2293-ntime-CSP-blocks-extra-code/test-failed-6.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-changed-initial-s-a2293-ntime-CSP-blocks-extra-code/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-changed-initial-s-a2293-ntime-CSP-blocks-extra-code/test-failed-4.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-changed-initial-s-a2293-ntime-CSP-blocks-extra-code/test-failed-5.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-changed-initial-s-a2293-ntime-CSP-blocks-extra-code/test-failed-7.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-changed-initial-s-a2293-ntime-CSP-blocks-extra-code/test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/mv3-v0-4-changed-initial-s-a2293-ntime-CSP-blocks-extra-code/error-context.md
+
+    Error Context: test-results/mv3-v0-4-changed-initial-s-a2293-ntime-CSP-blocks-extra-code/error-context.md
+
+  1 failed
+    tests/mv3.spec.mjs:212:1 › v0.4 changed initial states / dark visual; imported JSON cannot authorize runtime; CSP blocks extra code 
+  1 passed (15.1s)

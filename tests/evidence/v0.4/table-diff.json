@@ -1,0 +1,11 @@
+{
+  "width": 1000,
+  "height": 238,
+  "changedPixelRatio": 0,
+  "meanAbsoluteChannelError": 0.05832492997198879,
+  "threshold": {
+    "ratio": 0.015,
+    "channel": 2
+  },
+  "conditions": "same Chromium,1200x900,system fonts,table same state; element clip excludes exterior shadow"
+}

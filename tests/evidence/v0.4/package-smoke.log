@@ -1,0 +1,18 @@
+[WebServer] 127.0.0.1 - - [18/Oct/2026 19:38:44] "GET / HTTP/1.1" 200 -
+
+Running 4 tests using 1 worker
+
+(node:53708) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [18/Oct/2026 19:38:45] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [18/Oct/2026 19:38:45] code 404, message File not found
+[WebServer] 127.0.0.1 - - [18/Oct/2026 19:38:45] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓  1 tests/mv3.spec.mjs:47:1 › real toolbar Popup → selection → preview → download → open + pixel golden (1.3s)
+[WebServer] 127.0.0.1 - - [18/Oct/2026 19:38:46] "GET /selective-interactions.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [18/Oct/2026 19:38:46] "GET /recipes.js HTTP/1.1" 200 -
+
+  ✓  2 tests/mv3.spec.mjs:185:1 › v0.4 selective strategies, native details, Fourier/table equivalence, HTML + ZIP offline (10.5s)
+  ✓  3 tests/mv3.spec.mjs:212:1 › v0.4 changed initial states / dark visual; imported JSON cannot authorize runtime; CSP blocks extra code (7.4s)
+  ✓  4 tests/mv3.spec.mjs:228:1 › v0.4 native-only grid expands without overlap or source toggle side effects (977ms)
+
+  4 passed (22.9s)

@@ -1,16 +1,27 @@
+import {tableOrder} from './recipes.js';
+import {analyze,nodes,tableRows} from './interactions.js';
+import {runtimeSource,runtimeHash} from './runtime-source.js';
 import {validateSnapshot,serialize,diagnostic} from './ir.js';
 export const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const csp="default-src 'none'; img-src data:; style-src 'unsafe-inline'; font-src 'none'; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'";
-export function fragment(s){validateSnapshot(s);const resources=new Map(s.resources.map(r=>[r.id,r]));
- function render(n){if(Object.hasOwn(n,'text'))return escape(n.text);
- const r=resources.get(n.resourceId);const attrs={...n.attrs};if(r)attrs.src=`data:${r.mime};base64,${r.data}`;
+export function fragment(s,{strategy='static'}={}){validateSnapshot(s);const resources=new Map(s.resources.map(r=>[r.id,r]));
+ const active=strategy!=='static',analysis=analyze(s,strategy);const hiddenRows=new Set();const treeMap=nodes(s.tree);for(const b of s.behaviors||[]){if(b.recipe==='table@1'){const body=treeMap.get(b.bindings.body),visible=new Set(tableOrder(tableRows(body),b.state));body.children.forEach((_,i)=>{if(!visible.has(i))hiddenRows.add(b.bindings.body+'.'+i);});}}const bindings=new Set(active?(s.behaviors||[]).flatMap(b=>Object.values(b.bindings)):[]);
+ function render(n,path='0'){if(Object.hasOwn(n,'text'))return escape(n.text);
+ const r=resources.get(n.resourceId);const attrs={...n.attrs};if(hiddenRows.has(path))attrs.hidden='';if(bindings.has(path))attrs['data-uip-node']=path;if(n.tag==='details'&&!active)attrs.inert='';if(r)attrs.src=`data:${r.mime};base64,${r.data}`;
  if(n.ns==='svg'&&n.tag==='svg')attrs.xmlns='http://www.w3.org/2000/svg';if(n.ns==='math'&&n.tag==='math')attrs.xmlns='http://www.w3.org/1998/Math/MathML';
- const css=Object.entries(n.style).map(([k,v])=>`${k}:${v}`).join(';');
+ const style={...n.style};
+ const recipeAncestor=(s.behaviors||[]).some(b=>b.bindings.root===path||b.bindings.root.startsWith(path+'.'));
+ const nativeAncestor=active&&analysis.components.some(c=>c.recipe==='native-details@1'&&(c.path===path||c.path.startsWith(path+'.')));
+ // Resolved grid tracks freeze the old height even when height is auto.
+ if(recipeAncestor||nativeAncestor){style.height='auto';if(style.display==='grid')style['grid-template-rows']='none';}
+ if((s.behaviors||[]).some(b=>b.recipe==='table@1'&&path.startsWith(b.bindings.root+'.')&&['table','tbody','tr','td','th'].includes(n.tag)))style.height='auto';
+
+ const css=Object.entries(style).map(([k,v])=>`${k}:${v}`).join(';');
  const tag=`<${n.tag}${Object.entries(attrs).map(([k,v])=>` ${k}="${escape(v)}"`).join('')}${css?` style="${escape(css)}"`:''}>`;
- return tag+(['img','input','br','hr'].includes(n.tag)?'':n.children.map(render).join('')+`</${n.tag}>`);
+ return tag+(['img','input','br','hr'].includes(n.tag)?'':n.children.map((c,i)=>render(c,path+'.'+i)).join('')+`</${n.tag}>`);
  }return render(s.tree);
 }
-export function html(s){const body=fragment(s);return `<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="${csp}"><meta name="ui-portability-report" content="${escape(JSON.stringify(diagnostic(s)))}"><title>UI snapshot · ${s.capability}</title><style>html,body{margin:0;padding:0;background:${s.background}}body{width:${s.dimensions.width}px}</style></head><body>${body}</body></html>`;}
+export function html(s,{strategy='auto'}={}){const analysis=analyze(s,strategy),body=fragment(s,{strategy}),behaviors=strategy==='static'?[]:(s.behaviors||[]);const script=behaviors.length?`<script>${runtimeSource}</script>`:'';const policy=csp+(script?`; script-src 'sha256-${runtimeHash}'`:"; script-src 'none'");return `<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="${policy}"><meta name="ui-portability-report" content="${escape(JSON.stringify({...diagnostic(s),interaction:analysis}))}"><meta name="uip-interactions" content="${escape(JSON.stringify(behaviors))}"><title>UI snapshot · ${analysis.capability}</title><style>html,body{margin:0;padding:0;background:${s.background}}body{width:${s.dimensions.width}px}[inert]{pointer-events:none}tr[hidden]{display:none!important}</style></head><body>${body}${script}</body></html>`;}
 export function svg(s){validateSnapshot(s);if(s.tree.ns!=='svg'||s.tree.tag!=='svg')return null;const body=fragment(s);return body.replace(/(<svg[^>]*>)/,`$1<metadata>${escape(JSON.stringify(diagnostic(s)))}</metadata>`);}
 const mdText=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/[\\`*_{}\[\]()!#|~]/g,'\\$&');
 export function markdown(s,{archive=false}={}){validateSnapshot(s);const lines=[];
@@ -29,4 +40,4 @@ export function markdown(s,{archive=false}={}){validateSnapshot(s);const lines=[
  if(tag==='img'){lines.push(imageMarker(n));return;}n.children.forEach(walk);
  }walk(s.tree);return `<!-- capability: ${s.capability}; 不含原始交互 -->\n`+lines.join('\n').replace(/\n{3,}/g,'\n\n').trim()+'\n';}
 export const extension=mime=>({'image/png':'png','image/jpeg':'jpg','image/webp':'webp'}[mime]);
-export function render(s,format){if(format==='json')return serialize(s);if(format==='html')return html(s);if(format==='md')return markdown(s);if(format==='svg'){const out=svg(s);if(!out)throw Error('SVG 格式只能选择 SVG 根元素');return out;}throw Error('不支持的格式');}
+export function render(s,format,options={}){if(format==='json')return serialize(s);if(format==='html')return html(s,options);if(format==='md')return markdown(s);if(format==='svg'){const out=svg(s);if(!out)throw Error('SVG 格式只能选择 SVG 根元素');return out;}throw Error('不支持的格式');}

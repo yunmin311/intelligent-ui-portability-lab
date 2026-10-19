@@ -1,0 +1,14 @@
+{
+  "strategies": [
+    "auto",
+    "interactive",
+    "static"
+  ],
+  "fourierCases": 3,
+  "nativeDetails": "closed→open→closed",
+  "table": "filter30→desc→filter0",
+  "html": "PASS",
+  "zip": "PASS",
+  "externalRequests": [],
+  "zipEntryHashes": "PASS"
+}
