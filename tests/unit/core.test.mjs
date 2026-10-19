@@ -20,3 +20,5 @@ import {rasterDimensions} from '../../extension/src/core/raster.js';
 test('encoded image size checked before decoding',()=>{const data=Uint8Array.from([137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,255,255,0,0,255,255]);assert.throws(()=>rasterDimensions(data,'image/png'),/100/);assert.throws(()=>rasterDimensions(new Uint8Array(8),'image/png'));});
 
 test('Markdown nested visuals are explicit rather than silently dropped',()=>{const s=sample();s.tree.children=[{tag:'p',ns:'html',attrs:{},style:{},children:[{text:'before'},{tag:'svg',ns:'svg',attrs:{},style:{},children:[]},{tag:'img',ns:'html',attrs:{},style:{},children:[]}]}];assert.match(markdown(s),/svg见 HTML/);assert.match(markdown(s),/图片见 HTML/);});
+
+test('Markdown preformatted content retains blank lines, spaces and fence literals',()=>{const s=sample();const body='  first\n\n\n\n<script>literal</script>\n```\n';s.tree={tag:'pre',ns:'html',attrs:{},style:{},children:[{text:body}]};assert.ok(markdown(s).includes('````\n'+body+'\n````'));});

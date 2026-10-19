@@ -279,6 +279,74 @@
     else if (recipe === "state@1") state = { active: roles.get("control")?.[0]?.checked === true };
     return { recipe, bindings, state, evidence };
   }
+  function prevalidateCandidate(candidate, evidence) {
+    const { root, recipe } = candidate, adapter = getAdapter(recipe);
+    if (!adapter || adapter.native) throw Error("\u672A\u77E5\u6216\u4E0D\u517C\u5BB9\u7684\u9002\u914D\u5668\uFF1A" + recipe);
+    const roles = componentRoles(root), defaults = recipe === "fourier@1" ? { harmonics: 1, amplitude: 1, phase: 0 } : recipe === "table@1" ? { minimum: 0, direction: "asc" } : recipe === "calculator@1" ? { left: 0, right: 0 } : recipe === "tabs@1" ? { active: 0 } : { active: false };
+    const identity = /* @__PURE__ */ new Map();
+    let serial = 0;
+    for (const el of [root, ...root.querySelectorAll("[id]")]) if (el.id) {
+      if (identity.has(el.id)) identity.set(el.id, null);
+      else identity.set(el.id, "uip-" + serial++);
+    }
+    function representation(state, readText) {
+      const captured = /* @__PURE__ */ new WeakMap();
+      function walk(el, modelText = false) {
+        if (el.nodeType === 3) return { text: readText && modelText ? el.nodeValue || "" : "" };
+        if (el.nodeType !== 1) return null;
+        const n = { tag: el.localName, ns: el.namespaceURI === "http://www.w3.org/2000/svg" ? "svg" : "html", attrs: {}, children: [], style: {} };
+        captured.set(el, n);
+        for (const k of ["type", "min", "max", "step", "role", "aria-selected", "aria-hidden", "tabindex", "d"]) if (el.hasAttribute(k)) n.attrs[k] = el.getAttribute(k);
+        if (el.id && identity.get(el.id)) n.attrs.id = identity.get(el.id);
+        for (const k of ["aria-controls", "aria-labelledby"]) if (el.hasAttribute(k)) n.attrs[k] = identity.get(el.getAttribute(k)) || "invalid-reference";
+        if (el.hidden) n.attrs.hidden = "";
+        if (el.localName === "input") {
+          n.attrs.disabled = "";
+          if (el.type === "checkbox") {
+            if (el.checked) n.attrs.checked = "";
+          } else {
+            const role2 = el.getAttribute("data-uip-role"), key = role2 === "filter" ? "minimum" : role2;
+            n.attrs.value = String(state[key] ?? 0);
+          }
+        }
+        const role = el.getAttribute("data-uip-role");
+        const requiredText = recipe === "calculator@1" && role === "output" || recipe === "table@1" && el.localName === "td";
+        if (readText && recipe === "calculator@1" && role === "output") for (let p = el; p; p = p.parentElement) {
+          if (p.hidden || getComputedStyle(p).display === "none" || ["hidden", "collapse"].includes(getComputedStyle(p).visibility)) throw Error("\u8BA1\u7B97\u8F93\u51FA\u5FC5\u987B\u53EF\u89C1");
+          if (p === root) break;
+        }
+        n.children = [...el.childNodes].map((child) => walk(child, modelText || requiredText)).filter(Boolean);
+        if (!readText && recipe === "fourier@1" && role === "curve") n.attrs.d = fourierPath(state);
+        if (!readText && recipe === "calculator@1" && role === "output") n.children = [{ text: String(Number((state.left + state.right).toFixed(2))) }];
+        if (!readText && recipe === "table@1" && el.localName === "td") n.children = [{ text: el.cellIndex === 1 ? "0" : "row" }];
+        return n;
+      }
+      const tree = walk(root), paths = new Map([...nodes(tree)].map(([p, n]) => [n, p]));
+      const bindings = { root: "0" }, arrayRole = Object.fromEntries(Object.entries(adapter.arrayRoles).map(([binding, role]) => [role, binding]));
+      for (const [role, elements] of roles) {
+        if (arrayRole[role]) bindings[arrayRole[role]] = elements.map((el) => paths.get(captured.get(el)));
+        else {
+          if (elements.length !== 1) throw Error("\u91CD\u590D\u7EC4\u4EF6\u7ED1\u5B9A\uFF1A" + role);
+          bindings[role] = paths.get(captured.get(elements[0]));
+        }
+      }
+      validateBehaviors({ tree, behaviors: [{ recipe, bindings, state, evidence }] });
+    }
+    if (recipe === "tabs@1") defaults.active = (roles.get("tab") || []).findIndex((el) => el.getAttribute("aria-selected") === "true");
+    if (recipe === "state@1") defaults.active = roles.get("control")?.[0]?.checked === true;
+    representation(defaults, false);
+    const fakeCapture = /* @__PURE__ */ new WeakMap(), fakePaths = /* @__PURE__ */ new Map();
+    let i = 0;
+    for (const el of [root, ...root.querySelectorAll("*")]) {
+      const n = {};
+      fakeCapture.set(el, n);
+      fakePaths.set(n, String(i++));
+    }
+    const behavior = extractCandidate(candidate, fakeCapture, fakePaths, evidence);
+    representation(behavior.state, false);
+    representation(behavior.state, true);
+    return candidate;
+  }
 
   // extension/src/core/policy.js
   var allowedHtml = new Set("a article aside blockquote br button caption code dd details div dl dt em figcaption figure h1 h2 h3 h4 h5 h6 header hr i kbd label li main mark ol p pre q s samp section small span strong sub summary sup output table tbody td th thead tfoot time tr u ul".split(" "));
@@ -442,8 +510,16 @@
     for (const id of ambiguousIDs) ids.delete(id);
     if (ambiguousIDs.size) omissions.add("\u91CD\u590D\u6765\u6E90 ID \u7684\u6807\u8BC6\u4E0E\u5F15\u7528\u5DF2\u79FB\u9664\uFF0C\u907F\u514D\u7ED1\u5B9A\u5230\u9519\u8BEF\u8282\u70B9");
     signal?.throwIfAborted();
-    const candidates = detectCandidates(selected, contract);
-    if (candidates.length > 20) throw Error("\u7EC4\u4EF6\u5019\u9009\u8D85\u8FC7 20 \u4E2A\uFF0C\u8BF7\u7F29\u5C0F\u533A\u57DF");
+    const detected = detectCandidates(selected, contract);
+    if (detected.length > 20) throw Error("\u7EC4\u4EF6\u5019\u9009\u8D85\u8FC7 20 \u4E2A\uFF0C\u8BF7\u7F29\u5C0F\u533A\u57DF");
+    const candidates = [];
+    for (const c of detected) {
+      try {
+        candidates.push(prevalidateCandidate(c, contract.evidence));
+      } catch (error) {
+        omissions.add(`\u7EC4\u4EF6 ${c.recipe} \u9759\u6001\u964D\u7EA7\uFF08\u9884\u9A8C\u8BC1\uFF09\uFF1A${error.message}`);
+      }
+    }
     const controlledNumbers = new Set(candidates.filter((c) => c.recipe === "calculator@1").flatMap((c) => [...componentRoles(c.root).get("left") || [], ...componentRoles(c.root).get("right") || []]));
     signal?.throwIfAborted();
     function cssValue(value) {
@@ -475,15 +551,6 @@
       return { tag, ns, attrs: {}, style: {}, children: [], evidence: { status: "captured", method: "computed-dom" } };
     }
     async function clone(original, depth = 0) {
-      if (!originallyHidden.has(original)) return cloneVisible(original, depth);
-      original.hidden = false;
-      try {
-        return await cloneVisible(original, depth);
-      } finally {
-        original.hidden = true;
-      }
-    }
-    async function cloneVisible(original, depth = 0) {
       if (++visited > 5e3 || depth > 75) throw Error("\u6355\u83B7\u8D85\u8FC7 5000 \u8282\u70B9\u6216 75 \u5C42");
       if (visited % 16 === 0) {
         onProgress(visited);
@@ -504,10 +571,11 @@
         return null;
       }
       const css = getComputedStyle(original);
-      if (css.display === "none" || ["hidden", "collapse"].includes(css.visibility)) return null;
+      if (css.display === "none" && !originallyHidden.has(original) || ["hidden", "collapse"].includes(css.visibility)) return null;
       let target = node();
       captured.set(original, target);
       target.style = styles(css);
+      if (originallyHidden.has(original) && target.style.display === "none") delete target.style.display;
       stats.elements++;
       if (controlledPanels.has(original)) {
         try {
@@ -704,7 +772,9 @@
         validateBehaviors({ tree, behaviors: [...behaviors, behavior] });
         behaviors.push(behavior);
       } catch (error) {
-        omissions.add(`\u7EC4\u4EF6 ${candidate.recipe} \u9759\u6001\u964D\u7EA7\uFF1A${error.message}`);
+        const fallback = await captureElement(selected, { signal, exclude, onProgress, source, method, controlled: false });
+        fallback.omissions.push(`\u7EC4\u4EF6 ${candidate.recipe} \u6355\u83B7\u671F\u95F4\u6539\u53D8\uFF0C\u5DF2\u91CD\u65B0\u6309\u9ED8\u8BA4\u8131\u654F\u6355\u83B7\uFF1A${error.message}`);
+        return validateSnapshot(fallback);
       }
     }
     const s = { schemaVersion: VERSION, behaviors, kind: "ui-portability-snapshot", capability: "static", createdAt: (/* @__PURE__ */ new Date()).toISOString(), source, dimensions: { width: Math.ceil(rect.width), height: Math.ceil(rect.height) }, background, tree, resources, provenance: { method, status: "captured" }, stats, omissions: [...omissions], limitations: ["\u4E0D\u662F\u539F\u59CB\u4EA4\u4E92\u7684\u65E0\u635F\u590D\u5236", "\u56FA\u5B9A\u5C3A\u5BF8\u9759\u6001\u5E03\u5C40\uFF1B\u4E0D\u4FDD\u8BC1\u5B8C\u6574\u54CD\u5E94\u5F0F\u89C4\u5219"], security: { redacted: true, remoteResources: false, scripts: false } };

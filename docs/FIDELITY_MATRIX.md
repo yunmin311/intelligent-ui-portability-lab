@@ -48,3 +48,14 @@ SnapDOM 3.3.4仅开发依赖：简单表格与复杂样本实际对照，记录�
 Interactive 有未知组件需确认降级，零可恢复交互时阻止导出；Auto 局部恢复。JSON 现行为 IR 1.3，旧 1.0/1.1/1.2 验证后迁移；旧版本不能携带新增模型。关闭来源后的往返、重复实例、多包装结构、嵌套面板、HTML/ZIP 后续操作与实际像素结果见[测试报告](../tests/TEST_REPORT.md)，不由本矩阵虚构测试数量。
 
 Windows Chrome/Edge 与 Obsidian GUI 仍为 Unverified；WSL Chromium 不代替原生 GUI。Proposal：PDF、任意 HTML 截图和任意第三方行为恢复。Exploration：SnapDOM 开发对照。Deprecated：固定 fixture 路径自动等价授信，以及旧版仅 Fourier/table 的当前能力描述。
+
+## v0.5.1 主动输入
+
+| 输入 | 保存与降级 | 标记 |
+|---|---|---|
+| 截图 | 原/保存尺寸报告；≤1MP重新编码，可能JPEG有损；HTML内嵌，ZIP资源及notes相对链接；不保存原文件 | visual-only |
+| 富文本 | 得到的标题/表格/代码/列表/MathML安全表示/有限样式；原生details可保留；未知脚本不恢复，远程资源省略 | static树；导出报告按原生能力派生 |
+| 纯文本 | 字面HTML、缩进、首尾及连续换行；HTML预格式化，MD代码围栏 | static |
+| 本地IR1.3 | 既有逐配方独立校验和去信任，JSON往返保持 | model-validated，不证明来源等价 |
+
+富文本剪贴板未携带的CSS、字体、图表或公式不能凭空恢复；截图小字经缩放会损失。截图静态MD入口禁用，使用ZIP带资源笔记；Obsidian实际渲染仍Unverified。

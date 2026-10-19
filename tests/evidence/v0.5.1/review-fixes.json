@@ -1,0 +1,26 @@
+{
+  "review": "Independent source review; no external content execution found",
+  "fixed": [
+    {
+      "finding": "Import width string ignored",
+      "fix": "Send numeric width to isolated parser",
+      "regression": "Rich paste asserts dimensions.width == 600"
+    },
+    {
+      "finding": "HTML parser removed first LF in literal pre",
+      "fix": "Empty child prevents pre initial-newline stripping",
+      "regression": "Real Control+C/Control+V, leading two LF and trailing LF"
+    },
+    {
+      "finding": "Markdown collapsed code empty lines",
+      "fix": "No global newline compression; preserve pre text",
+      "regression": "Unit code-fence whitespace and MV3 literal Markdown"
+    }
+  ],
+  "developmentTestFixes": [
+    "Wait for importer module load before synthetic paste",
+    "Expand options before filling width",
+    "Keep Python ZIP check regex escapes literal"
+  ],
+  "visualThresholdChanged": false
+}

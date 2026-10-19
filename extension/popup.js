@@ -16,9 +16,12 @@ button.addEventListener('click', async () => {
     if (host === 'chatgpt.com' || host.endsWith('.chatgpt.com') || host === 'chat.openai.com' || host.endsWith('.chat.openai.com')) throw new Error('ChatGPT 合规闸门：尚无已确认的原生 UI 导出授权路径。请在本地测试页面或其他获准页面使用。');
     const format = document.getElementById('format').value;
     const controlled=document.getElementById('controlledSource')?.checked===true;
-    const grant=await chrome.runtime.sendMessage({type:'sourceContract',tabId:tab.id,controlled});if(grant.error)throw Error(grant.error);
-    await chrome.scripting.executeScript({target:{tabId:tab.id},func:(f,c)=>{globalThis.__UI_PORTABILITY_FORMAT__=f;globalThis.__UI_PORTABILITY_CONTROLLED__=c;},args:[format,controlled]});
-    await chrome.scripting.executeScript({target:{tabId:tab.id},files:['picker.js']});
+    const [injectedDocument]=await chrome.scripting.executeScript({target:{tabId:tab.id},func:()=>true});
+    if(!injectedDocument?.documentId)throw Error('无法确认当前文档，请刷新后重试');
+    const grant=await chrome.runtime.sendMessage({type:'sourceContract',tabId:tab.id,documentId:injectedDocument.documentId,controlled});if(grant.error)throw Error(grant.error);
+    const target={tabId:tab.id,documentIds:[injectedDocument.documentId]};
+    await chrome.scripting.executeScript({target,func:(f,c)=>{globalThis.__UI_PORTABILITY_FORMAT__=f;globalThis.__UI_PORTABILITY_CONTROLLED__=c;},args:[format,controlled]});
+    await chrome.scripting.executeScript({target,files:['picker.js']});
     window.close();
   } catch (error) {
     status.textContent = '无法启动：'+String(error.message || error);

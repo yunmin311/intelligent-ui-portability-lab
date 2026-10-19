@@ -1,21 +1,25 @@
-# Intelligent UI Portability Lab · v0.5.0
+# Intelligent UI Portability Lab · v0.5.1
 
-本地浏览器扩展：保存有权处理的页面区域，或导入自己的 HTML、SVG、JSON、PNG/JPEG/WebP 文件，检查静态外观与遗漏，再下载。HTML 优先保留来源视觉，不套品牌卡片；不上传内容。
+本地浏览器扩展：保存有权处理的页面区域，或主动粘贴截图、富文本、纯文本，导入自己的 HTML、SVG、JSON、PNG/JPEG/WebP、TXT/MD 文件，检查静态外观与遗漏，再下载。HTML 优先保留来源视觉，不套品牌卡片；不上传内容。
 
 **Decision：当前支持浏览器原生折叠，以及经明确受控契约和有限模型校验的 Fourier、表格、标签页、加法计算、布尔面板切换。未知行为静态降级，图片 `visual-only`。不复制来源脚本或完整响应式规则；ChatGPT 自动提取仍禁用。** 长期目标与当前能力见 [项目书](PROJECT_PROPOSAL.md)。
 
-当前交付入口：本轮本地 `dist/v0.5.0/` 的 extension/source ZIP、`SHA256SUMS` 和 `package-manifest.json`（先 `npm test && npm run package` 可重建）。源码更新按验证后提交、推送、合并的流程交付；尚未公开发布 v0.5.0 Release；历史 v0.2/v0.3 ZIP 仅供追溯，不是最新版。
+当前交付入口：本轮本地 `dist/v0.5.1/` 的 extension/source ZIP、`SHA256SUMS` 和 `package-manifest.json`（先 `npm test && npm run package` 可重建）。源码更新按验证后提交、推送、合并的流程交付；尚未公开发布 v0.5.1 Release；历史 v0.2/v0.3 ZIP 仅供追溯，不是最新版。
 
-安装包尚未公开发布；仓库最新源码入口为 [main](https://github.com/yunmin311/intelligent-ui-portability-lab/tree/main)，当前打包与验证结果见 [测试报告](tests/TEST_REPORT.md)。[v0.5.0 Release 草稿](docs/RELEASE_NOTES_0.5.0.md)列出当前资产；旧版草稿仅为历史记录。Windows Chrome/Edge 与 Obsidian GUI 当前 Unverified（本轮 Windows GUI 工具因 sandboxCwd 启动失败，未完成应用内验证），按[人工验收步骤](tests/MANUAL_ACCEPTANCE.md)验证。
+安装包尚未公开发布；仓库最新源码入口为 [main](https://github.com/yunmin311/intelligent-ui-portability-lab/tree/main)，当前打包与验证结果见 [测试报告](tests/TEST_REPORT.md)。[v0.5.1 Release 草稿](docs/RELEASE_NOTES_0.5.1.md)列出当前资产；旧版草稿仅为历史记录。Windows Chrome/Edge 与 Obsidian GUI 当前 Unverified（本轮 Windows GUI 工具因 sandboxCwd 启动失败，未完成应用内验证），按[人工验收步骤](tests/MANUAL_ACCEPTANCE.md)验证。
 
 ## 安装与使用
 
 解压 extension 安装包，在 Chrome `chrome://extensions` 或 Edge `edge://extensions` 打开开发者模式，加载包内 `extension/` 文件夹。源码中的 `extension/` 也可直接加载；修改 `extension/src/` 后需执行 `npm ci && npm run build`，再重载扩展。最低声明 Chromium 114；实际运行验证版本与平台见 [测试报告](tests/TEST_REPORT.md)，不把最低声明当兼容性实测。
 
 1. 在自己的页面点击扩展 → 选择格式 → 如需有限模型，明确勾选“受控组件契约（仅已知模型）” → **选择页面区域**。悬停预选，点击锁定，↑/↓ 扩大或缩小到容器，Enter 捕获，Esc 取消。失败后可重试；重复注入清理旧选择器。
-2. 或点击 **导入本地文件**，选择/拖入一个文件。HTML/SVG 在隔离页净化后处理；JSON 必须符合本项目 IR。宽度选项仅控制 HTML 文件解析视口。
+2. 或点击 **手动粘贴 / 导入文件**。从来源页面手动复制文字、富文本，或用系统截图，回到导入页按 **Ctrl+V**；也可选取或拖入一个文件。转换后自动打开现有预览，可取消、重试和继续粘贴。HTML/SVG 在无扩展权限的隔离页净化，纯文本按字面保存；JSON 沿用 IR 1.3 交互往返。宽度仅控制 HTML 解析视口。
 3. 预览显示隔离的原貌与受支持交互；检查组件能力、差异和遗漏，选择 Auto（默认）/ Interactive / Static 策略，再选格式下载。**JSON 是含正文的完整快照；下载遗漏报告只含诊断信息。** 浏览器是否完成保存请看下载列表。
-4. 下载后本地打开 HTML；ZIP 先解压再打开 `index.html`。Markdown 可放入 Obsidian，复杂图形有降级提示。没有自动写入 vault 的权限。
+4. 下载后本地打开 HTML；ZIP 先解压再打开 `index.html`。Markdown 可放入 Obsidian，复杂图形有降级提示。截图请选 ZIP，将 `notes.md` 与 `resources/` 一起放入 Obsidian；单独 Markdown 对截图禁用，避免失效链接。没有自动写入 vault 的权限。
+
+**从 ChatGPT 手动复制/截图 → 扩展导入页 Ctrl+V → 预览 → HTML/ZIP → 本地打开**无需测试服务器或编辑 JSON。扩展不会因此访问 ChatGPT 网页；自动捕获 Gate 继续禁用。实际 ChatGPT 用户样本尚未提供，本轮使用明确标记的合成内容验证链路。
+
+截图输入上限 16 MB、4000 万像素、单轴16384；解码前检查尺寸，缩放至不超过100万像素并重新编码。预览列出原图/保存尺寸及 PNG 或 JPEG 有损状态，**不保留原文件**，小字可能变糊；需要更清晰可分区域截图。IR 1.3/单资源2MB base64上限未放宽。
 
 仅对明确允许处理的网页使用。普通段落、图片和 Canvas 中的秘密不能自动识别，下载前必须检查。无需登录本产品。
 
@@ -51,15 +55,15 @@ npm run package
 npm run test:package
 ```
 
-`npm test` 执行打包、语法/权限/schema 检查、Node 单元测试和真实 Chromium MV3 E2E。测试通过记录扩展逐文件 hash；`npm run package` 拒绝未测或变动的扩展，输出 `dist/v0.5.0/` 下源码与安装 ZIP、manifest 和 SHA256SUMS。构建信息记录基准提交、工作区修改标志、运行文件 hash；以实际文件 hash 为准，不把脏工作区标为纯提交构建。
+`npm test` 执行打包、语法/权限/schema 检查、Node 单元测试和真实 Chromium MV3 E2E。测试通过记录扩展逐文件 hash；`npm run package` 拒绝未测或变动的扩展，输出 `dist/v0.5.1/` 下源码与安装 ZIP、manifest 和 SHA256SUMS。构建信息记录基准提交、工作区修改标志、运行文件 hash；以实际文件 hash 为准，不把脏工作区标为纯提交构建。
 
 ```sh
 python3 -m http.server 8765 --directory fixtures
 ```
 
-浏览器打开 `http://localhost:8765/interactive-demo.html` 或 `complex-components.html` 或 `selective-interactions.html`，手动完成选择→预览→下载→打开。自动测试另用 18787 端口，实际工具栏 Popup 交互，无授权 mock。临时截图在 `tests/artifacts/v0.5.0/`；保留的验收证据在 `tests/evidence/v0.5.0/`。
+浏览器打开 `http://localhost:8765/interactive-demo.html` 或 `complex-components.html` 或 `selective-interactions.html`，手动完成选择→预览→下载→打开。自动测试另用 18787 端口，实际工具栏 Popup 交互，无授权 mock。临时截图在 `tests/artifacts/v0.5.1/`；保留的验收证据在 `tests/evidence/v0.5.1/`。
 
-完整往返：在自有 `selective-interactions.html` 或 `adapters-composite.html` 勾选受控契约后选取混合区域并保存 JSON → 关闭来源页 → 从 Popup 导入 JSON → 选择 HTML 或 ZIP → Interactive 时按提示确认部分降级 → 下载后离线操作滑块、筛选、排序和折叠。JSON 不存源代码；验证的是固定模型，不能证明任意外部来源行为等价。
+完整往返：在自有 `selective-interactions.html` 或 `adapters-composite.html` 勾选受控契约后选取混合区域并保存 JSON → 关闭来源页 → 从 Popup 导入 JSON → 选择 HTML 或 ZIP → Interactive 时按提示确认部分降级 → 下载后离线操作滑块、筛选、排序和折叠。文件和粘贴共用隔离、IR验证、预览与渲染，无第二套生产导出器。JSON 不存源代码；验证的是固定模型，不能证明任意外部来源行为等价。
 
 ## 安全与工程资料
 
@@ -68,6 +72,7 @@ python3 -m http.server 8765 --directory fixtures
 - [架构与 IR](docs/ARCHITECTURE.md) · [JSON Schema](docs/snapshot.schema.json)
 - [设计规范](docs/DESIGN_SPEC.md) · [研究与技术比较](docs/RESEARCH.md)
 - [安全与合规 Gate](docs/SECURITY_AND_COMPLIANCE.md) · [依赖和许可选择](docs/DEPENDENCIES.md)
+- [交接材料审计](docs/V051_HANDOFF_AUDIT.md)
 - [测试、截图和剩余限制](tests/TEST_REPORT.md) · [变更清单](CHANGELOG.md)
 
 许可证保持 `UNLICENSED`：公开可见不代表授予复用许可。MIT、Apache-2.0 或保留所有权由所有者决定；未擅自改变授权。v0.2 历史证据和发布资产保留；提交、推送和合并已获授权；发布 Release 或商店仍需单独授权。
