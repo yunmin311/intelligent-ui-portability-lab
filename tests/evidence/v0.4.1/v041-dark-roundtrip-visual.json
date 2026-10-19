@@ -1,0 +1,11 @@
+{
+  "changedPixelRatio": 0.0018905134308058484,
+  "mae": 0.19719369828856398,
+  "viewport": "1200x900",
+  "theme": "dark",
+  "threshold": {
+    "ratio": 0.02,
+    "mae": 2
+  },
+  "sourceClosed": true
+}

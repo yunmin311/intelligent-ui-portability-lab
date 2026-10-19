@@ -10,6 +10,7 @@ verified=json.loads(proof.read_text())
 if actual!=verified['files']:raise SystemExit('Extension differs from tested bytes; run npm test again')
 version=json.loads((root/'package.json').read_text())['version']
 assert json.loads((root/'extension/manifest.json').read_text())['version']==version
+if verified.get('version')!=version:raise SystemExit('Tested version differs; run npm test again')
 out=root/'dist'/('v'+version);out.mkdir(parents=True,exist_ok=True)
 # Source list from Git + intended untracked project files; generated test output is excluded.
 listed=subprocess.check_output(['git','ls-files','--cached','--others','--exclude-standard','-z'],cwd=root).decode().split('\0')

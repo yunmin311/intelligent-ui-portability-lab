@@ -16,9 +16,8 @@ chrome.runtime.onMessage.addListener((message,sender,respond)=>{
   if(message.type==='capture'){
    if(!pageSender(sender)&&!extensionPage(sender,'import.html'))throw Error('来源不允许捕获');
    if(!['html','md','json','svg','png','zip'].includes(message.format))throw Error('导出格式不合法');
-   const snapshot=await verifyResources(extensionPage(sender,'import.html')&&message.snapshot?.provenance?.status==='external-unverified'?externalImport(message.snapshot):message.snapshot);if(pageSender(sender)&&snapshot.behaviors?.length&&!trustFixtureURL(sender.url))throw Error('来源未获受控 recipe 资格');
+   const snapshot=await verifyResources(extensionPage(sender,'import.html')&&(message.snapshot?.provenance?.status==='external-unverified'||message.snapshot?.behaviors?.length)?externalImport(message.snapshot):message.snapshot);if(pageSender(sender)&&snapshot.behaviors?.length&&!trustFixtureURL(sender.url))throw Error('来源未获受控 recipe 资格');
    if(pageSender(sender)&&snapshot.source.origin!==new URL(sender.url).origin)throw Error('来源不一致');
-   if(extensionPage(sender,'import.html')&&snapshot.behaviors?.length)throw Error('文件导入不接受重建声明');
    const id=crypto.randomUUID();entries=addSession(entries,{id,snapshot,format:message.format});await chrome.storage.session.set({captures:entries});
    await chrome.tabs.create({url:chrome.runtime.getURL('preview.html?id='+id)});if(sender.tab)results.set(sender.tab.id,'已捕获 · 请在预览页检查遗漏后下载');return {ok:true,id};
   }

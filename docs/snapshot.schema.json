@@ -1,14 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:ui-portability:snapshot:1.1.0",
-  "title": "UI Portability Snapshot IR 1.1.0",
+  "$id": "urn:ui-portability:snapshot:1.2.0",
+  "title": "UI Portability Snapshot IR 1.2.0",
   "type": "object",
   "additionalProperties": false,
   "properties": {
     "schemaVersion": {
       "enum": [
         "1.0.0",
-        "1.1.0"
+        "1.1.0",
+        "1.2.0"
       ]
     },
     "kind": {
@@ -293,7 +294,10 @@
             ]
           },
           "evidence": {
-            "const": "fixture-equivalence-v1"
+            "enum": [
+              "fixture-equivalence-v1",
+              "model-validated-v1"
+            ]
           }
         },
         "required": [
@@ -301,6 +305,152 @@
           "bindings",
           "state",
           "evidence"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "recipe": {
+                  "const": "fourier@1"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "bindings": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "root": {
+                      "type": "string",
+                      "pattern": "^0(?:\\.[0-9]{1,4}){0,75}$"
+                    },
+                    "harmonics": {
+                      "type": "string",
+                      "pattern": "^0(?:\\.[0-9]{1,4}){0,75}$"
+                    },
+                    "amplitude": {
+                      "type": "string",
+                      "pattern": "^0(?:\\.[0-9]{1,4}){0,75}$"
+                    },
+                    "phase": {
+                      "type": "string",
+                      "pattern": "^0(?:\\.[0-9]{1,4}){0,75}$"
+                    },
+                    "curve": {
+                      "type": "string",
+                      "pattern": "^0(?:\\.[0-9]{1,4}){0,75}$"
+                    },
+                    "output": {
+                      "type": "string",
+                      "pattern": "^0(?:\\.[0-9]{1,4}){0,75}$"
+                    }
+                  },
+                  "required": [
+                    "root",
+                    "harmonics",
+                    "amplitude",
+                    "phase",
+                    "curve",
+                    "output"
+                  ]
+                },
+                "state": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "harmonics": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 12
+                    },
+                    "amplitude": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1.5
+                    },
+                    "phase": {
+                      "type": "number",
+                      "minimum": -3.14,
+                      "maximum": 3.14
+                    }
+                  },
+                  "required": [
+                    "harmonics",
+                    "amplitude",
+                    "phase"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "recipe": {
+                  "const": "table@1"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "bindings": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "root": {
+                      "type": "string",
+                      "pattern": "^0(?:\\.[0-9]{1,4}){0,75}$"
+                    },
+                    "filter": {
+                      "type": "string",
+                      "pattern": "^0(?:\\.[0-9]{1,4}){0,75}$"
+                    },
+                    "sort": {
+                      "type": "string",
+                      "pattern": "^0(?:\\.[0-9]{1,4}){0,75}$"
+                    },
+                    "body": {
+                      "type": "string",
+                      "pattern": "^0(?:\\.[0-9]{1,4}){0,75}$"
+                    },
+                    "output": {
+                      "type": "string",
+                      "pattern": "^0(?:\\.[0-9]{1,4}){0,75}$"
+                    }
+                  },
+                  "required": [
+                    "root",
+                    "filter",
+                    "sort",
+                    "body",
+                    "output"
+                  ]
+                },
+                "state": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "minimum": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 50
+                    },
+                    "direction": {
+                      "enum": [
+                        "asc",
+                        "desc"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "minimum",
+                    "direction"
+                  ]
+                }
+              }
+            }
+          }
         ]
       }
     }
@@ -319,6 +469,46 @@
     "omissions",
     "limitations",
     "security"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "schemaVersion": {
+            "const": "1.0.0"
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "required": [
+            "behaviors"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schemaVersion": {
+            "const": "1.1.0"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "behaviors": {
+            "items": {
+              "properties": {
+                "evidence": {
+                  "const": "fixture-equivalence-v1"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   ],
   "$defs": {
     "node": {
@@ -1192,6 +1382,32 @@
             "attrs",
             "style",
             "children"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "ns": {
+                    "const": "html"
+                  },
+                  "tag": {
+                    "enum": [
+                      "input",
+                      "img",
+                      "br",
+                      "hr"
+                    ]
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "children": {
+                    "maxItems": 0
+                  }
+                }
+              }
+            }
           ]
         }
       ]

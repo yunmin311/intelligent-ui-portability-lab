@@ -1,3 +1,10 @@
+# v0.4.1 · 2026-10-19
+
+- IR1.2与1.0/1.1迁移；外部JSON内置Fourier/table逐项有限模型验证、安全交互往返，清除来源/脱敏/等价声明。
+- Auto自动局部恢复；Interactive零可恢复时拒绝、有未知组件需明确确认；Static全静态。HTML/ZIP核心统一策略校验及可审计诊断。
+- JSON关闭源页往返、明暗像素、恶意声明/绑定/数值安全回归；安装ZIP全MV3独立复测；CI增加安装包验证。
+- Windows/Obsidian当前未完成GUI实测，Release仅准备未发布。真实结果见 tests/TEST_REPORT.md。
+
 # 变更清单
 
 ## v0.4.0 · 2026-10-18 · 源码交付，未创建 Release

@@ -1,5 +1,5 @@
 import {tableOrder} from './recipes.js';
-import {analyze,nodes,tableRows} from './interactions.js';
+import {analyze,exportPolicy,nodes,tableRows} from './interactions.js';
 import {runtimeSource,runtimeHash} from './runtime-source.js';
 import {validateSnapshot,serialize,diagnostic} from './ir.js';
 export const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -21,7 +21,7 @@ export function fragment(s,{strategy='static'}={}){validateSnapshot(s);const res
  return tag+(['img','input','br','hr'].includes(n.tag)?'':n.children.map((c,i)=>render(c,path+'.'+i)).join('')+`</${n.tag}>`);
  }return render(s.tree);
 }
-export function html(s,{strategy='auto'}={}){const analysis=analyze(s,strategy),body=fragment(s,{strategy}),behaviors=strategy==='static'?[]:(s.behaviors||[]);const script=behaviors.length?`<script>${runtimeSource}</script>`:'';const policy=csp+(script?`; script-src 'sha256-${runtimeHash}'`:"; script-src 'none'");return `<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="${policy}"><meta name="ui-portability-report" content="${escape(JSON.stringify({...diagnostic(s),interaction:analysis}))}"><meta name="uip-interactions" content="${escape(JSON.stringify(behaviors))}"><title>UI snapshot · ${analysis.capability}</title><style>html,body{margin:0;padding:0;background:${s.background}}body{width:${s.dimensions.width}px}[inert]{pointer-events:none}tr[hidden]{display:none!important}</style></head><body>${body}${script}</body></html>`;}
+export function html(s,{strategy='auto',confirmDegradation=false}={}){const analysis=exportPolicy(s,{strategy,confirmDegradation}),body=fragment(s,{strategy}),behaviors=strategy==='static'?[]:(s.behaviors||[]);const script=behaviors.length?`<script>${runtimeSource}</script>`:'';const policy=csp+(script?`; script-src 'sha256-${runtimeHash}'`:"; script-src 'none'");return `<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="${policy}"><meta name="ui-portability-report" content="${escape(JSON.stringify({...diagnostic(s),interaction:analysis}))}"><meta name="uip-interactions" content="${escape(JSON.stringify(behaviors))}"><title>UI snapshot · ${analysis.capability}</title><style>html,body{margin:0;padding:0;background:${s.background}}body{width:${s.dimensions.width}px}[inert]{pointer-events:none}tr[hidden]{display:none!important}</style></head><body>${body}${script}</body></html>`;}
 export function svg(s){validateSnapshot(s);if(s.tree.ns!=='svg'||s.tree.tag!=='svg')return null;const body=fragment(s);return body.replace(/(<svg[^>]*>)/,`$1<metadata>${escape(JSON.stringify(diagnostic(s)))}</metadata>`);}
 const mdText=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/[\\`*_{}\[\]()!#|~]/g,'\\$&');
 export function markdown(s,{archive=false}={}){validateSnapshot(s);const lines=[];

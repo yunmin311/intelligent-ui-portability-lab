@@ -1,0 +1,11 @@
+{
+  "html": "PASS",
+  "zip": "PASS",
+  "originalClosed": true,
+  "evidence": "model-validated; source equivalence not imported",
+  "fourierCases": 3,
+  "table": "initial desc/filter30 → asc → clear0",
+  "details": "4 toggles",
+  "externalRequests": [],
+  "archiveSHA256": "PASS"
+}

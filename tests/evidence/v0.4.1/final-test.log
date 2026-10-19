@@ -1,0 +1,112 @@
+
+> intelligent-ui-portability-lab@0.4.1 test
+> node scripts/test.mjs
+
+PASS: MV3 permissions, recursive syntax, network/credential boundaries
+✔ IR roundtrip and separate diagnostic (12.64337ms)
+✔ fail closed on active attributes, resource URLs, schema, sizes and capabilities (0.665855ms)
+✔ session boundaries, expiry, capacity and malformed dates (9.192487ms)
+✔ resource integrity and future version failure (2.234301ms)
+✔ ZIP CRC reference and deterministic bytes (0.366252ms)
+✔ deep, wide and text stress fails without partial output (0.913872ms)
+✔ SVG local refs allowed, active namespace/type tricks fail, diagnostic contains no content (0.283402ms)
+✔ review regressions: missing dimensions and CSS resource functions rejected (0.355449ms)
+✔ encoded image size checked before decoding (0.174107ms)
+✔ Markdown nested visuals are explicit rather than silently dropped (0.444175ms)
+✔ strategies distinguish native behavior from unknown static controls (1.291247ms)
+✔ finite Fourier model and table orders reject invalid ranges (5.40059ms)
+✔ external declarations never confer recipe trust; strict recipe fields (0.338116ms)
+✔ recipe schema rejects code, range violations and cross-component bindings (1.851227ms)
+✔ CSS values cannot append declarations or blocks (1.235206ms)
+✔ 1.0 migration establishes current schema with no inferred behavior (1.617107ms)
+✔ ZIP rejects traversal, absolute and platform separator paths (0.623878ms)
+✔ Fourier numeric oracle samples the explicit finite mathematical sum (1.595128ms)
+✔ external finite model roundtrip retains behavior but cannot forge source equivalence (6.033336ms)
+✔ malicious behavior candidates downgrade independently without granting execution (3.044268ms)
+✔ interactive requires explicit fallback consent; zero recoveries cannot masquerade as interactive (3.079413ms)
+✔ 1.0 and 1.1 migrate explicitly to 1.2 without inventing evidence (1.4525ms)
+✔ real import parser clears forged identity, rejects active data and missing resources (1.620042ms)
+✔ cross-component binding, overlapping roots and forged numeric strings cannot restore recipes (3.323907ms)
+✔ recipe topology rejects parser-dropped SVG and output ancestors of controls (1.717205ms)
+✔ void HTML nodes cannot hide validated recipe descendants from rendering (1.413248ms)
+✔ foreign namespace native details cannot masquerade as recoverable interaction (0.722274ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 121.928211
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:22:52] "GET / HTTP/1.1" 200 -
+
+Running 22 tests using 1 worker
+
+(node:41167) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:22:53] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:22:54] code 404, message File not found
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:22:54] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓   1 tests/engine.spec.mjs:2:1 › engine-only overlay and semantic container regression (not extension E2E) (541ms)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:22:54] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:22:55] code 404, message File not found
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:22:55] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓   2 tests/mv3.spec.mjs:47:1 › real toolbar Popup → selection → preview → download → open + pixel golden (1.6s)
+  ✓   3 tests/mv3.spec.mjs:63:1 › cancel, repeat injection and tab isolation (1.7s)
+  ✓   4 tests/mv3.spec.mjs:68:1 › security inputs, hidden content, XSS, URL removal and Markdown escaping (2.6s)
+  ✓   5 tests/mv3.spec.mjs:79:1 › changed slider state, SVG paths, canvas, dark mode, narrow container (3.2s)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:04] "GET /interactive-demo.html HTTP/1.1" 304 -
+  ✓   6 tests/mv3.spec.mjs:89:1 › limits fail clearly; SVG wrong region; expired preview (1.6s)
+  ✓   7 tests/mv3.spec.mjs:94:1 › SnapDOM controlled comparison and explicit omission reports (1.8s)
+  ✓   8 tests/mv3.spec.mjs:108:1 › ChatGPT gate and browser internal page failure via actual Popup (1.1s)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:08] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:08] "GET /golden-components.html HTTP/1.1" 200 -
+  ✓   9 tests/mv3.spec.mjs:112:1 › golden grid, formula fallback, checkbox, Markdown table and depth failure (2.5s)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:11] "GET /interactive-demo.html HTTP/1.1" 200 -
+
+  ✓  10 tests/mv3.spec.mjs:128:1 › local HTML hostile file → isolated conversion → IR roundtrip → ZIP offline checksums (4.5s)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:15] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  11 tests/mv3.spec.mjs:140:1 › SVG import gradients, PNG download; raster visual-only and malformed file recovery (1.8s)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:17] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  12 tests/mv3.spec.mjs:149:1 › worker restart restores session; expiry and sender/schema rejection (1.4s)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:18] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  13 tests/mv3.spec.mjs:156:1 › capture failure retry resets omissions; cancellation during bounded work (1.8s)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:20] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:20] "GET /complex-components.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:22] "GET /complex-components.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:23] "GET /complex-components.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:24] "GET /complex-components.html HTTP/1.1" 200 -
+  ✓  14 tests/mv3.spec.mjs:161:1 › complex fixture paired pixel goldens across viewports and themes + SnapDOM control (5.4s)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:26] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  15 tests/mv3.spec.mjs:177:1 › review regressions: transformed root, broad DOM, format race and unsafe SVG import (2.0s)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:27] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:28] "GET /selective-interactions.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:28] "GET /recipes.js HTTP/1.1" 200 -
+
+  ✓  16 tests/mv3.spec.mjs:185:1 › v0.4 selective strategies, native details, Fourier/table equivalence, HTML + ZIP offline (10.7s)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:38] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:38] "GET /selective-interactions.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:38] "GET /recipes.js HTTP/1.1" 200 -
+  ✓  17 tests/mv3.spec.mjs:212:1 › v0.4 changed initial states / dark visual; imported JSON cannot authorize runtime; CSP blocks extra code (11.5s)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:50] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:50] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  18 tests/mv3.spec.mjs:228:1 › v0.4 native-only grid expands without overlap or source toggle side effects (1.5s)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:51] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:52] "GET /selective-interactions.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:52] "GET /recipes.js HTTP/1.1" 200 -
+
+  ✓  19 tests/mv3.spec.mjs:233:37 › v0.4.1 JSON full roundtrip with original page closed / light (7.9s)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:59] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:59] "GET /selective-interactions.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:23:59] "GET /recipes.js HTTP/1.1" 200 -
+
+  ✓  20 tests/mv3.spec.mjs:233:37 › v0.4.1 JSON full roundtrip with original page closed / dark (5.7s)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:24:05] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  21 tests/mv3.spec.mjs:253:1 › v0.4.1 no recoverable interaction blocks Interactive; Auto and Static remain usable (1.6s)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:24:06] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:24:07] "GET /selective-interactions.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:24:07] "GET /recipes.js HTTP/1.1" 200 -
+  ✓  22 tests/mv3.spec.mjs:257:1 › v0.4.1 malformed recipe topology downgrades independently in real JSON import (7.7s)
+
+  22 passed (1.4m)
+Verified extension digest recorded for packaging.
