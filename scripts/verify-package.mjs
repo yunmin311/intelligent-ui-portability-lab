@@ -1,0 +1,21 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
+import {spawnSync,execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+const version=JSON.parse(await fs.readFile('package.json','utf8')).version;
+const release=path.resolve('dist/v'+version),manifest=JSON.parse(await fs.readFile(path.join(release,'package-manifest.json'),'utf8'));
+const entry=manifest.archives.find(a=>a.file.endsWith('-extension.zip'));
+const archive=path.join(release,entry.file),data=await fs.readFile(archive);
+if(createHash('sha256').update(data).digest('hex')!==entry.sha256)throw Error('Archive SHA mismatch');
+const folder=await fs.mkdtemp(path.join(os.tmpdir(),'uip-install-'));
+execFileSync('python3',['-c','import sys,zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])',archive,folder]);
+const extension=path.join(folder,'extension');
+async function verify(){for(const [file,sha] of Object.entries(manifest.extensionFiles)){if(createHash('sha256').update(await fs.readFile(path.join(extension,file))).digest('hex')!==sha)throw Error('Installed bytes differ: '+file);}}
+await verify();
+const evidence=path.resolve('tests/artifacts/v'+version+'-installed');
+const result=spawnSync('npx',['playwright','test','tests/mv3.spec.mjs'],{stdio:'inherit',env:{...process.env,UIP_EXTENSION_PATH:extension,UIP_EVIDENCE_DIR:evidence}});
+await verify();
+await fs.mkdir(evidence,{recursive:true});await fs.writeFile(path.join(evidence,'installed-package.json'),JSON.stringify({version,archive:entry.file,sha256:entry.sha256,extensionFiles:manifest.extensionFiles,byteComparison:'before and after installed MV3 tests',exitCode:result.status,testedAt:new Date().toISOString()},null,2));
+if(result.status!==0)process.exit(result.status||1);
+console.log('PASS: installed ZIP bytes match verified extension before/after full MV3 E2E.');

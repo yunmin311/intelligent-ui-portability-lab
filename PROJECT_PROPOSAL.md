@@ -1,6 +1,6 @@
 # Intelligent UI Portability · 项目立项书与工程方案
 
-> v0.4.0迭代 · 2026-10-18。保留原立项结构、原项目与历史证据；当前事实按下列Decision及链接文档收敛。与OpenAI无关联，未宣称官方兼容。
+> v0.4.1迭代 · 2026-10-19。保留原立项结构、原项目与历史证据；当前事实按下列Decision及链接文档收敛。与OpenAI无关联，未宣称官方兼容。
 
 ## 1. 目标、非目标和判定标准
 
@@ -26,7 +26,7 @@ HTML优先保留来源视觉、比例、字体回退与当前可见状态；Mark
 
 ## 3. 格式决策（Decision）
 
-HTML为主要视觉产物；Markdown保留语义并明确复杂视觉降级；JSON为IR1.1.0完整快照，独立诊断不含正文。SVG仅根SVG，PNG仅根SVG或导入图片。ZIP实际包含HTML/IR/MD/资源/manifest/SHA-256/报告，不抓跨域资源。HTML/ZIP支持Auto、Interactive、Static策略；组件能力与文件能力分离。PDF为Proposal。各格式边界唯一详表见[保真矩阵](docs/FIDELITY_MATRIX.md)。
+HTML为主要视觉产物；Markdown保留语义并明确复杂视觉降级；JSON为IR1.2.0完整快照，独立诊断不含正文。SVG仅根SVG，PNG仅根SVG或导入图片。ZIP实际包含HTML/IR/MD/资源/manifest/SHA-256/报告，不抓跨域资源。HTML/ZIP支持Auto、Interactive、Static策略；组件能力与文件能力分离。PDF为Proposal。各格式边界唯一详表见[保真矩阵](docs/FIDELITY_MATRIX.md)。
 
 ## 4. 技术架构（Decision）
 
@@ -58,7 +58,7 @@ HTML为主要视觉产物；Markdown保留语义并明确复杂视觉降级；JS
 
 ## 8. 产品范围与阶段门
 
-Decision：v0.4沿用v0.3模块化、离线输入与静态基线，加入原生details、自有Fourier/表格有限recipe和局部降级；外部JSON不能授予执行权，不需要等待ChatGPT接入。
+Decision：v0.4.1沿用v0.3模块化、离线输入与静态基线，加入原生details、自有Fourier/表格有限recipe和局部降级；外部JSON不能自行授予执行权；内置模型经过本地独立校验可安全恢复，但不继承来源等价声明。Auto自动部分恢复，Interactive要求显式降级确认或阻止空交互，Static禁用全部行为。不需要等待ChatGPT接入。
 
 Exploration：复杂页面保真与捕获技术持续比较，SnapDOM仅开发对照，当前不引入生产。
 
@@ -72,9 +72,9 @@ Deprecated：v0.2内存Map、混合所有职责的picker与非版本化static-sn
 
 打包必须比对完整测试前后扩展hash与实际ZIP内文件；源码与安装包包含构建基准和逐文件hash。不能通过更新视觉基线掩盖缺陷。验收证据与命令以[测试报告](tests/TEST_REPORT.md)为唯一结果来源。
 
-## 10. 当前实现状态（2026-10-18）
+## 10. 当前实现状态（2026-10-19）
 
-Implemented：模块化捕获、安全IR1.1.0、本地文件导入、HTML/MD/JSON及有限SVG/PNG、ZIP、独立报告、会话恢复、紧凑UI、CI配置和测试绑定打包。选择性交互、IR迁移、CSS属性边界修复与外部来源信任隔离；真实结果/截图见测试报告。远端main既有CI已核实success；v0.4远端CI以本分支Actions实际运行结果为准，不以main历史结果替代。
+Implemented：模块化捕获、安全IR1.2.0、本地文件导入、HTML/MD/JSON及有限SVG/PNG、ZIP、独立报告、会话恢复、紧凑UI、CI配置和测试绑定打包。选择性交互、IR迁移、CSS属性边界修复与外部来源信任隔离；真实结果/截图见测试报告。本轮CI、安装包逐字节复测和平台未验证项统一见测试报告，不以历史CI代替。
 
 Blocked：原生ChatGPT数据获取及无数据的完整交互恢复。Unverified：其他浏览器/真实官方账户包。Proposal：PDF等上述后续选项。没有为了版本号虚构原生交互或全网站兼容。
 
@@ -85,4 +85,5 @@ Blocked：原生ChatGPT数据获取及无数据的完整交互恢复。Unverifie
 - v0.3：以离线数据入口和版本化IR形成独立可用闭环；拆分职责、增加会话级storage而不扩大网站权限；纯诊断与正文分离。
 - v0.4：选择性交互正式进入Decision；三种策略与格式分离，受控模型输入输出等价测试，外部声明不授予执行权，HTML/ZIP离线验证。
 - 当前许可证保持UNLICENSED。MIT/Apache-2.0/保留所有权的依据见[依赖与许可](docs/DEPENDENCIES.md)，所有者未决定前不授予新的复用许可。
-- 用户仅授权本轮本地分支提交；不推送、合并、建PR或上架。
+- 用户已授权更新后提交、推送、合并；不公开发布Release或商店。
+- v0.4.1：IR1.2安全模型往返；清除外部等价声明；Interactive显式确认；全安装包MV3回归。

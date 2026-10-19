@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-19",
+  "Windows Chrome": {
+    "version": "155.0.8059.84",
+    "gui": "Unverified"
+  },
+  "Windows Edge": {
+    "version": "155.0.4283.62",
+    "gui": "Unverified"
+  },
+  "Obsidian": {
+    "version": "1.14.4",
+    "gui": "Unverified"
+  },
+  "blocker": "Desktop tool initialization: sandboxCwd is not a local file URI for WSL workspace; no GUI action performed",
+  "manualSteps": "tests/MANUAL_ACCEPTANCE.md"
+}

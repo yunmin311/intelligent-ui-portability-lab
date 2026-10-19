@@ -1,4 +1,4 @@
-# v0.4 实际架构 · Decision
+# v0.4.1 实际架构 · Decision
 
 源码使用原生 ES modules，无前端框架、后端或生产 npm 库。esbuild 只将内容脚本和隔离导入器打成随包分发的 IIFE 与产品自有有限运行时；其他扩展页使用本地 ESM。
 
@@ -25,6 +25,7 @@ flowchart LR
 | `src/capture/picker.js` | 选容器、Overlay、清理监听、独立 AbortController、进度与重试 |
 | `src/capture/dom.js` | 有界 DOM→树/样式/资源；每次新 omissions/stats/id 映射；不负责格式 |
 | `src/core/policy.js` | 标签、属性、样式与 CSS 函数白名单、本地 SVG 引用规则 |
+| `src/core/import-snapshot.js` | 外部JSON信任清除、版本迁移、逐项模型恢复、资源验证 |
 | `src/core/ir.js` / `raster.js` | 版本、契约、有限状态、哈希/签名/编码像素检查、迁移、纯诊断 |
 | `src/core/render.js` | 校验后的 IR→HTML/Markdown/JSON/SVG；不访问原网站 |
 | `src/core/archive.js` | 确定性 ZIP STORE/CRC32、文件 SHA-256/manifest |
@@ -34,7 +35,7 @@ flowchart LR
 | `src/jobs.js` / `src/worker.js` | 独立 Worker 校验/序列化/ZIP；超10秒 terminate |
 | `preview.js` | 展示、格式最新任务隔离、有限 PNG、显式下载与过期状态 |
 
-## Snapshot IR 1.1.0
+## Snapshot IR 1.2.0
 
 机器结构见 [snapshot.schema.json](snapshot.schema.json)，完整安全语义以 `validateSnapshot` + `verifyResources` 为准。JSON Schema 不能代替样式函数、标签/属性组合、引用一致性和资源 hash 校验；CI 检查 schema 生成无漂移。
 
@@ -42,7 +43,9 @@ flowchart LR
 
 来源方法区分 DOM、local-file、raster-import、migrated-v02。节点 `captured` 和 `unsupported` 显式区分；静态树自身的能力仍为 `static` 或 `visual-only`。可选 behaviors 存储 recipe 名称/版本、数字节点路径绑定、有限 state 和固定测试证据标记；不存代码。分析器根据校验结果、来源入口和导出策略派生组件/文件能力，不把外部 evidence 当认证。有限状态记录不等于原生逻辑复原。它不是 ChatGPT 原生组件协议。
 
-原生1.1快照读写稳定；1.0验证后升级1.1并补空behaviors；未知版本失败关闭。导入JSON丢弃behavior，冻结已验证模型的初始表格筛选状态，来源改local、external-unverified，security.redacted=false。视觉结构可保留，声明不作事实背书。v0.2 `static-snapshot` 的 HTML 必须重新通过隔离净化，缺失结构/状态不可恢复。未来新增 schema 必须显式迁移、兼容测试；不可悄悄将未知版本当当前版。
+原生1.2快照读写稳定；1.0验证后补空behaviors，1.1保留合法旧配方并迁移1.2；未知版本失败关闭。1.0不允许行为字段，1.1只接受旧证据枚举。新1.2增加 `model-validated-v1`，区分模型校验与 `fixture-equivalence-v1`。外部入口始终清除来源、脱敏和等价声明；即使伪造 captured / fixture-equivalence，也只能得到 model-validated。v0.2 static-snapshot 的 HTML 必须重新通过隔离净化，缺失信息不恢复。
+
+`import-snapshot.js` 先约束JSON字节/版本，强制local与external-unverified，剥离行为后验证基础树/资源；`interactions.externalImport` 再逐项独立验证候选（最多20），仅保留内置模型匹配项并重写证据。后台对导入消息重复执行该边界；资源完整性验证失败拒绝整个快照。未知或结构不符的行为保留静态树并产生诊断，不运行外部代码、字符串表达式或来源脚本。格式渲染器只读已校验IR；迁移不重新获取来源。
 
 ## 生命周期与有界处理
 
@@ -73,6 +76,6 @@ ZIP 含 index.html、snapshot.json、notes.md、diagnostic.json、已获得的 r
 
 `interactions.js` 独立校验/分析能力；`recipes.js` 是自有纯数值模型；`runtime.js` 绑定白名单节点并用 textContent / SVG d / replaceChildren 更新，不使用 eval、innerHTML 或网络。构建生成 runtime-source.js 与 CSP hash；render 只将固定脚本及验证过的数据写入单文件。ZIP保留相同可直接打开的HTML，另附JS/CSS审阅副本，不隐式执行第二份运行时。
 
-原生 details/summary 不依赖原站JS。Fourier recipe有限N=1..12、振幅0..1.5、相位±3.14；241点、600×180曲线。表格≤200行、每格≤100字、数值0..50，稳定排序/筛选。绑定必须唯一、存在、位于组件根内，并与标签/范围/当前模型输出一致。未知recipe拒绝；未知网页控件禁用。来源识别仅用于自有loopback fixture，不是签名或通用网站行为提取。
+原生 details/summary 不依赖原站JS。Fourier recipe有限N=1..12、振幅0..1.5、相位±3.14；241点、600×180曲线。表格≤200行、每格≤100字、数值0..50，稳定排序/筛选。绑定必须唯一、存在、位于组件根内，并与标签/范围/当前模型输出一致。捕获IR中的未知recipe拒绝；外部导入未知recipe逐项静态降级；未知网页控件禁用。来源识别用于自有loopback fixture的捕获证据，不是签名或通用网站行为提取。外部文件可以匹配同一安全模型，但不获得来源等价证明。
 
-Auto/Interactive当前相同allowlist，Static无脚本且details inert；不是不同强度的任意脚本模式。HTML/ZIP保留局部原生/重建，MD/SVG/PNG静态、JSON保存结构。已知交互所在祖先允许高度随内容增长；这不构成完整响应式CSS恢复。未来Source Adapter只在有正式授权和真实样本后接入IR，当前没有ChatGPT适配器。
+Auto恢复通过有限模型的已知行为，其余静态。Interactive在零可恢复交互时拒绝导出；混合组件必须由用户显式确认降级。render.html和archive共用exportPolicy，直接调用也不能绕过。确认记录于交互报告，切格式/策略重置确认。Static无脚本且details inert。HTML/ZIP保留局部原生/重建，MD/SVG/PNG静态、JSON保存结构。已知交互所在祖先允许高度随内容增长；这不构成完整响应式CSS恢复。未来Source Adapter只在有正式授权和真实样本后接入IR，当前没有ChatGPT适配器。

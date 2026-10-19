@@ -1,0 +1,130 @@
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:09:12] "GET / HTTP/1.1" 200 -
+
+Running 4 tests using 1 worker
+
+(node:15307) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:09:13] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:09:13] code 404, message File not found
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:09:13] "GET /favicon.ico HTTP/1.1" 404 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:09:13] "GET /selective-interactions.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [19/Oct/2026 11:09:13] "GET /recipes.js HTTP/1.1" 200 -
+  ✓  1 tests/mv3.spec.mjs:212:1 › v0.4 changed initial states / dark visual; imported JSON cannot authorize runtime; CSP blocks extra code (9.4s)
+
+  ✓  2 tests/mv3.spec.mjs:233:37 › v0.4.1 JSON full roundtrip with original page closed / light (7.7s)
+
+  ✓  3 tests/mv3.spec.mjs:233:37 › v0.4.1 JSON full roundtrip with original page closed / dark (5.6s)
+  ✘  4 tests/mv3.spec.mjs:253:1 › v0.4.1 no recoverable interaction blocks Interactive; Auto and Static remain usable (7.3s)
+
+
+  1) tests/mv3.spec.mjs:253:1 › v0.4.1 no recoverable interaction blocks Interactive; Auto and Static remain usable 
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  locator('#degradationLabel')
+    Expected: hidden
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeHidden" locator('#degradationLabel') with timeout 5000ms
+      - waiting for locator('#degradationLabel')
+        14 × locator resolved to <label hidden="" id="degradationLabel">…</label>
+           - unexpected value "visible"
+
+
+      252 | });
+      253 | test('v0.4.1 no recoverable interaction blocks Interactive; Auto and Static remain usable',async()=>{
+    > 254 |  const preview=await exportTarget('#table-demo h2');await preview.locator('#strategy').selectOption('interactive');await expect(preview.locator('#save')).toBeDisabled();await expect(preview.locator('#message')).toContainText('没有可恢复交互');await expect(preview.locator('#degradationLabel')).toBeHidden();for(const mode of ['auto','static']){await preview.locator('#strategy').selectOption(mode);await expect(preview.locator('#save')).toBeEnabled();const text=await fs.readFile(await save(preview,`v041-no-interaction-${mode}.html`),'utf8');expect(text).not.toContain('<script>');}
+          |                                                                                                                                                                                                                                                                                                ^
+      255 | });
+      256 |
+        at /mnt/e/30_项目/intelligent-ui-portability-lab/tests/mv3.spec.mjs:254:288
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-4.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-17.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-7.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-5.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-10.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-19.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #9: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-8.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-18.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-15.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #12: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-14.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #13: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-13.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #14: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-20.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #15: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-12.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #16: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-11.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #17: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-9.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #18: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-6.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #19: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #20: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/test-failed-16.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/error-context.md
+
+    Error Context: test-results/mv3-v0-4-1-no-recoverable--a564b-to-and-Static-remain-usable/error-context.md
+
+  1 failed
+    tests/mv3.spec.mjs:253:1 › v0.4.1 no recoverable interaction blocks Interactive; Auto and Static remain usable 
+  3 passed (32.0s)

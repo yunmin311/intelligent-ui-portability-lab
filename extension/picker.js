@@ -46,10 +46,13 @@
     if (!Array.isArray(bs) || bs.length > 20) throw Error("\u4EA4\u4E92\u6570\u91CF\u8D85\u9650");
     const map = nodes(s.tree), used = /* @__PURE__ */ new Set();
     for (const b of bs) {
-      if (!exact(b, ["recipe", "bindings", "state", "evidence"]) || b.evidence !== "fixture-equivalence-v1") throw Error("\u4EA4\u4E92\u8BC1\u636E\u5B57\u6BB5\u4E0D\u5408\u6CD5");
+      if (!exact(b, ["recipe", "bindings", "state", "evidence"]) || !["fixture-equivalence-v1", "model-validated-v1"].includes(b.evidence)) throw Error("\u4EA4\u4E92\u8BC1\u636E\u5B57\u6BB5\u4E0D\u5408\u6CD5");
       const keys = b.recipe === "fourier@1" ? ["root", "harmonics", "amplitude", "phase", "curve", "output"] : b.recipe === "table@1" ? ["root", "filter", "sort", "body", "output"] : null;
       if (!keys || !exact(b.bindings, keys)) throw Error("\u4EA4\u4E92 recipe \u4E0D\u652F\u6301");
       if (new Set(Object.values(b.bindings)).size !== keys.length) throw Error("\u4EA4\u4E92\u7ED1\u5B9A\u91CD\u590D");
+      for (const root of used) {
+        if (root === b.bindings.root || root.startsWith(b.bindings.root + ".") || b.bindings.root.startsWith(root + ".")) throw Error("\u7EC4\u4EF6\u7ED1\u5B9A\u8303\u56F4\u91CD\u53E0");
+      }
       const refs = {};
       for (const k of keys) {
         const path = b.bindings[k];
@@ -58,39 +61,79 @@
         refs[k] = map.get(path);
         used.add(path);
       }
-      if (refs.root.ns !== "html" || !["section", "div", "article"].includes(refs.root.tag) || refs.output.tag !== "output") throw Error("\u7EC4\u4EF6\u7ED3\u6784\u4E0D\u5339\u914D");
+      if (refs.root.ns !== "html" || !["section", "div", "article"].includes(refs.root.tag) || refs.output.tag !== "output" || refs.output.ns !== "html") throw Error("\u7EC4\u4EF6\u7ED3\u6784\u4E0D\u5339\u914D");
+      const parentPath = (p) => p.slice(0, p.lastIndexOf(".")), parent = (k) => map.get(parentPath(b.bindings[k]));
+      for (let p = parentPath(b.bindings.root); p; p = parentPath(p)) {
+        const n = map.get(p);
+        if (n?.ns !== "html" || !["main", "section", "div", "article", "aside", "header", "figure", "details"].includes(n.tag)) throw Error("\u7EC4\u4EF6\u7956\u5148\u7ED3\u6784\u4E0D\u5339\u914D");
+      }
+      const direct = (k) => parentPath(b.bindings[k]) === b.bindings.root;
+      const plain = (n) => n.children.every((c) => Object.hasOwn(c, "text"));
+      if (!direct("output") || !plain(refs.output)) throw Error("\u8F93\u51FA\u7ED3\u6784\u4E0D\u5339\u914D");
+      const controlPosition = (k) => direct(k) || parent(k)?.tag === "label" && parent(k)?.ns === "html" && parentPath(parentPath(b.bindings[k])) === b.bindings.root;
+      if (b.recipe === "fourier@1") {
+        if (!["harmonics", "amplitude", "phase"].every(controlPosition) || parent("curve")?.tag !== "svg" || parent("curve")?.ns !== "svg" || parentPath(parentPath(b.bindings.curve)) !== b.bindings.root) throw Error("Fourier \u7ED3\u6784\u4E0D\u5339\u914D");
+      } else if (!controlPosition("filter") || !direct("sort") || !plain(refs.sort) || refs.body.ns !== "html" || parent("body")?.tag !== "table" || parent("body")?.ns !== "html" || parentPath(parentPath(b.bindings.body)) !== b.bindings.root) throw Error("\u8868\u683C\u7ED3\u6784\u4E0D\u5339\u914D");
+      const isText = (n) => Object.hasOwn(n, "text");
+      const labels = new Set(keys.filter((k) => ["harmonics", "amplitude", "phase", "filter"].includes(k)).map((k) => parent(k)).filter((n) => n?.tag === "label"));
+      const controls = new Set(keys.filter((k) => ["harmonics", "amplitude", "phase", "filter"].includes(k)).map((k) => refs[k]));
+      for (const label of labels) if (!label.children.every((n) => isText(n) || controls.has(n))) throw Error("\u6807\u7B7E\u7ED3\u6784\u4E0D\u5339\u914D");
+      const graphic = b.recipe === "fourier@1" ? parent("curve") : parent("body");
+      const allowedRoot = /* @__PURE__ */ new Set([...controls, ...labels, refs.output, graphic, ...refs.sort ? [refs.sort] : []]);
+      if (!refs.root.children.every((n) => isText(n) || allowedRoot.has(n) || n.ns === "html" && ["h1", "h2", "h3", "h4", "p", "button"].includes(n.tag) && plain(n))) throw Error("\u7EC4\u4EF6\u5B50\u8282\u70B9\u7ED3\u6784\u4E0D\u5339\u914D");
+      if (b.recipe === "fourier@1") {
+        const svgTags = /* @__PURE__ */ new Set(["svg", "g", "path", "rect", "circle", "line", "polyline", "polygon", "ellipse", "text", "tspan", "defs", "lineargradient", "radialgradient", "stop", "clippath", "mask", "title", "desc"]);
+        const svgSafe = (n) => isText(n) || n.ns === "svg" && svgTags.has(n.tag.toLowerCase()) && n.children.every(svgSafe);
+        if (!svgSafe(graphic)) throw Error("SVG \u5B50\u6811\u7ED3\u6784\u4E0D\u5339\u914D");
+      } else {
+        const row = (n) => n.ns === "html" && n.tag === "tr" && n.children.every((c) => c.ns === "html" && ["td", "th"].includes(c.tag) && plain(c));
+        if (!graphic.children.every((n) => n.ns === "html" && (["thead", "tbody", "tfoot"].includes(n.tag) ? n.children.every(row) : n.tag === "caption" && plain(n)))) throw Error("\u8868\u683C\u5B50\u6811\u7ED3\u6784\u4E0D\u5339\u914D");
+      }
       const range = (n, min, max, step, value) => {
-        if (n.tag !== "input" || n.attrs.type !== "range" || Number(n.attrs.min) !== min || Number(n.attrs.max) !== max || Number(n.attrs.step) !== step || Number(n.attrs.value) !== value) throw Error("\u6ED1\u5757\u6A21\u578B\u4E0D\u5339\u914D");
+        if (n.ns !== "html" || n.tag !== "input" || n.attrs.type !== "range" || Number(n.attrs.min) !== min || Number(n.attrs.max) !== max || Number(n.attrs.step) !== step || Number(n.attrs.value) !== value) throw Error("\u6ED1\u5757\u6A21\u578B\u4E0D\u5339\u914D");
       };
       if (b.recipe === "fourier@1") {
         if (!exact(b.state, ["harmonics", "amplitude", "phase"])) throw Error("Fourier \u72B6\u6001\u5B57\u6BB5\u4E0D\u5408\u6CD5");
         const d = fourierPath(b.state);
         if (refs.curve.tag !== "path" || refs.curve.ns !== "svg" || refs.curve.attrs.d !== d) throw Error("\u66F2\u7EBF\u4E0E\u6A21\u578B\u4E0D\u4E00\u81F4");
+        if (Math.abs(b.state.amplitude * 10 - Math.round(b.state.amplitude * 10)) > 1e-8 || Math.abs(b.state.phase * 100 - Math.round(b.state.phase * 100)) > 1e-8) throw Error("\u6570\u503C\u4E0D\u7B26\u5408\u6ED1\u5757\u6B65\u957F");
         range(refs.harmonics, 1, 12, 1, b.state.harmonics);
         range(refs.amplitude, 0, 1.5, 0.1, b.state.amplitude);
         range(refs.phase, -3.14, 3.14, 0.01, b.state.phase);
       } else {
-        if (!exact(b.state, ["minimum", "direction"]) || refs.sort.tag !== "button") throw Error("\u8868\u683C\u72B6\u6001\u5B57\u6BB5\u4E0D\u5408\u6CD5");
+        if (!exact(b.state, ["minimum", "direction"]) || refs.sort.tag !== "button" || refs.sort.ns !== "html" || !Number.isInteger(b.state.minimum)) throw Error("\u8868\u683C\u72B6\u6001\u5B57\u6BB5\u4E0D\u5408\u6CD5");
         tableOrder(tableRows(refs.body), b.state);
         range(refs.filter, 0, 50, 1, b.state.minimum);
       }
     }
     return bs;
   }
-  function analyze(s, strategy = "auto") {
+  function analyze(s, strategy = "auto", { confirmDegradation = false } = {}) {
     if (!["auto", "interactive", "static"].includes(strategy)) throw Error("\u5BFC\u51FA\u7B56\u7565\u4E0D\u5408\u6CD5");
     validateBehaviors(s);
     const map = nodes(s.tree), components = [], covered = /* @__PURE__ */ new Set();
     for (const b of s.behaviors || []) {
       Object.values(b.bindings).forEach((p) => covered.add(p));
-      components.push({ path: b.bindings.root, recipe: b.recipe, capability: strategy === "static" ? "static-fallback" : "reconstructed-tested", evidence: "owned fixture / finite model / equivalence-v1" });
+      const tested = b.evidence === "fixture-equivalence-v1" && s.provenance?.status === "captured";
+      components.push({ path: b.bindings.root, recipe: b.recipe, capability: strategy === "static" ? "static-fallback" : tested ? "reconstructed-tested" : "model-validated", evidence: tested ? "owned fixture / finite model / equivalence-v1" : "finite model validated locally; source equivalence unverified" });
     }
+    const nativeStable = (path) => {
+      for (let p = path; p; p = p.slice(0, p.lastIndexOf("."))) {
+        const n = map.get(p);
+        if (n?.ns !== "html" || !["main", "section", "div", "article", "aside", "header", "figure", "figcaption", "blockquote", "details", "ul", "ol", "li", "dl", "dt", "dd"].includes(n.tag)) return false;
+      }
+      return true;
+    };
     for (const [path, n] of map) {
-      if (n.tag === "details") components.push({ path, recipe: "native-details@1", capability: strategy === "static" ? "static-fallback" : "native-preserved", evidence: "browser details/summary; no source script" });
-      else if (["input", "button"].includes(n.tag) && !covered.has(path)) components.push({ path, capability: "static-fallback", reason: "\u672A\u77E5\u884C\u4E3A\uFF0C\u672A\u6062\u590D\u6765\u6E90\u4E8B\u4EF6\u6216\u8BA1\u7B97\u903B\u8F91" });
+      if (n.tag === "details") {
+        const stable = nativeStable(path);
+        components.push({ path, recipe: "native-details@1", capability: strategy === "static" || !stable ? "static-fallback" : "native-preserved", evidence: stable ? "browser details/summary; no source script" : "parser-stable HTML ancestry not verified", ...!stable ? { reason: "\u6298\u53E0\u7ED3\u6784\u65E0\u6CD5\u786E\u8BA4\uFF0C\u9759\u6001\u964D\u7EA7" } : {} });
+      } else if (["input", "button"].includes(n.tag) && !covered.has(path)) components.push({ path, capability: "static-fallback", reason: "\u672A\u77E5\u884C\u4E3A\uFF0C\u672A\u6062\u590D\u6765\u6E90\u4E8B\u4EF6\u6216\u8BA1\u7B97\u903B\u8F91" });
     }
     const active = components.filter((c) => c.capability !== "static-fallback").length, unsupported = components.filter((c) => c.capability === "static-fallback").length;
-    return { strategy, capability: active ? unsupported ? "partial-interactive" : "selective-interactive" : s.capability || "static", components, limitations: ["\u4EC5\u6709\u5217\u51FA\u7684\u539F\u751F/\u53D7\u63A7 recipe \u53EF\u4EA4\u4E92\uFF1B\u5176\u4F59\u4E3A\u9759\u6001\u5916\u89C2", "\u4E0D\u662F\u539F\u59CB\u754C\u9762\u7A0B\u5E8F\u6216\u54CD\u5E94\u5F0F\u89C4\u5219\u7684\u65E0\u635F\u590D\u5236"] };
+    const requiresConfirmation = strategy === "interactive" && active > 0 && unsupported > 0, degradationConfirmed = requiresConfirmation && confirmDegradation === true;
+    const blockedReason = strategy === "interactive" && !active ? "\u6CA1\u6709\u53EF\u6062\u590D\u4EA4\u4E92\uFF0C\u8BF7\u9009\u62E9 Auto \u6216 Static" : requiresConfirmation && !degradationConfirmed ? "\u5B58\u5728\u4E0D\u53EF\u6062\u590D\u7EC4\u4EF6\uFF0C\u8BF7\u663E\u5F0F\u786E\u8BA4\u9759\u6001\u964D\u7EA7" : "";
+    return { strategy, capability: active ? unsupported ? "partial-interactive" : "selective-interactive" : s.capability || "static", components, recoverable: active, staticComponents: unsupported, requiresConfirmation, degradationConfirmed, exportable: !blockedReason, blockedReason, limitations: ["\u4EC5\u6709\u5217\u51FA\u7684\u539F\u751F/\u53D7\u63A7 recipe \u53EF\u4EA4\u4E92\uFF1B\u5176\u4F59\u4E3A\u9759\u6001\u5916\u89C2", "\u6A21\u578B\u6821\u9A8C\u4E0D\u7B49\u4E8E\u6765\u6E90\u884C\u4E3A\u7B49\u4EF7\u8BC1\u660E\uFF1B\u4E0D\u662F\u539F\u59CB\u7A0B\u5E8F\u6216\u54CD\u5E94\u5F0F\u89C4\u5219\u7684\u65E0\u635F\u590D\u5236"] };
   }
 
   // extension/src/core/policy.js
@@ -113,7 +156,7 @@
   }
 
   // extension/src/core/ir.js
-  var VERSION = "1.1.0";
+  var VERSION = "1.2.0";
   var LIMITS = Object.freeze({ nodes: 5e3, depth: 75, text: 1e6, bytes: 4e6, dimension: 12e3, resource: 2e6 });
   var own = (o, keys) => {
     if (!o || typeof o !== "object" || Array.isArray(o) || Object.keys(o).some((k) => !keys.includes(k))) throw Error("IR \u5B57\u6BB5\u4E0D\u5408\u6CD5");
@@ -131,7 +174,7 @@
   }
   function validateSnapshot(s) {
     own(s, ["schemaVersion", "kind", "capability", "createdAt", "source", "dimensions", "background", "tree", "resources", "provenance", "omissions", "limitations", "security", "stats", "behaviors"]);
-    if (![VERSION, "1.0.0"].includes(s.schemaVersion)) throw Error("\u4E0D\u652F\u6301\u7684 schemaVersion\uFF1B\u8BF7\u8FC1\u79FB\u6216\u4F7F\u7528\u539F\u7248\u672C");
+    if (![VERSION, "1.0.0", "1.1.0"].includes(s.schemaVersion)) throw Error("\u4E0D\u652F\u6301\u7684 schemaVersion\uFF1B\u8BF7\u8FC1\u79FB\u6216\u4F7F\u7528\u539F\u7248\u672C");
     if (s.kind !== "ui-portability-snapshot" || !["static", "visual-only"].includes(s.capability)) throw Error("\u672A\u7ECF\u6D4B\u8BD5\u7684\u80FD\u529B\u7B49\u7EA7");
     str(s.createdAt, 30);
     if (!Number.isFinite(Date.parse(s.createdAt))) throw Error("\u521B\u5EFA\u65F6\u95F4\u4E0D\u5408\u6CD5");
@@ -199,9 +242,11 @@
       }
       if (n.resourceId && (!ids.has(n.resourceId) || n.tag !== "img")) throw Error("\u8D44\u6E90\u4E0D\u5B58\u5728");
       list(n.children, LIMITS.nodes);
+      if (n.ns === "html" && ["input", "img", "br", "hr"].includes(n.tag) && n.children.length) throw Error("HTML \u7A7A\u5143\u7D20\u4E0D\u80FD\u5305\u542B\u5B50\u8282\u70B9");
       n.children.forEach((c) => walk(c, depth + 1));
     }
     walk(s.tree, 0);
+    if (s.schemaVersion === "1.1.0" && s.behaviors?.some((b) => b.evidence !== "fixture-equivalence-v1")) throw Error("IR 1.1 \u4E0D\u652F\u6301\u6A21\u578B\u6821\u9A8C\u6807\u8BB0");
     if (s.schemaVersion === "1.0.0" && s.behaviors) throw Error("\u65E7\u7248\u4E0D\u5141\u8BB8\u4EA4\u4E92");
     validateBehaviors(s);
     if (bytes(s) > LIMITS.bytes) throw Error("\u5FEB\u7167\u8D85\u8FC7 4 MB");
@@ -481,7 +526,7 @@
         behaviors.push({ recipe, bindings, state, evidence: "fixture-equivalence-v1" });
       }
     }
-    const s = { schemaVersion: "1.1.0", behaviors, kind: "ui-portability-snapshot", capability: "static", createdAt: (/* @__PURE__ */ new Date()).toISOString(), source, dimensions: { width: Math.ceil(rect.width), height: Math.ceil(rect.height) }, background, tree, resources, provenance: { method, status: "captured" }, stats, omissions: [...omissions], limitations: ["\u4E0D\u662F\u539F\u59CB\u4EA4\u4E92\u7684\u65E0\u635F\u590D\u5236", "\u56FA\u5B9A\u5C3A\u5BF8\u9759\u6001\u5E03\u5C40\uFF1B\u4E0D\u4FDD\u8BC1\u5B8C\u6574\u54CD\u5E94\u5F0F\u89C4\u5219"], security: { redacted: true, remoteResources: false, scripts: false } };
+    const s = { schemaVersion: "1.2.0", behaviors, kind: "ui-portability-snapshot", capability: "static", createdAt: (/* @__PURE__ */ new Date()).toISOString(), source, dimensions: { width: Math.ceil(rect.width), height: Math.ceil(rect.height) }, background, tree, resources, provenance: { method, status: "captured" }, stats, omissions: [...omissions], limitations: ["\u4E0D\u662F\u539F\u59CB\u4EA4\u4E92\u7684\u65E0\u635F\u590D\u5236", "\u56FA\u5B9A\u5C3A\u5BF8\u9759\u6001\u5E03\u5C40\uFF1B\u4E0D\u4FDD\u8BC1\u5B8C\u6574\u54CD\u5E94\u5F0F\u89C4\u5219"], security: { redacted: true, remoteResources: false, scripts: false } };
     return validateSnapshot(s);
   }
 

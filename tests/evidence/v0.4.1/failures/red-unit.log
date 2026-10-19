@@ -1,0 +1,96 @@
+✖ external finite model roundtrip retains behavior but cannot forge source equivalence (2.839746ms)
+✖ malicious behavior candidates downgrade independently without granting execution (4.089193ms)
+✖ interactive requires explicit fallback consent; zero recoveries cannot masquerade as interactive (0.600775ms)
+✖ 1.0 and 1.1 migrate explicitly to 1.2 without inventing evidence (0.847545ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 119.720458
+
+✖ failing tests:
+
+test at tests/unit/v041.test.mjs:10:1
+✖ external finite model roundtrip retains behavior but cannot forge source equivalence (2.839746ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '1.1.0' !== '1.2.0'
+  
+      at TestContext.<anonymous> (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/tests/unit/v041.test.mjs:10:184)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '1.1.0',
+    expected: '1.2.0',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/v041.test.mjs:11:1
+✖ malicious behavior candidates downgrade independently without granting execution (4.089193ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(out.omissions.some(x=>x.includes('降级')))
+  
+      at TestContext.<anonymous> (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/tests/unit/v041.test.mjs:11:493)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/unit/v041.test.mjs:12:1
+✖ interactive requires explicit fallback consent; zero recoveries cannot masquerade as interactive (0.600775ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - false
+  
+      at TestContext.<anonymous> (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/tests/unit/v041.test.mjs:12:209)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/v041.test.mjs:13:1
+✖ 1.0 and 1.1 migrate explicitly to 1.2 without inventing evidence (0.847545ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '1.1.0' !== '1.2.0'
+  
+      at TestContext.<anonymous> (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/tests/unit/v041.test.mjs:13:104)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '1.1.0',
+    expected: '1.2.0',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
