@@ -1,5 +1,5 @@
 // Inspect encoded dimensions BEFORE browser decoding. Unsupported/malformed headers fail closed.
-export function rasterDimensions(bytes,mime){
+export function rasterDimensions(bytes,mime,{maxPixels=1000000,maxDimension=4096}={}){
  const v=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);let width,height;
  const ascii=(start,n)=>String.fromCharCode(...bytes.slice(start,start+n));
  if(mime==='image/png'&&bytes.length>=24&&ascii(12,4)==='IHDR'){width=v.getUint32(16);height=v.getUint32(20);}
@@ -11,6 +11,6 @@ export function rasterDimensions(bytes,mime){
  else if(kind==='VP8L'&&bytes[20]===47){width=1+bytes[21]+((bytes[22]&63)<<8);height=1+(bytes[22]>>6)+(bytes[23]<<2)+((bytes[24]&15)<<10);}
  }
  if(!width||!height)throw Error('图片头损坏或不支持，无法安全确认尺寸');
- if(width>4096||height>4096||width*height>1000000)throw Error('图片超过 100 万像素或 4096 px，请先缩小');
+ if(width>maxDimension||height>maxDimension||width*height>maxPixels)throw Error(`图片超过 ${maxPixels===1000000?'100 万':maxPixels/1000000+' MP'}像素或 ${maxDimension} px，请先缩小`);
  return {width,height};
 }

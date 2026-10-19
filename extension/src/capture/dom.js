@@ -1,6 +1,6 @@
 import {nodes,validateBehaviors} from '../core/interactions.js';
 import {sourceAdapter} from '../core/sources.js';
-import {detectCandidates,componentRoles,extractCandidate} from './adapters.js';
+import {detectCandidates,componentRoles,extractCandidate,prevalidateCandidate} from './adapters.js';
 import {allowedHtml,allowedSvg,allowedMath,allowedAttributes,styleProps,rejectTags,SVG,MATH,safeCss,localReference} from '../core/policy.js';
 import {validateSnapshot,sha256,LIMITS,VERSION} from '../core/ir.js';
 export async function captureElement(selected,{signal,exclude,onProgress=()=>{},source={type:'page',origin:location.origin},method='sanitized-dom',controlled=false}={}){
@@ -18,25 +18,22 @@ export async function captureElement(selected,{signal,exclude,onProgress=()=>{},
 
  for(const id of ambiguousIDs)ids.delete(id);if(ambiguousIDs.size)omissions.add('重复来源 ID 的标识与引用已移除，避免绑定到错误节点');
  signal?.throwIfAborted();
- const candidates=detectCandidates(selected,contract);if(candidates.length>20)throw Error('组件候选超过 20 个，请缩小区域');
+ const detected=detectCandidates(selected,contract);if(detected.length>20)throw Error('组件候选超过 20 个，请缩小区域');
+ const candidates=[];for(const c of detected){try{candidates.push(prevalidateCandidate(c,contract.evidence));}catch(error){omissions.add(`组件 ${c.recipe} 静态降级（预验证）：${error.message}`);}}
  const controlledNumbers=new Set(candidates.filter(c=>c.recipe==='calculator@1').flatMap(c=>[...(componentRoles(c.root).get('left')||[]),...(componentRoles(c.root).get('right')||[])]));
  signal?.throwIfAborted();
  function cssValue(value){if(/url\s*\(/i.test(value)){const match=value.match(/^url\(["']?(?:[^#"')]*#)([^"')]+)["']?\)$/);if(match&&ids.has(match[1]))return `url(#${ids.get(match[1])})`;omissions.add('CSS/SVG 外部或缺失资源引用已移除');return null;}return safeCss(value)?value:null;}
  function styles(css){const out={};for(const name of styleProps){const v=css.getPropertyValue(name).trim();const safe=cssValue(v);if(v&&safe)out[name]=safe;}return out;}
  async function resource(data,mime){if(data.length>LIMITS.resource||(resourceSize+=data.length)>2500000)throw Error('内嵌资源超过安全大小限制');const raw=Uint8Array.from(atob(data),c=>c.charCodeAt(0));const r={id:'r'+resources.length,mime,data,sha256:await sha256(raw),status:'captured'};resources.push(r);return r.id;}
  function node(tag='span',ns='html'){return {tag,ns,attrs:{},style:{},children:[],evidence:{status:'captured',method:'computed-dom'}};}
- // Reveal only the currently cloned inactive branch. Visible ancestors and siblings
- // keep their original computed layout; always restore the source before proceeding.
+ // Inactive branches are never revealed in the source DOM: no MutationObserver,
+ // toggle, layout or page-business side effects are triggered during capture.
  async function clone(original,depth=0){
-  if(!originallyHidden.has(original))return cloneVisible(original,depth);
-  original.hidden=false;try{return await cloneVisible(original,depth);}finally{original.hidden=true;}
- }
- async function cloneVisible(original,depth=0){
  if(++visited>5000||depth>75)throw Error('捕获超过 5000 节点或 75 层');if(visited%16===0){onProgress(visited);await new Promise(r=>setTimeout(r,0));}signal?.throwIfAborted();
  if(original.nodeType===3){const text=original.nodeValue||'';textSize+=text.length;if(textSize>1000000)throw Error('文本超过 100 万字符限制');return {text};}if(original.nodeType!==1||original===exclude)return null;
  const name=original.localName.toLowerCase();if(rejectTags.has(name)){if(name==='iframe')stats.omittedFrames++;omissions.add('不支持的活动内容已移除：'+name);return null;}
- const css=getComputedStyle(original);if(css.display==='none'||['hidden','collapse'].includes(css.visibility))return null;
- let target=node();captured.set(original,target);target.style=styles(css);stats.elements++;
+ const css=getComputedStyle(original);if(css.display==='none'&&!originallyHidden.has(original)||['hidden','collapse'].includes(css.visibility))return null;
+ let target=node();captured.set(original,target);target.style=styles(css);if(originallyHidden.has(original)&&target.style.display==='none')delete target.style.display;stats.elements++;
  if(controlledPanels.has(original)){
   // Typed OM preserves authored auto without replacing deliberate fixed panel heights.
   try{const authored=original.computedStyleMap?.().get('height');if(authored?.toString()==='auto')target.style.height='auto';else if(!authored)omissions.add('当前浏览器无法确认面板自然高度，保留捕获尺寸');}catch{omissions.add('当前浏览器无法确认面板自然高度，保留捕获尺寸');}
@@ -84,7 +81,10 @@ export async function captureElement(selected,{signal,exclude,onProgress=()=>{},
 
  let background='transparent';for(let el=selected;el;el=el.parentElement){const c=getComputedStyle(el).backgroundColor;if(c!=='rgba(0, 0, 0, 0)'&&c!=='transparent'){background=c;break;}}if(background==='transparent')background=matchMedia('(prefers-color-scheme: dark)').matches?'#202124':'#fff';
  const behaviors=[],paths=new Map([...nodes(tree)].map(([p,n])=>[n,p]));
- for(const candidate of candidates){try{const behavior=extractCandidate(candidate,captured,paths,contract.evidence);validateBehaviors({tree,behaviors:[...behaviors,behavior]});behaviors.push(behavior);}catch(error){omissions.add(`组件 ${candidate.recipe} 静态降级：${error.message}`);}}
+ for(const candidate of candidates){try{const behavior=extractCandidate(candidate,captured,paths,contract.evidence);validateBehaviors({tree,behaviors:[...behaviors,behavior]});behaviors.push(behavior);}catch(error){
+ // Source can mutate across cooperative yields. Discard the entire privileged
+ // capture and redo default redaction, rather than retaining prevalidated data.
+ const fallback=await captureElement(selected,{signal,exclude,onProgress,source,method,controlled:false});fallback.omissions.push(`组件 ${candidate.recipe} 捕获期间改变，已重新按默认脱敏捕获：${error.message}`);return validateSnapshot(fallback);}}
  const s={schemaVersion:VERSION,behaviors,kind:'ui-portability-snapshot',capability:'static',createdAt:new Date().toISOString(),source,dimensions:{width:Math.ceil(rect.width),height:Math.ceil(rect.height)},background,tree,resources,provenance:{method,status:'captured'},stats,omissions:[...omissions],limitations:['不是原始交互的无损复制','固定尺寸静态布局；不保证完整响应式规则'],security:{redacted:true,remoteResources:false,scripts:false}};
  return validateSnapshot(s);
 }

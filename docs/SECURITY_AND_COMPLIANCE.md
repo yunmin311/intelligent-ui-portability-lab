@@ -74,3 +74,11 @@ IR 的 `security.scripts:false` 表示没有保留来源脚本，不表示 HTML 
 Decision：本地 v0.5 安装包与源码按测试绑定打包；未公开发布 v0.5 Release。Windows Chrome/Edge、Obsidian GUI 保持 Unverified；本轮 Windows GUI 工具因 sandboxCwd 启动失败，未完成应用内验证。具体运行结果以[测试报告](../tests/TEST_REPORT.md)为准。
 
 Proposal：正式授权数据包专用解析与未来第三方适配。Exploration：公开接入研究和开发期保真比较。Deprecated：固定 fixture 路径自动赋予捕获等价标记。ChatGPT Gate 和 UNLICENSED 维持原决策，未授予额外许可。上方官方资料核对日期为历史记录，本轮仅更新实现说明，没有重新核验条款。
+
+## v0.5.1 手动粘贴边界 · Decision
+
+主动复制/系统截图后前台paste与自动站点捕获是独立入口。前者仅使用本次事件数据，不触发站点读取、Cookie/token/私有接口；ChatGPT自动Gate不变。用户提供不证明合法权利、来源身份或原生行为等价，内容和像素秘密仍需用户检查。没有真实ChatGPT样本验收证据。
+
+不采纳交接原型的unsafe-inline CSP、重复净化/ZIP/下载实现；补丁未执行。原扩展CSP、唯一来源sandbox、CSS白名单、资源签名/hash及固定运行时不放宽。HTML标记不授予recipe；JSON保持IR1.3去信任验证；截图external-unverified/redacted:false。截图预算及取消限制以架构文档为准。没有新权限或网络依赖。
+
+候选配方必须通过结构→有限状态→模型验证才可进入例外捕获集合；计算结果必须可见，Tabs/state预验证不读取隐藏正文。最终模型改变触发整次丢弃并默认脱敏重捕。测试包含恶意calculator/Tabs、错误绑定、非法状态、instrumented隐藏读取、零来源DOM mutation及竞态。授权绑定documentId，完成/失败提交消费，取消/导航/关闭失效；来源同源不能沿用上一文档授权。

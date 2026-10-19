@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "intelligent-ui-portability-lab",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Local visual snapshots and selective verified offline interactions",
   "scripts": {
     "test": "node scripts/test.mjs",

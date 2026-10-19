@@ -1,4 +1,4 @@
-# v0.5.0 实际架构 · Decision
+# v0.5.1 实际架构 · Decision
 
 源码使用原生 ES modules，无前端框架、后端或生产 npm 库。esbuild 只将内容脚本和隔离导入器打成随包分发的 IIFE 与产品自有有限运行时；其他扩展页使用本地 ESM。
 
@@ -8,7 +8,7 @@
 flowchart LR
  P[Popup] --> O[Overlay 选择/进度/取消]
  O --> C[capture/dom 独立上下文]
- F[本地文件] --> I[import 入口]
+ F[文件/拖放/用户 paste 事件] --> I[import 入口]
  I --> S[无扩展权限 sandbox HTML/SVG]
  S --> C
  I --> W[Worker JSON/资源校验]
@@ -31,7 +31,7 @@ flowchart LR
 | `src/core/archive.js` | 确定性 ZIP STORE/CRC32、文件 SHA-256/manifest |
 | `src/core/session.js` | TTL、最多3份、保守配额与淘汰 |
 | `background.js` | 发送者/消息/来源验证、串行会话写入、创建预览 |
-| `import.js` / `src/import-sandbox.js` | 本地文件路由；未净化 HTML 永不进入有扩展权限 DOM |
+| `import.js` / `src/import-sandbox.js` | 统一文件/拖放/粘贴路由与取消；未净化 HTML 永不进入有扩展权限 DOM |
 | `src/jobs.js` / `src/worker.js` | 独立 Worker 校验/序列化/ZIP；超10秒 terminate |
 | `preview.js` | 展示、格式最新任务隔离、有限 PNG、显式下载与过期状态 |
 
@@ -57,7 +57,7 @@ flowchart LR
 |---|---|
 | DOM/IR | 最多5000访问节点、75层、100万文本字符、4MB序列化IR |
 | 尺寸 | 单轴1–12000；Canvas/栅格最多100万像素、单轴4096 |
-| 文件 | HTML/SVG/图片2MB，JSON4MB；单资源base64≤200万字符，捕获资源总≤250万字符 |
+| 文件 | HTML/SVG2MB，JSON4MB；截图输入16MB/40MP/单轴16384，保存资源仍≤1MP/4096；单资源base64≤200万字符，捕获资源总≤250万字符 |
 | DOM遍历 | 预检入栈即限制总节点；每64节点让出，捕获每16节点让出并查取消 |
 | Worker | 可 terminate 的10秒超时；每次独立任务，不共享不可信状态 |
 | sandbox | 独立无权限 frame，15秒移除；浏览器单次原生同步调用不能保证硬抢占 |
@@ -99,4 +99,14 @@ Auto恢复通过有限模型的已知行为，其余静态。Interactive在零�
 
 `fixtures/adapters-a.html`、`adapters-b.html` 提供不同包装结构和重复实例；`adapters-composite.html` 包含 tabs 内 Fourier、state 面板内表格。它们是项目测试素材，不是第三方适配器认证。
 
-Proposal：任意第三方行为、官方账户包专用适配与 PDF。Exploration：SnapDOM 开发对照。Deprecated：v0.2 内存 Map、非版本化快照，以及按固定 fixture 路径自动授予实捕等价声明。当前安装入口为本地 `dist/v0.5.0/`，没有公开 v0.5 Release；执行结果以[测试报告](../tests/TEST_REPORT.md)为准。
+Proposal：任意第三方行为、官方账户包专用适配与 PDF。Exploration：SnapDOM 开发对照。Deprecated：v0.2 内存 Map、非版本化快照，以及按固定 fixture 路径自动授予实捕等价声明。当前安装入口为本地 `dist/v0.5.1/`，没有公开 v0.5.1 Release；执行结果以[测试报告](../tests/TEST_REPORT.md)为准。
+
+## v0.5.1 手动输入与读取顺序 · Decision
+
+`import-input`只解析本次前台paste事件的DataTransfer：一张允许图片优先，否则富文本，否则纯文本；空、混合多文件和不支持MIME明确拒绝。TXT/MD按纯文本处理，HTML字面代码转义，空span防止pre首换行被HTML解析器吞掉。文件、拖放和粘贴进入同一个convert事务；同时只处理一份，AbortController取消隔离frame/Worker，失败可重试。初始焦点在粘贴区。不调用clipboard API、不监听后台剪贴板、不读取来源网站。
+
+`import-raster`先检查文件签名/MIME/编码尺寸，再请求浏览器按目标尺寸解码，最多1MP/4096；PNG优先，超资源预算尝试有限JPEG质量阶梯，透明背景此时合成白色。保存尺寸和损失进入limitations，资源重新hash/verifyResources。不留原文件或文件名。源文件最多40MP减少解码峰值，但浏览器解码实现可能有临时原尺寸内存；不是硬内存上限。取消在原生异步调用返回后检查并释放结果，不伪称能抢占解码器。
+
+HTML/SVG沿用唯一来源sandbox，净化后再捕获；原始markup不挂入特权页。JSON入口继续externalImport独立模型验证，图片维持source:image/raster-import/external-unverified，不能凭粘贴标记授予recipe。预览/格式渲染仍只读IR1.3；不需要schema升级。截图独立MD禁用，ZIP的notes.md由原归档渲染器引用resources相对路径。
+
+受控DOM候选先验证结构元数据、有限状态、模型结果，之后才允许数值和挂载隐藏面板进入快照；Tabs/state验证不读隐藏正文。来源跨协作让出发生变更时丢弃整次特权结果并默认脱敏重捕。捕获不临时修改hidden。Popup获取真实documentId并仅向同一文档注入；授权绑定tab+origin+documentId+TTL，捕获提交一次消费，取消、导航和tab关闭清除。字段不是网站身份或许可证明。
