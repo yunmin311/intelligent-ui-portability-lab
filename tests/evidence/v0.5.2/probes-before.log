@@ -1,0 +1,242 @@
+
+Running 5 tests using 1 worker
+
+(node:89724) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/usability.spec.mjs:44:1 › usability: wide preview fits narrow screen without mutating exported dimensions (6.3s)
+(node:90239) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/usability.spec.mjs:52:1 › usability: one visible accessible file entry opens chooser from keyboard (5.7s)
+(node:90664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/usability.spec.mjs:55:1 › usability: interactive downgrade exposes the component reasons before consent (6.1s)
+(node:91310) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 tests/usability.spec.mjs:58:1 › usability: screenshot quality loss is visible without opening diagnostics (6.4s)
+(node:92745) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  5 tests/usability.spec.mjs:61:1 › usability: unsupported graphic formats are explained before download selection (6.1s)
+
+
+  1) tests/usability.spec.mjs:44:1 › usability: wide preview fits narrow screen without mutating exported dimensions
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('#previewScale')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('#previewScale') with timeout 5000ms
+      - waiting for locator('#previewScale')
+
+
+      46 |  const json=JSON.parse(await fs.readFile(await download(preview,'wide.json','json'),'utf8'));await preview.locator('#format').selectOption('html');await expect(preview.locator('#save')).toBeEnabled();
+      47 |  const metrics=await preview.locator('#viewport').evaluate(e=>({client:e.clientWidth,scroll:e.scrollWidth,fit:!!document.getElementById('previewScale')}));await fs.writeFile(path.join(evidence,'wide-metrics.json'),JSON.stringify(metrics));
+    > 48 |  await expect(preview.locator('#previewScale')).toBeVisible();expect(metrics.scroll).toBeLessThanOrEqual(metrics.client+1);
+         |                                                 ^
+      49 |  await preview.locator('#previewScale').selectOption('1');await expect.poll(()=>preview.locator('#viewport').evaluate(e=>e.scrollWidth>e.clientWidth)).toBe(true);
+      50 |  const html=await download(preview,'wide.html');await Promise.all([p.close(),preview.close(),page.close()]);page=await context.newPage();const out=await offline(html);expect(await out.p.locator('body').evaluate(e=>parseFloat(e.style.width))).toBe(json.dimensions.width);expect(await out.p.content()).not.toContain('previewScale');await out.p.close();
+      51 | });
+        at /mnt/e/30_项目/intelligent-ui-portability-lab/tests/usability.spec.mjs:48:49
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-wide-p-88ca8-utating-exported-dimensions/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-wide-p-88ca8-utating-exported-dimensions/test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-wide-p-88ca8-utating-exported-dimensions/test-failed-4.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-wide-p-88ca8-utating-exported-dimensions/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/usability-usability-wide-p-88ca8-utating-exported-dimensions/error-context.md
+
+    Error Context: test-results/usability-usability-wide-p-88ca8-utating-exported-dimensions/error-context.md
+
+  2) tests/usability.spec.mjs:52:1 › usability: one visible accessible file entry opens chooser from keyboard
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  locator('#file')
+    Expected: hidden
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeHidden" locator('#file') with timeout 5000ms
+      - waiting for locator('#file')
+        14 × locator resolved to <input id="file" type="file" accept=".html,.htm,.svg,.json,.png,.jpg,.jpeg,.webp,.txt,.md"/>
+           - unexpected value "visible"
+
+
+      51 | });
+      52 | test('usability: one visible accessible file entry opens chooser from keyboard',async()=>{
+    > 53 |  const p=await importer();await p.screenshot({path:path.join(evidence,'file-entry.png'),fullPage:true});await expect(p.locator('#file')).toBeHidden();await p.locator('#pasteArea').focus();await p.keyboard.press('Tab');await expect(p.locator('#drop')).toBeFocused();const pending=p.waitForEvent('filechooser');await p.bringToFront();await expect.poll(()=>p.evaluate(()=>document.hasFocus())).toBe(true);await p.locator('#drop').press('Enter');await (await pending).setFiles({name:'note.txt',mimeType:'text/plain',buffer:Buffer.from('选择文件后可独立打开')});const preview=await context.waitForEvent('page',v=>v.url().includes('/preview.html'));await expect(preview.locator('#save')).toBeEnabled();const html=await download(preview,'file-entry.html');await Promise.all([p.close(),preview.close()]);const out=await offline(html);await expect(out.p.locator('pre')).toHaveText('选择文件后可独立打开');await out.p.close();
+         |                                                                                                                                          ^
+      54 | });
+      55 | test('usability: interactive downgrade exposes the component reasons before consent',async()=>{
+      56 |  const p=await importer(),preview=await converted(p,{html:wide});await preview.locator('#strategy').selectOption('interactive');await expect(preview.locator('#save')).toBeDisabled();await expect(preview.locator('#degradationLabel')).toBeVisible();await preview.screenshot({path:path.join(evidence,'degradation.png'),fullPage:true});await expect(preview.locator('#interactionReport details')).toHaveAttribute('open','');await expect(preview.locator('#interactionReport')).toContainText('未知行为');await preview.locator('#confirmDegradation').check();await expect(preview.locator('#save')).toBeEnabled();const zip=await download(preview,'mixed.zip','zip');expect((await fs.stat(zip)).size).toBeGreaterThan(500);await Promise.all([preview.close(),p.close()]);
+        at /mnt/e/30_项目/intelligent-ui-portability-lab/tests/usability.spec.mjs:53:138
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-one-vi-87b59-opens-chooser-from-keyboard/test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-one-vi-87b59-opens-chooser-from-keyboard/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-one-vi-87b59-opens-chooser-from-keyboard/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/usability-usability-one-vi-87b59-opens-chooser-from-keyboard/error-context.md
+
+    Error Context: test-results/usability-usability-one-vi-87b59-opens-chooser-from-keyboard/error-context.md
+
+  3) tests/usability.spec.mjs:55:1 › usability: interactive downgrade exposes the component reasons before consent
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('#interactionReport details')
+    Expected: ""
+    Received: serializes to the same string
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveAttribute" locator('#interactionReport details') with timeout 5000ms
+      - waiting for locator('#interactionReport details')
+        14 × locator resolved to <details>…</details>
+           - unexpected value "null"
+
+
+      54 | });
+      55 | test('usability: interactive downgrade exposes the component reasons before consent',async()=>{
+    > 56 |  const p=await importer(),preview=await converted(p,{html:wide});await preview.locator('#strategy').selectOption('interactive');await expect(preview.locator('#save')).toBeDisabled();await expect(preview.locator('#degradationLabel')).toBeVisible();await preview.screenshot({path:path.join(evidence,'degradation.png'),fullPage:true});await expect(preview.locator('#interactionReport details')).toHaveAttribute('open','');await expect(preview.locator('#interactionReport')).toContainText('未知行为');await preview.locator('#confirmDegradation').check();await expect(preview.locator('#save')).toBeEnabled();const zip=await download(preview,'mixed.zip','zip');expect((await fs.stat(zip)).size).toBeGreaterThan(500);await Promise.all([preview.close(),p.close()]);
+         |                                                                                                                                                                                                                                                                                                                                                                                                         ^
+      57 | });
+      58 | test('usability: screenshot quality loss is visible without opening diagnostics',async()=>{
+      59 |  const p=await importer();const image=await p.evaluate(()=>{const c=document.createElement('canvas');c.width=3840;c.height=2160;const x=c.getContext('2d');x.fillStyle='white';x.fillRect(0,0,c.width,c.height);x.fillStyle='black';x.font='16px sans-serif';for(let y=25;y<2100;y+=24)x.fillText('细字 readability 0123456789 中文图表 α β θ',20,y);return c.toDataURL().split(',')[1];});const preview=await converted(p,{image});await preview.screenshot({path:path.join(evidence,'image-quality.png'),fullPage:true});await expect(preview.locator('#qualityNotice')).toBeVisible();await expect(preview.locator('#qualityNotice')).toContainText('3840');await expect(preview.locator('#qualityNotice')).toContainText('细小文字');const html=await download(preview,'fine-text.html'),zip=await download(preview,'fine-text.zip','zip');await Promise.all([preview.close(),p.close()]);const out=await offline(html);await expect(out.p.locator('img')).toBeVisible();expect(out.requests).toEqual([]);await out.p.screenshot({path:path.join(evidence,'fine-text-offline.png')});await out.p.close();expect((await fs.stat(zip)).size).toBeGreaterThan(500);
+        at /mnt/e/30_项目/intelligent-ui-portability-lab/tests/usability.spec.mjs:56:393
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-intera-680bb-nent-reasons-before-consent/test-failed-4.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-intera-680bb-nent-reasons-before-consent/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-intera-680bb-nent-reasons-before-consent/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-intera-680bb-nent-reasons-before-consent/test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/usability-usability-intera-680bb-nent-reasons-before-consent/error-context.md
+
+    Error Context: test-results/usability-usability-intera-680bb-nent-reasons-before-consent/error-context.md
+
+  4) tests/usability.spec.mjs:58:1 › usability: screenshot quality loss is visible without opening diagnostics
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('#qualityNotice')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('#qualityNotice') with timeout 5000ms
+      - waiting for locator('#qualityNotice')
+
+
+      57 | });
+      58 | test('usability: screenshot quality loss is visible without opening diagnostics',async()=>{
+    > 59 |  const p=await importer();const image=await p.evaluate(()=>{const c=document.createElement('canvas');c.width=3840;c.height=2160;const x=c.getContext('2d');x.fillStyle='white';x.fillRect(0,0,c.width,c.height);x.fillStyle='black';x.font='16px sans-serif';for(let y=25;y<2100;y+=24)x.fillText('细字 readability 0123456789 中文图表 α β θ',20,y);return c.toDataURL().split(',')[1];});const preview=await converted(p,{image});await preview.screenshot({path:path.join(evidence,'image-quality.png'),fullPage:true});await expect(preview.locator('#qualityNotice')).toBeVisible();await expect(preview.locator('#qualityNotice')).toContainText('3840');await expect(preview.locator('#qualityNotice')).toContainText('细小文字');const html=await download(preview,'fine-text.html'),zip=await download(preview,'fine-text.zip','zip');await Promise.all([preview.close(),p.close()]);const out=await offline(html);await expect(out.p.locator('img')).toBeVisible();expect(out.requests).toEqual([]);await out.p.screenshot({path:path.join(evidence,'fine-text-offline.png')});await out.p.close();expect((await fs.stat(zip)).size).toBeGreaterThan(500);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ^
+      60 | });
+      61 | test('usability: unsupported graphic formats are explained before download selection',async()=>{
+      62 |  const p=await importer(),preview=await converted(p,{text:'中文 English '+('长文本 αβ θ <script>literal</script>\n'.repeat(40))});await preview.screenshot({path:path.join(evidence,'format-help.png'),fullPage:true});await expect(preview.locator('#format option[value=svg]')).toBeDisabled();await expect(preview.locator('#format option[value=png]')).toBeDisabled();await expect(preview.locator('#formatHelp')).toContainText('HTML');const md=await download(preview,'long-note.md','md');expect(await fs.readFile(md,'utf8')).toContain('<script>literal</script>');await Promise.all([p.close(),preview.close()]);
+        at /mnt/e/30_项目/intelligent-ui-portability-lab/tests/usability.spec.mjs:59:550
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-screen-6808b-without-opening-diagnostics/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-screen-6808b-without-opening-diagnostics/test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-screen-6808b-without-opening-diagnostics/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-screen-6808b-without-opening-diagnostics/test-failed-4.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/usability-usability-screen-6808b-without-opening-diagnostics/error-context.md
+
+    Error Context: test-results/usability-usability-screen-6808b-without-opening-diagnostics/error-context.md
+
+  5) tests/usability.spec.mjs:61:1 › usability: unsupported graphic formats are explained before download selection
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator:  locator('#format option[value=svg]')
+    Expected: disabled
+    Received: enabled
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeDisabled" locator('#format option[value=svg]') with timeout 5000ms
+      - waiting for locator('#format option[value=svg]')
+        14 × locator resolved to <option value="svg">SVG</option>
+           - unexpected value "enabled"
+
+
+      60 | });
+      61 | test('usability: unsupported graphic formats are explained before download selection',async()=>{
+    > 62 |  const p=await importer(),preview=await converted(p,{text:'中文 English '+('长文本 αβ θ <script>literal</script>\n'.repeat(40))});await preview.screenshot({path:path.join(evidence,'format-help.png'),fullPage:true});await expect(preview.locator('#format option[value=svg]')).toBeDisabled();await expect(preview.locator('#format option[value=png]')).toBeDisabled();await expect(preview.locator('#formatHelp')).toContainText('HTML');const md=await download(preview,'long-note.md','md');expect(await fs.readFile(md,'utf8')).toContain('<script>literal</script>');await Promise.all([p.close(),preview.close()]);
+         |                                                                                                                                                                                                                                                                              ^
+      63 | });
+      64 |
+        at /mnt/e/30_项目/intelligent-ui-portability-lab/tests/usability.spec.mjs:62:270
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-unsupp-1f3e6-d-before-download-selection/test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-unsupp-1f3e6-d-before-download-selection/test-failed-4.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-unsupp-1f3e6-d-before-download-selection/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/usability-usability-unsupp-1f3e6-d-before-download-selection/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/usability-usability-unsupp-1f3e6-d-before-download-selection/error-context.md
+
+    Error Context: test-results/usability-usability-unsupp-1f3e6-d-before-download-selection/error-context.md
+
+  5 failed
+    tests/usability.spec.mjs:44:1 › usability: wide preview fits narrow screen without mutating exported dimensions
+    tests/usability.spec.mjs:52:1 › usability: one visible accessible file entry opens chooser from keyboard
+    tests/usability.spec.mjs:55:1 › usability: interactive downgrade exposes the component reasons before consent
+    tests/usability.spec.mjs:58:1 › usability: screenshot quality loss is visible without opening diagnostics
+    tests/usability.spec.mjs:61:1 › usability: unsupported graphic formats are explained before download selection

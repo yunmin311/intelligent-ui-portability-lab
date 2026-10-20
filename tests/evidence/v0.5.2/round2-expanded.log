@@ -1,0 +1,37 @@
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:30] "GET / HTTP/1.1" 200 -
+
+Running 11 tests using 1 worker
+
+(node:105413) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:31] "GET /adapters-a.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:31] code 404, message File not found
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:31] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓   1 tests/ui-design.spec.mjs:25:37 › design light: real Popup, import, overlay and preview desktop/narrow (3.2s)
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:35] "GET /adapters-a.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:35] code 404, message File not found
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:35] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓   2 tests/ui-design.spec.mjs:25:37 › design dark: real Popup, import, overlay and preview desktop/narrow (3.3s)
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:38] "GET /adapters-a.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:38] code 404, message File not found
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:38] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓   3 tests/ui-design.spec.mjs:45:37 › design light: multi-component inspector, degradation and keyboard recovery (2.5s)
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:40] "GET /adapters-a.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:40] code 404, message File not found
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:40] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓   4 tests/ui-design.spec.mjs:45:37 › design dark: multi-component inspector, degradation and keyboard recovery (2.4s)
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:43] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:43] code 404, message File not found
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:43] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓   5 tests/usability.spec.mjs:44:1 › usability: wide preview fits narrow screen without mutating exported dimensions (2.5s)
+  ✓   6 tests/usability.spec.mjs:52:1 › usability: one visible accessible file entry opens chooser from keyboard (1.6s)
+
+  ✓   7 tests/usability.spec.mjs:55:1 › usability: interactive downgrade exposes the component reasons before consent (2.5s)
+  ✓   8 tests/usability.spec.mjs:58:1 › usability: screenshot quality loss is visible without opening diagnostics (3.4s)
+  ✓   9 tests/usability.spec.mjs:61:1 › usability: unsupported graphic formats are explained before download selection (1.4s)
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:55:54] "GET /usability-workspace.html HTTP/1.1" 200 -
+
+  ✓  10 tests/usability.spec.mjs:65:1 › usability: actual rich Ctrl+C/V preserves structure and closes source before offline HTML/ZIP (2.9s)
+  ✓  11 tests/usability.spec.mjs:72:1 › usability: damaged/missing resources, drag/drop count, rapid formats and cancellation recover (2.0s)
+
+  11 passed (29.8s)
