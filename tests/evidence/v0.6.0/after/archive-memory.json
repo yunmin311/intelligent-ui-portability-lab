@@ -1,0 +1,18 @@
+{
+  "heapBefore": {
+    "usedSize": 31023384,
+    "totalSize": 88735744,
+    "embedderHeapUsedSize": 8395136,
+    "backingStorageSize": 15802441
+  },
+  "heapAfter": {
+    "usedSize": 39714260,
+    "totalSize": 110268416,
+    "embedderHeapUsedSize": 3193000,
+    "backingStorageSize": 12089900
+  },
+  "rssSamples": 34,
+  "rssMinKiB": 1218944,
+  "rssMaxKiB": 1482232,
+  "note": "100ms Linux aggregate browser-process RSS samples; shared pages may count twice and unsampled peaks are unknown. JS heap is importer renderer only."
+}

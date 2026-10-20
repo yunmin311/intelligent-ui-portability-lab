@@ -1,0 +1,26 @@
+{
+  "stats": {
+    "canvasImages": 1,
+    "elements": 97,
+    "externalLinks": 1,
+    "omittedFrames": 0,
+    "omittedImages": 0,
+    "redactedControls": 1,
+    "svg": 1,
+    "truncated": false
+  },
+  "dimensions": {
+    "height": 1091,
+    "width": 1120
+  },
+  "omissions": [
+    "未保存来源脚本和事件；可恢复的原生行为与自有 recipe 以交互报告为准",
+    "自定义字体文件未嵌入；离线端可能使用系统回退字体",
+    "只捕获当前已挂载 DOM；不保证虚拟列表、未展开或未加载内容完整",
+    "正文和 Canvas 中的敏感信息不能自动识别，请下载前检查",
+    "Canvas 已转为静态 PNG，不含数据和交互",
+    "不恢复来源按钮事件；仅明确列出的自有 recipe 可以启用",
+    "输入及可编辑内容已脱敏；未知控件仅显示安全静态状态",
+    "Markdown 合并单元格保留为安全 HTML 表格；纯 Markdown 阅读器可能不渲染，视觉以 HTML 为准"
+  ]
+}

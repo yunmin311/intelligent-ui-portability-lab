@@ -1,0 +1,13 @@
+# v0.6 compatibility execution record
+
+Authorization: user supplied full v0.6 brief and explicitly requested autonomous evidence-based decisions, fixes, testing, packaging, PR and CI. No intermediate design approval needed. Existing JS/MV3 pipeline and design remain.
+
+Base: clean main/origin/main 5496b53; branch codex/compatibility-v060. WSL Ubuntu-24.04, Node24.21.0. No new dependency.
+
+1. Before product changes, author CC0 complex corpus with nine content categories; collect real Chromium rich/plain Ctrl+C/V, HTML/SVG/image file, IR roundtrip; retain raw clipboard, exports, screenshots, stage-specific losses. Existing full suite supplies explicit controlled-region capture coverage. Browser clipboard image is distinct from OS screenshot clipboard.
+2. Reproduce nested list Markdown flattening, merged-cell loss, block MathML attributes, and 4K detail loss before changing modules. Fix only evidenced issues. Add opt-in original-resolution PNG tile archive: existing div/img resource model, each <=1MP/2MB base64, total IR4MB, max8.4MP and side12000, bounded source decode once, sequential tile encode/release, no JPEG or resizing in archive mode. Budget failure must ask to select standard or crop. Existing standard mode unchanged. Evidence changed the schema decision: list start and MathML display expand allowed attributes, so explicitly upgrade IR1.4 and validate/migrate1.0–1.3; do not label new attributes1.3. Test JSON reimport/hash validation/legacy versions.
+3. TDD: new unit tests for list/quote/merged table semantics and MathML attributes; browser tests verify exact 4K RGBA reassembly (transparent background + fine text + one-pixel stripes), budgets/cancel/failure. Security allowlists and CSP retained. No arbitrary HTML Markdown fallback; only sanitized table/ordered-list fragments without unsafe fields.
+4. Round2 targeted and full regression; independent reviewer checks diff. Fix P0/P1. Round3 user-entry downloads from installed ZIP, close extension profile, fresh offline browser. Keep historical visual thresholds unchanged. Measure processing time and explicitly limit memory claim to what is actually measured.
+5. Sync version/docs/CI/package verification; full tests create exact-byte verification; package install+source ZIP/SHA256; final package E2E; PR/CI/merge under repository rules; draft Release only. Windows/Obsidian/real ChatGPT remain Unverified unless actually accessible.
+
+Review focus: no silent lossy archive; aggregate budget checked before base64 growth; tile placement/alpha/pixel identity; Markdown nesting/fences/table cell pipes; external JSON stays untrusted and native details only; clipboard omissions versus sanitized losses clearly distinguished.

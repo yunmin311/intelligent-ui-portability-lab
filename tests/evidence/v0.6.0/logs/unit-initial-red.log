@@ -1,0 +1,98 @@
+✖ Markdown keeps nested lists, ordered starts, item values and continuation blocks (1.572685ms)
+✖ Markdown retains quote, emphasis, inline code and sub/sup meaning (1.634611ms)
+✖ Markdown merged cells retain safe HTML table rather than misaligned pipe table (0.591168ms)
+✖ MathML display semantics and ordered list attributes survive validated HTML (0.258068ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 135.22408
+
+✖ failing tests:
+
+test at tests/unit/compatibility.test.mjs:5:1
+✖ Markdown keeps nested lists, ordered starts, item values and continuation blocks (1.572685ms)
+  Error: IR 字段不合法
+      at own (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/extension/src/core/ir.js:6:116)
+      at walk (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/extension/src/core/ir.js:33:2)
+      at validateSnapshot (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/extension/src/core/ir.js:43:2)
+      at markdown (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/extension/src/core/render.js:28:48)
+      at TestContext.<anonymous> (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/tests/unit/compatibility.test.mjs:6:160)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+
+test at tests/unit/compatibility.test.mjs:8:1
+✖ Markdown retains quote, emphasis, inline code and sub/sup meaning (1.634611ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /> \*emphasis\* `a\\\|b` H<sub>2<\/sub>O x<sup>2<\/sup>/. Input:
+
+  '<!-- capability: static; 不含原始交互 -->\nemphasis a\\|b H2O x2\n'
+
+      at TestContext.<anonymous> (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/tests/unit/compatibility.test.mjs:8:247)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '<!-- capability: static; 不含原始交互 -->\nemphasis a\\|b H2O x2\n',
+    expected: /> \*emphasis\* `a\\\|b` H<sub>2<\/sub>O x<sup>2<\/sup>/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/unit/compatibility.test.mjs:9:1
+✖ Markdown merged cells retain safe HTML table rather than misaligned pipe table (0.591168ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /<table>/. Input:
+
+  '<!-- capability: static; 不含原始交互 -->\n| Group |  |\n| --- | --- |\n| A | B |\n'
+
+      at TestContext.<anonymous> (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/tests/unit/compatibility.test.mjs:9:230)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '<!-- capability: static; 不含原始交互 -->\n| Group |  |\n| --- | --- |\n| A | B |\n',
+    expected: /<table>/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/unit/compatibility.test.mjs:10:1
+✖ MathML display semantics and ordered list attributes survive validated HTML (0.258068ms)
+  AssertionError [ERR_ASSERTION]: Got unwanted exception.
+  Actual message: "IR 字段不合法"
+      at TestContext.<anonymous> (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/tests/unit/compatibility.test.mjs:10:221)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: Error: IR 字段不合法
+        at own (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/extension/src/core/ir.js:6:116)
+        at walk (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/extension/src/core/ir.js:33:2)
+        at validateSnapshot (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/extension/src/core/ir.js:43:2)
+        at file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/tests/unit/compatibility.test.mjs:10:238
+        at getActual (node:assert:611:5)
+        at strict.doesNotThrow (node:assert:779:32)
+        at TestContext.<anonymous> (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/tests/unit/compatibility.test.mjs:10:221)
+        at Test.runInAsyncScope (node:async_hooks:227:14)
+        at Test.run (node:internal/test_runner/test:1402:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:974:18),
+    expected: undefined,
+    operator: 'doesNotThrow',
+    diff: 'simple'
+  }

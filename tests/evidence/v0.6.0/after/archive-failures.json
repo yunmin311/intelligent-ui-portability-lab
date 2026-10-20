@@ -1,0 +1,12 @@
+{
+  "size": "rejected 8.8 MP before decode",
+  "entropy": "rejected uncompressible tile without JPEG fallback",
+  "cancel": {
+    "cancelled": true,
+    "progress": [
+      "正在检查截图尺寸…",
+      "正在解码原尺寸图片…",
+      "正在无损封装原尺寸分块 1 / 1…"
+    ]
+  }
+}
