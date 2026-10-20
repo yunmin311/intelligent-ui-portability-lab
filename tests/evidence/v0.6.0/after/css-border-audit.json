@@ -1,0 +1,23 @@
+{
+  "declarations": [
+    "border-top-width",
+    "border-right-width",
+    "border-bottom-width",
+    "border-left-width",
+    "border-top-style",
+    "border-right-style",
+    "border-bottom-style",
+    "border-left-style",
+    "border-top-color",
+    "border-right-color",
+    "border-bottom-color",
+    "border-left-color",
+    "border-image-source",
+    "border-image-slice",
+    "border-image-width",
+    "border-image-outset",
+    "border-image-repeat"
+  ],
+  "retained": [],
+  "note": "CSSOM expands border shorthand into side properties outside current style allowlist; existing HTML-file border loss, deferred P2."
+}

@@ -1,0 +1,17 @@
+{
+  "file": {
+    "syntheticSecretRemoved": true,
+    "marker": "SECRET-DO-NOT-EXPORT",
+    "scope": "serialized tree only; original raw input evidence intentionally retains synthetic sentinel"
+  },
+  "clipboard": {
+    "syntheticSecretRemoved": true,
+    "marker": "SECRET-DO-NOT-EXPORT",
+    "scope": "serialized tree only; original raw input evidence intentionally retains synthetic sentinel"
+  },
+  "region": {
+    "syntheticSecretRemoved": true,
+    "marker": "SECRET-DO-NOT-EXPORT",
+    "scope": "serialized tree only; original raw input evidence intentionally retains synthetic sentinel"
+  }
+}

@@ -1,3 +1,19 @@
+# v0.6.0 复杂内容实测 · 2026-10-20
+
+基准 main `5496b53`；分支 `codex/compatibility-v060`。九类CC0自编复杂内容、六条输入路径。富文本/纯文本/PNG使用真实Chromium剪贴板传输；内容不是ChatGPT用户样本。[完整研究、逐渠道矩阵和三轮记录](../docs/COMPATIBILITY_REVIEW_0.6.0.md) · [前后证据与离线样例](evidence/v0.6.0/index.html)。
+
+- 第一轮：修改前4个专项浏览器场景取证，新增4个单元用例先失败；完整浏览器旧59项通过，新2项预期失败，不计全绿。
+- 第二轮：结构/公式/分块归档专项与完整51单元+66浏览器通过。
+- 第三轮：独立审查发现并修复混合配方Markdown/ZIP、CommonMark跳号语义与旧IR1.0子树兼容问题。最终 `npm test` **54单元+66浏览器全部通过**，无跳过；保留Golden及原视觉阈值。[完整日志](evidence/v0.6.0/logs/round3-full.log)。中间一次完整运行因测试期间扩展字节修改而被打包校验拒绝，随后固定字节重跑成功。
+- 最终ZIP解压安装 **54项MV3全部通过**，测试前后逐文件SHA-256与已测扩展一致。安装ZIP SHA-256：`1e359e1ce346fc3aa2c6d609c74e76645893dbb5ac19cb9844434470bb322294`。[安装日志](evidence/v0.6.0/logs/installed-package.log) · [逐文件字节证明](evidence/v0.6.0/installed-package.json) · [独立离线结果](evidence/v0.6.0/installed-standalone-result.json)。
+- Chromium156.0.8078.4 / Linux WSL Ubuntu24.04 / Node24.21.0；375px、浅深色、不同有限交互策略、用户入口下载、恶意输入/取消/重试/哈希损坏均在真实MV3套件中。375px属于桌面窄视口，不证明移动浏览器支持扩展。
+- 原图3840×2160，标准模式1333×750；原尺寸模式3840×2160、12块，重组33177600 RGBA通道差异0。新无扩展浏览器断网打开HTML/ZIP/SVG；MathML、跨度表格、原生details实查，图片成功解码、无HTTP请求或页面运行错误。[像素测量](evidence/v0.6.0/after/4k-metrics.json) · [内存采样与范围](evidence/v0.6.0/after/archive-memory.json)。
+- `npm audit --audit-level=high`：0漏洞，无新增依赖。IR1.4显式迁移1.0–1.3，原权限/CSP/资源预算/外部去信任/ChatGPT Gate保留。
+
+版本0.6.0；本地ZIP、源码包、SHA256SUMS、package-manifest.json在dist/v0.6.0。构建信息如实记录基准revision与workingTreeModified，不把未提交构建标成纯main。CI按实际PR/提交重建会产生独立hash，不能混用。提交、PR、CI与合并链接由最终交付回复提供；只创建Release草稿，不公开发布。Windows Chrome/Edge、Obsidian GUI和真实ChatGPT内容仍Unverified，具体阻碍见研究报告。
+
+---
+
 # v0.5.2 三轮自主验收 · 2026-10-20
 
 基准main `42758ce0d2ebfcf154c3c7a8a61abd56351c85ab`，分支 `codex/usability-v052`；完整问题清单、每轮记录、平台边界与规则审查以[本轮验收](../docs/USABILITY_REVIEW_0.5.2.md)为单一事实来源。[真实前后截图与离线样例](evidence/v0.5.2/index.html)。

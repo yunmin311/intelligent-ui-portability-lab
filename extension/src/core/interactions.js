@@ -101,7 +101,7 @@ export function exportPolicy(s,options={}){const report=analyze(s,options.strate
 export function externalImport(s){
  // File claims never become authority. Every candidate is checked against our finite model.
  const candidates=s.behaviors||[];if(!Array.isArray(candidates)||candidates.length>20)throw Error('交互数量超限');
- const out={...s,schemaVersion:'1.3.0',source:{type:'json',origin:'local'},provenance:{method:'local-file',status:'external-unverified'},behaviors:[],security:{redacted:false,remoteResources:false,scripts:false},omissions:[...new Set([...(s.omissions||[]),'外部来源、脱敏、安全与验证声明未经证明；来源等价声明已丢弃','结构与资源通过本地校验不代表正文或像素已经脱敏'])].slice(-177)};
+ const out={...s,schemaVersion:'1.4.0',source:{type:'json',origin:'local'},provenance:{method:'local-file',status:'external-unverified'},behaviors:[],security:{redacted:false,remoteResources:false,scripts:false},omissions:[...new Set([...(s.omissions||[]),'外部来源、脱敏、安全与验证声明未经证明；来源等价声明已丢弃','结构与资源通过本地校验不代表正文或像素已经脱敏'])].slice(-177)};
  for(let i=0;i<candidates.length;i++){try{const b=candidates[i];validateBehaviors({...out,behaviors:[...out.behaviors,b]});out.behaviors.push({...b,evidence:'model-validated-v1'});}catch(error){out.omissions.push(`交互 #${i+1} 静态降级：${error.message}`);}}
  return out;
 }

@@ -1,0 +1,12 @@
+
+Running 4 tests using 1 worker
+
+(node:160985) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/compatibility.spec.mjs:14:1 › compatibility: actual browser rich clipboard versus HTML file and JSON roundtrip (6.1s)
+  ✓  2 tests/compatibility.spec.mjs:26:1 › compatibility: actual plain clipboard preserves exact preformatted text (1.4s)
+  ✓  3 tests/compatibility.spec.mjs:30:1 › compatibility: SVG file preserves safe vector gradients and MathML mixed content (1.6s)
+
+  ✓  4 tests/compatibility.spec.mjs:34:1 › compatibility: high resolution archive keeps exact source pixels and survives standalone offline ZIP (3.6s)
+
+  4 passed (14.1s)

@@ -71,7 +71,7 @@ for(const [theme,width] of [['light',1200],['dark',375]])test(`v0.5 nested chart
  const prepare=async()=>{for(const [i,value] of [8,1.3,-.75,30].entries())await setRange(page,i,value);await page.getByRole('button',{name:'切换升降序'}).click();};
  await prepare();await operateComposite(page);await page.reload();await prepare();await page.locator('#composites').screenshot({path:path.join(evidence,`${theme}-source.png`)});
  const captured=await whole(),raw=await fs.readFile(await save(captured,`${theme}-composite.json`),'utf8'),snapshot=JSON.parse(raw);
- expect(snapshot.schemaVersion).toBe('1.3.0');expect(snapshot.behaviors.map(b=>b.recipe)).toEqual(['tabs@1','fourier@1','state@1','table@1']);expect(snapshot.behaviors.every(b=>b.evidence==='model-validated-v1')).toBe(true);
+ expect(snapshot.schemaVersion).toBe('1.4.0');expect(snapshot.behaviors.map(b=>b.recipe)).toEqual(['tabs@1','fourier@1','state@1','table@1']);expect(snapshot.behaviors.every(b=>b.evidence==='model-validated-v1')).toBe(true);
  for(const [outer,inner] of [[snapshot.behaviors[0],snapshot.behaviors[1]],[snapshot.behaviors[2],snapshot.behaviors[3]]])expect(outer.bindings.panels.some(p=>inner.bindings.root.startsWith(p+'.'))).toBe(true);
  await captured.close();await page.close();
  const imported=await importJSON(raw);await expect(imported.preview.locator('#interactionReport')).toContainText('model-validated');await expect(imported.preview.locator('#interactionReport')).not.toContainText('reconstructed-tested');await imported.preview.locator('#strategy').selectOption('interactive');await expect(imported.preview.locator('#save')).toBeEnabled();

@@ -1,0 +1,31 @@
+✔ Markdown keeps nested lists, ordered starts, item values and continuation blocks (3.169848ms)
+✔ Markdown retains quote, emphasis, inline code and sub/sup meaning (0.378438ms)
+✔ Markdown merged cells retain safe HTML table rather than misaligned pipe table (0.753322ms)
+✔ MathML display semantics and ordered list attributes survive validated HTML (1.255031ms)
+✔ IR 1.0–1.3 migrate explicitly; unknown or wrongly labelled new attributes fail (7.843419ms)
+✔ list starts handle zero, negatives and invalid values; inline code pipes remain literal (0.390832ms)
+✖ mixed verified recipes plus nested Markdown blocks export MD and ZIP independently (0.808007ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 6
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 123.72011
+
+✖ failing tests:
+
+test at tests/unit/compatibility.test.mjs:14:1
+✖ mixed verified recipes plus nested Markdown blocks export MD and ZIP independently (0.808007ms)
+  Error: 交互绑定不合法或超出组件
+      at validateBehaviors (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/extension/src/core/interactions.js:59:176)
+      at validateSnapshot (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/extension/src/core/ir.js:44:344)
+      at markdown (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/extension/src/core/render.js:28:48)
+      at walk (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/extension/src/core/render.js:53:16)
+      at Array.forEach (<anonymous>)
+      at walk (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/extension/src/core/render.js:60:64)
+      at markdown (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/extension/src/core/render.js:61:3)
+      at TestContext.<anonymous> (file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab/tests/unit/compatibility.test.mjs:16:356)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)

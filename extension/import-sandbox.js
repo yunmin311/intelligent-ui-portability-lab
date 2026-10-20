@@ -367,7 +367,7 @@
   // extension/src/core/policy.js
   var allowedHtml = new Set("a article aside blockquote br button caption code dd details div dl dt em figcaption figure h1 h2 h3 h4 h5 h6 header hr i kbd label li main mark ol p pre q s samp section small span strong sub summary sup output table tbody td th thead tfoot time tr u ul".split(" "));
   var allowedSvg = new Set("svg g defs path rect circle ellipse line polyline polygon text tspan lineargradient radialgradient stop clippath mask pattern title desc".split(" "));
-  var allowedAttributes = new Set("role aria-selected aria-hidden aria-controls aria-labelledby tabindex hidden viewBox width height x y x1 x2 y1 y2 cx cy r rx ry d points transform fill stroke stroke-width stroke-linecap stroke-linejoin opacity fill-opacity stroke-opacity offset stop-color stop-opacity preserveAspectRatio xmlns vector-effect clip-path mask stroke-dasharray stroke-dashoffset text-anchor dominant-baseline colspan rowspan".split(" "));
+  var allowedAttributes = new Set("role aria-selected aria-hidden aria-controls aria-labelledby tabindex hidden viewBox width height x y x1 x2 y1 y2 cx cy r rx ry d points transform fill stroke stroke-width stroke-linecap stroke-linejoin opacity fill-opacity stroke-opacity offset stop-color stop-opacity preserveAspectRatio xmlns vector-effect clip-path mask stroke-dasharray stroke-dashoffset text-anchor dominant-baseline colspan rowspan start value display".split(" "));
   var styleProps = ["visibility", "direction", "writing-mode", "color-scheme", "background-image", "background-size", "background-position", "background-repeat", "border-collapse", "border-spacing", "table-layout", "caption-side", "list-style-type", "list-style-position", "font-variant", "font-stretch", "word-break", "overflow-wrap", "text-indent", "text-transform", "text-overflow", "text-shadow", "float", "clear", "align-self", "align-content", "justify-items", "justify-self", "column-gap", "row-gap", "grid-auto-flow", "grid-auto-rows", "grid-auto-columns", "flex-grow", "flex-shrink", "flex-basis", "order", "aspect-ratio", "max-height", "object-position", "fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin", "fill-opacity", "stroke-opacity", "stop-color", "stop-opacity", "text-anchor", "dominant-baseline", "clip-path", "mask", "transform", "transform-origin", "display", "position", "top", "right", "bottom", "left", "z-index", "box-sizing", "color", "background-color", "font-family", "font-size", "font-weight", "font-style", "line-height", "letter-spacing", "text-align", "white-space", "width", "height", "max-width", "min-width", "min-height", "margin", "margin-top", "margin-right", "margin-bottom", "margin-left", "padding", "padding-top", "padding-right", "padding-bottom", "padding-left", "border", "border-width", "border-style", "border-color", "border-radius", "box-shadow", "opacity", "vertical-align", "flex", "flex-direction", "flex-wrap", "align-items", "justify-content", "gap", "grid-template-columns", "grid-template-rows", "grid-column", "grid-row", "overflow", "text-decoration", "object-fit"];
   var rejectTags = new Set("script style iframe frame object embed template link meta base audio video source track noscript foreignobject animate animatetransform set use".split(" "));
   var allowedMath = new Set("math mrow mi mn mo mtext mfrac msqrt mroot msup msub msubsup munder mover munderover mtable mtr mtd mfenced mspace menclose mstyle mpadded".split(" "));
@@ -384,7 +384,7 @@
   }
 
   // extension/src/core/ir.js
-  var VERSION = "1.3.0";
+  var VERSION = "1.4.0";
   var LIMITS = Object.freeze({ nodes: 5e3, depth: 75, text: 1e6, bytes: 4e6, dimension: 12e3, resource: 2e6 });
   var own = (o, keys) => {
     if (!o || typeof o !== "object" || Array.isArray(o) || Object.keys(o).some((k) => !keys.includes(k))) throw Error("IR \u5B57\u6BB5\u4E0D\u5408\u6CD5");
@@ -402,7 +402,7 @@
   }
   function validateSnapshot(s) {
     own(s, ["schemaVersion", "kind", "capability", "createdAt", "source", "dimensions", "background", "tree", "resources", "provenance", "omissions", "limitations", "security", "stats", "behaviors"]);
-    if (![VERSION, "1.0.0", "1.1.0", "1.2.0"].includes(s.schemaVersion)) throw Error("\u4E0D\u652F\u6301\u7684 schemaVersion\uFF1B\u8BF7\u8FC1\u79FB\u6216\u4F7F\u7528\u539F\u7248\u672C");
+    if (![VERSION, "1.0.0", "1.1.0", "1.2.0", "1.3.0"].includes(s.schemaVersion)) throw Error("\u4E0D\u652F\u6301\u7684 schemaVersion\uFF1B\u8BF7\u8FC1\u79FB\u6216\u4F7F\u7528\u539F\u7248\u672C");
     if (s.kind !== "ui-portability-snapshot" || !["static", "visual-only"].includes(s.capability)) throw Error("\u672A\u7ECF\u6D4B\u8BD5\u7684\u80FD\u529B\u7B49\u7EA7");
     str(s.createdAt, 30);
     if (!Number.isFinite(Date.parse(s.createdAt))) throw Error("\u521B\u5EFA\u65F6\u95F4\u4E0D\u5408\u6CD5");
@@ -455,6 +455,7 @@
       }
       if (n.component && !["container", "table", "graphic", "formula", "control", "image"].includes(n.component)) throw Error("\u7EC4\u4EF6\u7C7B\u578B\u4E0D\u5408\u6CD5");
       own(n.attrs, [...allowedAttributes, "id", "open", "disabled", "type", "checked", "min", "max", "step", "value", "alt", "gradientUnits", "gradientTransform", "clipPathUnits", "maskUnits", "patternUnits"]);
+      if (s.schemaVersion !== "1.4.0" && ["start", "display"].some((k) => Object.hasOwn(n.attrs, k))) throw Error("IR 1.4 \u5C5E\u6027\u9700\u8981\u663E\u5F0F\u7248\u672C\u5347\u7EA7");
       for (const [k, v] of Object.entries(n.attrs)) {
         str(v, ["d", "points"].includes(k) ? 1e5 : 1e3);
         if (/[<>]|javascript:|data:|[\x00-\x08]/i.test(v) || /url\s*\(/i.test(v) && !localReference(v)) throw Error("\u6D3B\u52A8\u5C5E\u6027\u4E0D\u5408\u6CD5");
@@ -477,7 +478,7 @@
       n.children.forEach((c) => walk(c, depth + 1));
     }
     walk(s.tree, 0);
-    if (s.schemaVersion !== "1.3.0" && s.behaviors?.some((b) => !["fourier@1", "table@1"].includes(b.recipe))) throw Error("\u65E7\u7248\u4E0D\u652F\u6301\u65B0\u9002\u914D\u5668");
+    if (!["1.3.0", VERSION].includes(s.schemaVersion) && s.behaviors?.some((b) => !["fourier@1", "table@1"].includes(b.recipe))) throw Error("\u65E7\u7248\u4E0D\u652F\u6301\u65B0\u9002\u914D\u5668");
     if (s.schemaVersion === "1.1.0" && s.behaviors?.some((b) => b.evidence !== "fixture-equivalence-v1")) throw Error("IR 1.1 \u4E0D\u652F\u6301\u6A21\u578B\u6821\u9A8C\u6807\u8BB0");
     if (s.schemaVersion === "1.0.0" && s.behaviors) throw Error("\u65E7\u7248\u4E0D\u5141\u8BB8\u4EA4\u4E92");
     validateBehaviors(s);
@@ -684,7 +685,7 @@
           if (v && !/[<>]/.test(v)) target.attrs[attr.name] = v;
         } else if (["href", "src"].includes(attr.name)) stats.externalLinks++;
       }
-      if (original.hasAttribute("colspan") || original.hasAttribute("rowspan")) omissions.add("Markdown \u5408\u5E76\u5355\u5143\u683C\u4F1A\u964D\u7EA7\u4E3A\u666E\u901A\u8868\u683C\uFF0C\u89C6\u89C9\u4EE5 HTML \u4E3A\u51C6");
+      if (original.hasAttribute("colspan") || original.hasAttribute("rowspan")) omissions.add("Markdown \u5408\u5E76\u5355\u5143\u683C\u4FDD\u7559\u4E3A\u5B89\u5168 HTML \u8868\u683C\uFF1B\u7EAF Markdown \u9605\u8BFB\u5668\u53EF\u80FD\u4E0D\u6E32\u67D3\uFF0C\u89C6\u89C9\u4EE5 HTML \u4E3A\u51C6");
       if (name === "details" && original.open) target.attrs.open = "";
       if (name === "button") {
         target.attrs.disabled = "";

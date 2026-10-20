@@ -86,3 +86,12 @@ Proposal：正式授权数据包专用解析与未来第三方适配。Explorati
 ## v0.5.2 可用性收口复核
 
 预览缩放仅在扩展页外层transform，不改隔离frame权限或内容；格式禁用依据已校验IR，不访问来源。文件入口合并复用同一file/paste/drop转换，错误/取消后恢复；图片风险提示提前显示。没有新增权限、依赖、后台请求、recipe、授权绕过或放宽输入预算；documentId一次授权、候选完整预验证、外部JSON信任清除和CSP沿用并在全量测试中回归。Gate和以上外部条款研究沿用原核对日期，不把本轮体验检查称作新的法律核查。证据统一见[本轮验收](USABILITY_REVIEW_0.5.2.md)。
+
+
+## v0.6.0 安全增量 · Decision
+
+权限仍为activeTab/scripting/storage；不增加剪贴板权限。测试环境通过浏览器Clipboard API写入自有PNG后真实Ctrl+V，产品只读当次paste事件；不能把该证据称作Windows系统截图验收。ChatGPT自动Gate保留。
+
+原尺寸选项将输入解码预算独立限定为8.4MP，标准模式未放宽；每个保存资源仍1MP/2MB base64，累计base642.5MB、IR4MB、原会话7.5MB估算校验继续执行。容量错误不自动降质。IR1.4仅新增安全属性start/display，旧版本先验证再迁移；HTML片段只从已净化并校验的table节点生成。外部JSON仍去信任、资源逐个验签/hash/像素检查；没有增加任意脚本/URL/CSS或CSP入口。无新增依赖、模型或云服务。
+
+本轮不重新宣称第三方站点条款已核对；只处理自有CC0素材，没有读取用户私有对话或账户接口。Windows工具初始化实测被sandboxCwd错误阻断，Obsidian正式Vault和用户日常浏览器配置未改变；平台保持Unverified。

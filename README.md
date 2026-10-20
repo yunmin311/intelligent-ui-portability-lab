@@ -1,27 +1,27 @@
-# Intelligent UI Portability Lab · v0.5.2
+# Intelligent UI Portability Lab · v0.6.0
 
 本地浏览器扩展：保存有权处理的页面区域，或主动粘贴截图、富文本、纯文本，导入自己的 HTML、SVG、JSON、PNG/JPEG/WebP、TXT/MD 文件，检查静态外观与遗漏，再下载。HTML 优先保留来源视觉，不套品牌卡片；不上传内容。
 
 **Decision：当前支持浏览器原生折叠，以及经明确受控契约和有限模型校验的 Fourier、表格、标签页、加法计算、布尔面板切换。未知行为静态降级，图片 `visual-only`。不复制来源脚本或完整响应式规则；ChatGPT 自动提取仍禁用。** 长期目标与当前能力见 [项目书](PROJECT_PROPOSAL.md)。
 
-当前交付入口：本轮本地 `dist/v0.5.2/` 的 extension/source ZIP、`SHA256SUMS` 和 `package-manifest.json`（先 `npm test && npm run package` 可重建）。源码更新按验证后提交、推送、合并的流程交付；尚未公开发布 v0.5.2 Release；历史 v0.2/v0.3 ZIP 仅供追溯，不是最新版。
+当前交付入口：本轮本地 `dist/v0.6.0/` 的 extension/source ZIP、`SHA256SUMS` 和 `package-manifest.json`（先 `npm test && npm run package` 可重建）。源码更新按验证后提交、推送、合并的流程交付；尚未公开发布 v0.6.0 Release；历史 v0.2/v0.3 ZIP 仅供追溯，不是最新版。
 
-安装包尚未公开发布；仓库最新源码入口为 [main](https://github.com/yunmin311/intelligent-ui-portability-lab/tree/main)，当前打包与验证结果见 [测试报告](tests/TEST_REPORT.md)。[本轮三轮验收记录](docs/USABILITY_REVIEW_0.5.2.md)列出实际结果；旧版 Release 草稿仅为历史记录。Windows Chrome/Edge 与 Obsidian GUI 当前 Unverified（历史 Windows GUI 工具初始化失败；本轮没有可操作的实机环境），按[人工验收步骤](tests/MANUAL_ACCEPTANCE.md)验证。
+安装包尚未公开发布；仓库最新源码入口为 [main](https://github.com/yunmin311/intelligent-ui-portability-lab/tree/main)，当前打包与验证结果见 [测试报告](tests/TEST_REPORT.md)。[本轮兼容性研究与三轮记录](docs/COMPATIBILITY_REVIEW_0.6.0.md)列出实际结果；旧版 Release 草稿仅为历史记录。Windows Chrome/Edge 与 Obsidian GUI 当前 Unverified（历史 Windows GUI 工具初始化失败；本轮 Windows GUI 工具初始化被 sandboxCwd 错误阻断），按[人工验收步骤](tests/MANUAL_ACCEPTANCE.md)验证。
 
-当前 v0.5.2 在既有精密工具设计上收口可用性：[三轮审查与修复](docs/USABILITY_REVIEW_0.5.2.md)、[本轮真实前后截图](tests/evidence/v0.5.2/index.html)。此前界面升级记录：[设计规范](docs/DESIGN_SPEC.md)、[两种概念方向](docs/UI_DESIGN_DIRECTIONS.html)、[真实前后截图](tests/evidence/ui-upgrade/index.html)、[审查与验证](docs/UI_UPGRADE_AUDIT.md)。截图画廊可下载仓库后在本地打开，安装包不包含设计稿。
+当前 v0.6.0 提高复杂内容保真：[兼容性研究与修复](docs/COMPATIBILITY_REVIEW_0.6.0.md)、[本轮真实前后截图与离线样例](tests/evidence/v0.6.0/index.html)。此前界面升级记录：[设计规范](docs/DESIGN_SPEC.md)、[两种概念方向](docs/UI_DESIGN_DIRECTIONS.html)、[真实前后截图](tests/evidence/ui-upgrade/index.html)、[审查与验证](docs/UI_UPGRADE_AUDIT.md)。截图画廊可下载仓库后在本地打开，安装包不包含设计稿。
 
 ## 安装与使用
 
 解压 extension 安装包，在 Chrome `chrome://extensions` 或 Edge `edge://extensions` 打开开发者模式，加载包内 `extension/` 文件夹。源码中的 `extension/` 也可直接加载；修改 `extension/src/` 后需执行 `npm ci && npm run build`，再重载扩展。最低声明 Chromium 114；实际运行验证版本与平台见 [测试报告](tests/TEST_REPORT.md)，不把最低声明当兼容性实测。
 
-1. 点击扩展 → **手动粘贴 / 导入文件**。从来源页面复制文字、富文本或使用系统截图，在导入页按 **Ctrl+V**；也可点击同一个文件入口（键盘 Enter/Space）或拖入一个文件。转换后自动打开预览，可取消、重试和继续粘贴。HTML/SVG隔离净化，纯文本按字面保存，JSON沿用IR1.3往返。解析宽度在折叠设置中。
+1. 点击扩展 → **手动粘贴 / 导入文件**。从来源页面复制文字、富文本或使用系统截图，在导入页按 **Ctrl+V**；也可点击同一个文件入口（键盘 Enter/Space）或拖入一个文件。转换后自动打开预览，可取消、重试和继续粘贴。HTML/SVG隔离净化，纯文本按字面保存，JSON沿用IR1.4往返。解析宽度在折叠设置中。
 2. 如需捕获允许处理的网页，点击 **选择页面区域**。默认格式与受控契约在“页面捕获设置”中；有限模型仍须明确勾选。悬停预选，点击锁定，↑/↓扩大/缩小，Enter捕获，Esc取消；失败可重试。
 3. 预览显示隔离的原貌与受支持交互，默认适应窗口；可切换 100% 或 25–200% 检查细节（只改变显示，不改变下载尺寸与状态）。检查组件能力、差异和遗漏，选择 Auto（默认）/ Interactive / Static 策略，再选格式下载。**JSON 是含正文的完整快照；下载遗漏报告只含诊断信息。** 浏览器是否完成保存请看下载列表。
-4. 下载后本地打开 HTML；ZIP 先解压再打开 `index.html`。Markdown 可放入 Obsidian，复杂图形有降级提示。截图请选 ZIP，将 `notes.md` 与 `resources/` 一起放入 Obsidian；单独 Markdown 对截图禁用，避免失效链接。没有自动写入 vault 的权限。
+4. 下载后本地打开 HTML；ZIP 先解压再打开 `index.html`。Markdown 可放入 Obsidian，复杂图形有降级提示。标准截图可选 ZIP，将 `notes.md` 与 `resources/` 一起放入 Obsidian；原尺寸多块截图请打开 `index.html` 查看完整拼合；单独 Markdown 对截图禁用，避免失效链接。没有自动写入 vault 的权限。
 
 **从 ChatGPT 手动复制/截图 → 扩展导入页 Ctrl+V → 预览 → HTML/ZIP → 本地打开**无需测试服务器或编辑 JSON。扩展不会因此访问 ChatGPT 网页；自动捕获 Gate 继续禁用。实际 ChatGPT 用户样本尚未提供，本轮使用明确标记的合成内容验证链路。
 
-截图输入上限 16 MB、4000 万像素、单轴16384；解码前检查尺寸，缩放至不超过100万像素并重新编码。预览列出原图/保存尺寸及 PNG 或 JPEG 有损状态，**不保留原文件**，小字可能变糊；需要更清晰可分区域截图。IR 1.3/单资源2MB base64上限未放宽。
+图片默认标准模式：输入 ≤16 MB / 4000 万像素 / 单边16384，输出≤100万像素，必要时 JPEG 有损压缩。新增可选**原尺寸无损归档**：输入≤840万像素、单边12000，以≤100万像素的 PNG 块拼合；每块≤2MB base64、全部图片base64≤2.5MB、完整IR≤4MB。超过容量时拒绝并提示裁剪或选择标准模式，不自动缩小或改用JPEG。下载 HTML 或 ZIP 的 `index.html` 查看完整画面；`notes.md` 展示独立分块。两模式均移除元数据，不保留原文件字节；JPEG/WebP重编码也不能修复输入已有的压缩损失。
 
 仅对明确允许处理的网页使用。普通段落、图片和 Canvas 中的秘密不能自动识别，下载前必须检查。无需登录本产品。
 
@@ -31,9 +31,9 @@
 |---|---|
 | HTML | 固定尺寸、来源计算样式、净化结构、内嵌安全图片；仅原生行为与产品自有有限运行时，无原站 JS |
 | Markdown | 标题/列表/表格等语义；复杂 SVG/MathML 明确指向 HTML 导出，阅读器支持有差异 |
-| JSON | IR 1.3.0，可校验、重导入；1.0/1.1/1.2 显式迁移，外部已知配方逐项独立验证并清除来源等价声明；v0.2 static-snapshot 只通过隔离 HTML 迁移 |
+| JSON | IR 1.4.0，可校验、重导入；1.0/1.1/1.2/1.3 显式迁移，外部已知配方逐项独立验证并清除来源等价声明；v0.2 static-snapshot 只通过隔离 HTML 迁移 |
 | SVG | 仅所选根元素为 SVG；HTML 容器不冒充矢量导出 |
-| PNG | ≤100万像素的SVG根，或已保存为PNG资源的导入图片；JPEG资源请用HTML/ZIP；不提供任意HTML截图 |
+| PNG | ≤100万像素的SVG根，或单个PNG资源图片根；原尺寸多块归档请用HTML/ZIP，不提供任意HTML截图 |
 | ZIP | HTML、IR、Markdown、已有资源、manifest、SHA-256、独立诊断、交互报告、受控运行时审阅副本；不抓跨域资源 |
 
 MathML、开放 Shadow DOM、简单文本伪元素、滚动偏移均有静态处理与限制说明。详见 [保真矩阵](docs/FIDELITY_MATRIX.md)。PDF、任意第三方交互恢复、官方账户包专用解析尚为 Proposal。
@@ -57,13 +57,13 @@ npm run package
 npm run test:package
 ```
 
-`npm test` 执行打包、语法/权限/schema 检查、Node 单元测试和真实 Chromium MV3 E2E。测试通过记录扩展逐文件 hash；`npm run package` 拒绝未测或变动的扩展，输出 `dist/v0.5.2/` 下源码与安装 ZIP、manifest 和 SHA256SUMS。构建信息记录基准提交、工作区修改标志、运行文件 hash；以实际文件 hash 为准，不把脏工作区标为纯提交构建。
+`npm test` 执行打包、语法/权限/schema 检查、Node 单元测试和真实 Chromium MV3 E2E。测试通过记录扩展逐文件 hash；`npm run package` 拒绝未测或变动的扩展，输出 `dist/v0.6.0/` 下源码与安装 ZIP、manifest 和 SHA256SUMS。构建信息记录基准提交、工作区修改标志、运行文件 hash；以实际文件 hash 为准，不把脏工作区标为纯提交构建。
 
 ```sh
 python3 -m http.server 8765 --directory fixtures
 ```
 
-浏览器打开 `http://localhost:8765/interactive-demo.html` 或 `complex-components.html` 或 `selective-interactions.html`，手动完成选择→预览→下载→打开。自动测试另用 18787 端口，实际工具栏 Popup 交互，无授权 mock。本轮临时截图在 `tests/artifacts/v052-usability/`，安装包复测在 `tests/artifacts/v0.5.2-installed/`；保留的验收证据在 `tests/evidence/v0.5.2/`。
+浏览器打开 `http://localhost:8765/interactive-demo.html` 或 `complex-components.html` 或 `selective-interactions.html`，手动完成选择→预览→下载→打开。自动测试另用 18787 端口，实际工具栏 Popup 交互，无授权 mock。本轮临时截图在 `tests/artifacts/v052-usability/`，安装包复测在 `tests/artifacts/v0.6.0-installed/`；保留的验收证据在 `tests/evidence/v0.6.0/`。
 
 完整往返：在自有 `selective-interactions.html` 或 `adapters-composite.html` 勾选受控契约后选取混合区域并保存 JSON → 关闭来源页 → 从 Popup 导入 JSON → 选择 HTML 或 ZIP → Interactive 时按提示确认部分降级 → 下载后离线操作滑块、筛选、排序和折叠。文件和粘贴共用隔离、IR验证、预览与渲染，无第二套生产导出器。JSON 不存源代码；验证的是固定模型，不能证明任意外部来源行为等价。
 

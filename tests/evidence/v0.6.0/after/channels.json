@@ -1,0 +1,46 @@
+{
+  "clipboard": {
+    "types": [
+      "text/plain",
+      "text/html"
+    ],
+    "htmlBytes": 6050,
+    "plainBytes": 880,
+    "stats": {
+      "canvasImages": 0,
+      "elements": 94,
+      "externalLinks": 0,
+      "omittedFrames": 0,
+      "omittedImages": 0,
+      "redactedControls": 1,
+      "svg": 1,
+      "truncated": false
+    }
+  },
+  "file": {
+    "stats": {
+      "canvasImages": 0,
+      "elements": 97,
+      "externalLinks": 0,
+      "omittedFrames": 0,
+      "omittedImages": 0,
+      "redactedControls": 1,
+      "svg": 1,
+      "truncated": false
+    },
+    "omissions": [
+      "未保存来源脚本和事件；可恢复的原生行为与自有 recipe 以交互报告为准",
+      "自定义字体文件未嵌入；离线端可能使用系统回退字体",
+      "只捕获当前已挂载 DOM；不保证虚拟列表、未展开或未加载内容完整",
+      "正文和 Canvas 中的敏感信息不能自动识别，请下载前检查",
+      "不恢复来源按钮事件；仅明确列出的自有 recipe 可以启用",
+      "输入及可编辑内容已脱敏；未知控件仅显示安全静态状态",
+      "Markdown 合并单元格保留为安全 HTML 表格；纯 Markdown 阅读器可能不渲染，视觉以 HTML 为准",
+      "文件中的脚本、事件、远程资源与不支持的样式规则已移除；导入不能证明内容所有权",
+      "用户提供的富文本：有限结构和安全样式；不证明来源身份，不恢复未知交互"
+    ]
+  },
+  "nestedList": true,
+  "formulaDisplay": true,
+  "input": "Locally authored synthetic corpus; actual Chromium Ctrl+C/V, not real ChatGPT"
+}
