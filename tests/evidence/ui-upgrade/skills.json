@@ -1,0 +1,42 @@
+[
+  {
+    "name": "frontend-design",
+    "path": "/home/lqy/.agents/skills/frontend-design/SKILL.md",
+    "source": "https://github.com/anthropics/skills/tree/main/skills/frontend-design",
+    "sourceHeadAtCheck": "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
+    "sha256": "d91970639e9f5c37682ac7ab60094d35f1c7c1f38d731bd56396563aee10c1d3",
+    "installation": "existing retained; upstream file byte comparison passed",
+    "validation": "instructions read and applied to design/review",
+    "version": "unversioned; pin by hash"
+  },
+  {
+    "name": "web-design-guidelines",
+    "path": "/home/lqy/.agents/skills/web-design-guidelines/SKILL.md",
+    "source": "https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines",
+    "sourceHeadAtCheck": "063bee94c3f4df8453406c830b0a7df0f2860278",
+    "sha256": "f4647ca866a3accf763777f83e7682954f0187cd6bea7eea0399796652414e8f",
+    "installation": "existing retained; upstream file byte comparison passed",
+    "validation": "instructions read and applied to design/review",
+    "version": "1.0.0 metadata"
+  },
+  {
+    "name": "ui-ux-pro-max",
+    "path": "/home/lqy/.agents/skills/ui-ux-pro-max/SKILL.md",
+    "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+    "sourceHeadAtCheck": "56ea9cf174ed86786187daa9de0e6247cb0747e4",
+    "sha256": "aaf255dcdeaab45e32e0b0782a406a410bc3d427f71a92013abf7767e60ae3d1",
+    "installation": "official Codex template rendered locally; scripts/data/LICENSE copied, no CLI dependencies or sibling skills",
+    "validation": "SKILL.md read; local Python design-system and ux queries executed",
+    "version": "2.5.0 (upstream CLI package; not executed)"
+  },
+  {
+    "name": "refactoring-ui",
+    "path": "/mnt/c/Users/lqy/.codex/skills/refactoring-ui/SKILL.md",
+    "source": "https://github.com/edisonmbli/refactoring-ui-skill",
+    "sourceHeadAtCheck": null,
+    "sha256": "3999889099b5a35c377960ca4e2853c460d2e095b5932f3f06f117c29cff3259",
+    "installation": "existing retained, no overwrite",
+    "validation": "instructions read and applied to design/review",
+    "version": "unversioned; pin by hash"
+  }
+]

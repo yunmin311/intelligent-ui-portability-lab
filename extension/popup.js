@@ -8,6 +8,7 @@ currentTab().then(async tab => {
 }).catch(error => {status.textContent=error.message;});
 button.addEventListener('click', async () => {
   button.disabled = true;
+  status.dataset.state='loading';
   status.textContent = '正在启动选择器…';
   try {
     const tab = await currentTab();
@@ -24,6 +25,7 @@ button.addEventListener('click', async () => {
     await chrome.scripting.executeScript({target,files:['picker.js']});
     window.close();
   } catch (error) {
+    status.dataset.state='error';
     status.textContent = '无法启动：'+String(error.message || error);
     button.disabled = false;
   }

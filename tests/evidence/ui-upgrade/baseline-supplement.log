@@ -1,0 +1,19 @@
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:52:00] "GET / HTTP/1.1" 200 -
+
+Running 4 tests using 1 worker
+
+(node:51753) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:52:01] "GET /adapters-a.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:52:01] code 404, message File not found
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:52:01] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓  1 tests/ui-design.spec.mjs:25:37 › design light: real Popup, import, overlay and preview desktop/narrow (2.4s)
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:52:04] "GET /adapters-a.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:52:04] code 404, message File not found
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:52:04] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓  2 tests/ui-design.spec.mjs:25:37 › design dark: real Popup, import, overlay and preview desktop/narrow (2.1s)
+  -  3 tests/ui-design.spec.mjs:45:37 › design light: multi-component inspector, degradation and keyboard recovery
+  -  4 tests/ui-design.spec.mjs:45:37 › design dark: multi-component inspector, degradation and keyboard recovery
+
+  2 skipped
+  2 passed (6.2s)

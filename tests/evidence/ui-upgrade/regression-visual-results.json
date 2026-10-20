@@ -1,0 +1,230 @@
+{
+  "tests/artifacts/v0.4.1/complex-diff.json": {
+    "conditions": "same browser, viewport, state, font readiness; threshold channel16; source vs export, no baseline replacement",
+    "metrics": [
+      {
+        "width": 1200,
+        "theme": "light",
+        "pixelWidth": 920,
+        "pixelHeight": 389,
+        "changedPixelRatio": 0.0023108304459595395,
+        "meanAbsoluteChannelError": 0.22764613837040348
+      },
+      {
+        "width": 1200,
+        "theme": "dark",
+        "pixelWidth": 920,
+        "pixelHeight": 389,
+        "changedPixelRatio": 0.0023275958421817367,
+        "meanAbsoluteChannelError": 0.1696089937036623
+      },
+      {
+        "width": 640,
+        "theme": "light",
+        "pixelWidth": 592,
+        "pixelHeight": 588,
+        "changedPixelRatio": 0.0023757813936385367,
+        "meanAbsoluteChannelError": 0.23100428234356807
+      },
+      {
+        "width": 640,
+        "theme": "dark",
+        "pixelWidth": 592,
+        "pixelHeight": 588,
+        "changedPixelRatio": 0.002372908622908623,
+        "meanAbsoluteChannelError": 0.17125639670282528
+      }
+    ]
+  },
+  "tests/artifacts/v0.4.1/table-diff.json": {
+    "width": 1000,
+    "height": 238,
+    "changedPixelRatio": 0,
+    "meanAbsoluteChannelError": 0.05832492997198879,
+    "threshold": {
+      "ratio": 0.015,
+      "channel": 2
+    },
+    "conditions": "same Chromium,1200x900,system fonts,table same state; element clip excludes exterior shadow"
+  },
+  "tests/artifacts/v0.4.1/v04-dark-visual.json": {
+    "ratio": 0.0018905134308058484,
+    "mae": 0.1971766972685028,
+    "state": "N=8 / filter30 descending / details open",
+    "theme": "dark",
+    "threshold": {
+      "ratio": 0.02,
+      "mae": 2
+    }
+  },
+  "tests/artifacts/v0.4.1/v04-static-interactive-visual.json": {
+    "ratio": 0.004889493369602176,
+    "threshold": 0.02,
+    "theme": "dark",
+    "state": "same captured state",
+    "width": 680,
+    "height": 865
+  },
+  "tests/artifacts/v0.4.1/v04-visual.json": {
+    "changedPixelRatio": 0.0018186663113716607,
+    "mae": 0.13980414362800614,
+    "viewport": "1200x900",
+    "theme": "light",
+    "threshold": {
+      "ratio": 0.02,
+      "mae": 2
+    }
+  },
+  "tests/artifacts/v0.4.1/v041-dark-roundtrip-result.json": {
+    "html": "PASS",
+    "zip": "PASS",
+    "originalClosed": true,
+    "evidence": "model-validated; source equivalence not imported",
+    "fourierCases": 3,
+    "table": "initial desc/filter30 → asc → clear0",
+    "details": "4 toggles",
+    "externalRequests": [],
+    "archiveSHA256": "PASS"
+  },
+  "tests/artifacts/v0.4.1/v041-dark-roundtrip-visual.json": {
+    "changedPixelRatio": 0.0018905134308058484,
+    "mae": 0.19719369828856398,
+    "viewport": "1200x900",
+    "theme": "dark",
+    "threshold": {
+      "ratio": 0.02,
+      "mae": 2
+    },
+    "sourceClosed": true
+  },
+  "tests/artifacts/v0.4.1/v041-light-roundtrip-result.json": {
+    "html": "PASS",
+    "zip": "PASS",
+    "originalClosed": true,
+    "evidence": "model-validated; source equivalence not imported",
+    "fourierCases": 3,
+    "table": "initial desc/filter30 → asc → clear0",
+    "details": "4 toggles",
+    "externalRequests": [],
+    "archiveSHA256": "PASS"
+  },
+  "tests/artifacts/v0.4.1/v041-light-roundtrip-visual.json": {
+    "changedPixelRatio": 0.0017748478701825558,
+    "mae": 0.1931209552786632,
+    "viewport": "1200x900",
+    "theme": "light",
+    "threshold": {
+      "ratio": 0.02,
+      "mae": 2
+    },
+    "sourceClosed": true
+  },
+  "tests/artifacts/v0.5.0/a-dark-result.json": {
+    "variant": "a",
+    "theme": "dark",
+    "sourceClosed": true,
+    "behaviors": 5,
+    "html": "PASS",
+    "zip": "PASS",
+    "static": "PASS",
+    "pixel": {
+      "ratio": 0,
+      "mae": 5.141727092946605e-05,
+      "threshold": {
+        "ratio": 0.02,
+        "mae": 2
+      }
+    },
+    "staticPixel": {
+      "ratio": 0.00022280817402768624,
+      "mae": 0.018499670402109425,
+      "threshold": {
+        "ratio": 0.02,
+        "mae": 2
+      }
+    },
+    "externalRequests": [],
+    "runtimeErrors": []
+  },
+  "tests/artifacts/v0.5.0/a-light-result.json": {
+    "variant": "a",
+    "theme": "light",
+    "sourceClosed": true,
+    "behaviors": 5,
+    "html": "PASS",
+    "zip": "PASS",
+    "static": "PASS",
+    "pixel": {
+      "ratio": 0,
+      "mae": 6.943528894748406e-05,
+      "threshold": {
+        "ratio": 0.02,
+        "mae": 2
+      }
+    },
+    "staticPixel": {
+      "ratio": 0.00022280817402768624,
+      "mae": 0.021592617007251153,
+      "threshold": {
+        "ratio": 0.02,
+        "mae": 2
+      }
+    },
+    "externalRequests": [],
+    "runtimeErrors": []
+  },
+  "tests/artifacts/v0.5.0/b-dark-result.json": {
+    "variant": "b",
+    "theme": "dark",
+    "sourceClosed": true,
+    "behaviors": 5,
+    "html": "PASS",
+    "zip": "PASS",
+    "static": "PASS",
+    "pixel": {
+      "ratio": 0,
+      "mae": 9.399909760866295e-05,
+      "threshold": {
+        "ratio": 0.02,
+        "mae": 2
+      }
+    },
+    "staticPixel": {
+      "ratio": 0.0005295282498621347,
+      "mae": 0.043938311525542686,
+      "threshold": {
+        "ratio": 0.02,
+        "mae": 2
+      }
+    },
+    "externalRequests": [],
+    "runtimeErrors": []
+  },
+  "tests/artifacts/v0.5.0/b-light-result.json": {
+    "variant": "b",
+    "theme": "light",
+    "sourceClosed": true,
+    "behaviors": 5,
+    "html": "PASS",
+    "zip": "PASS",
+    "static": "PASS",
+    "pixel": {
+      "ratio": 0,
+      "mae": 0.00013159873665212813,
+      "threshold": {
+        "ratio": 0.02,
+        "mae": 2
+      }
+    },
+    "staticPixel": {
+      "ratio": 0.0005295282498621347,
+      "mae": 0.05128381878645076,
+      "threshold": {
+        "ratio": 0.02,
+        "mae": 2
+      }
+    },
+    "externalRequests": [],
+    "runtimeErrors": []
+  }
+}

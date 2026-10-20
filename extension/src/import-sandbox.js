@@ -27,7 +27,9 @@ window.addEventListener('message',async event=>{
  const {nonce,text,kind,width}=event.data;
  try{
  if(typeof text!=='string'||text.length>2000000||!['html','svg'].includes(kind))throw Error('文件超过 2 MB 或类型不支持');
- document.body.style.cssText='margin:0;width:'+Math.min(1600,Math.max(320,Number(width)||1200))+'px';
+ // A local document without a supplied background uses the browser's white paper default.
+ // Do not infer a source background from the extension/system theme.
+ document.body.style.cssText='background:#fff;margin:0;width:'+Math.min(1600,Math.max(320,Number(width)||1200))+'px';
  const safe=sanitize(text,kind);document.body.replaceChildren(safe);
  const snapshot=await captureElement(safe,{source:{type:kind,origin:'local'},method:'local-file'});
  snapshot.omissions.push('文件中的脚本、事件、远程资源与不支持的样式规则已移除；导入不能证明内容所有权');

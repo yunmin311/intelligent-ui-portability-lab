@@ -6,14 +6,16 @@
 
 当前交付入口：本轮本地 `dist/v0.5.1/` 的 extension/source ZIP、`SHA256SUMS` 和 `package-manifest.json`（先 `npm test && npm run package` 可重建）。源码更新按验证后提交、推送、合并的流程交付；尚未公开发布 v0.5.1 Release；历史 v0.2/v0.3 ZIP 仅供追溯，不是最新版。
 
-安装包尚未公开发布；仓库最新源码入口为 [main](https://github.com/yunmin311/intelligent-ui-portability-lab/tree/main)，当前打包与验证结果见 [测试报告](tests/TEST_REPORT.md)。[v0.5.1 Release 草稿](docs/RELEASE_NOTES_0.5.1.md)列出当前资产；旧版草稿仅为历史记录。Windows Chrome/Edge 与 Obsidian GUI 当前 Unverified（本轮 Windows GUI 工具因 sandboxCwd 启动失败，未完成应用内验证），按[人工验收步骤](tests/MANUAL_ACCEPTANCE.md)验证。
+安装包尚未公开发布；仓库最新源码入口为 [main](https://github.com/yunmin311/intelligent-ui-portability-lab/tree/main)，当前打包与验证结果见 [测试报告](tests/TEST_REPORT.md)。[v0.5.1 Release 草稿](docs/RELEASE_NOTES_0.5.1.md)列出当前资产；旧版草稿仅为历史记录。Windows Chrome/Edge 与 Obsidian GUI 当前 Unverified（上一轮 Windows GUI 工具因 sandboxCwd 启动失败；本次视觉任务未新增实机验证），按[人工验收步骤](tests/MANUAL_ACCEPTANCE.md)验证。
+
+本轮界面升级保持v0.5.1功能与安全边界：[设计规范](docs/DESIGN_SPEC.md)、[两种概念方向](docs/UI_DESIGN_DIRECTIONS.html)、[真实前后截图](tests/evidence/ui-upgrade/index.html)、[审查与验证](docs/UI_UPGRADE_AUDIT.md)。截图画廊可下载仓库后在本地打开，安装包不包含设计稿。
 
 ## 安装与使用
 
 解压 extension 安装包，在 Chrome `chrome://extensions` 或 Edge `edge://extensions` 打开开发者模式，加载包内 `extension/` 文件夹。源码中的 `extension/` 也可直接加载；修改 `extension/src/` 后需执行 `npm ci && npm run build`，再重载扩展。最低声明 Chromium 114；实际运行验证版本与平台见 [测试报告](tests/TEST_REPORT.md)，不把最低声明当兼容性实测。
 
-1. 在自己的页面点击扩展 → 选择格式 → 如需有限模型，明确勾选“受控组件契约（仅已知模型）” → **选择页面区域**。悬停预选，点击锁定，↑/↓ 扩大或缩小到容器，Enter 捕获，Esc 取消。失败后可重试；重复注入清理旧选择器。
-2. 或点击 **手动粘贴 / 导入文件**。从来源页面手动复制文字、富文本，或用系统截图，回到导入页按 **Ctrl+V**；也可选取或拖入一个文件。转换后自动打开现有预览，可取消、重试和继续粘贴。HTML/SVG 在无扩展权限的隔离页净化，纯文本按字面保存；JSON 沿用 IR 1.3 交互往返。宽度仅控制 HTML 解析视口。
+1. 点击扩展 → **手动粘贴 / 导入文件**。从来源页面复制文字、富文本或使用系统截图，在导入页按 **Ctrl+V**；也可选取或拖入一个文件。转换后自动打开预览，可取消、重试和继续粘贴。HTML/SVG隔离净化，纯文本按字面保存，JSON沿用IR1.3往返。解析宽度在折叠设置中。
+2. 如需捕获允许处理的网页，点击 **选择页面区域**。默认格式与受控契约在“页面捕获设置”中；有限模型仍须明确勾选。悬停预选，点击锁定，↑/↓扩大/缩小，Enter捕获，Esc取消；失败可重试。
 3. 预览显示隔离的原貌与受支持交互；检查组件能力、差异和遗漏，选择 Auto（默认）/ Interactive / Static 策略，再选格式下载。**JSON 是含正文的完整快照；下载遗漏报告只含诊断信息。** 浏览器是否完成保存请看下载列表。
 4. 下载后本地打开 HTML；ZIP 先解压再打开 `index.html`。Markdown 可放入 Obsidian，复杂图形有降级提示。截图请选 ZIP，将 `notes.md` 与 `resources/` 一起放入 Obsidian；单独 Markdown 对截图禁用，避免失效链接。没有自动写入 vault 的权限。
 
