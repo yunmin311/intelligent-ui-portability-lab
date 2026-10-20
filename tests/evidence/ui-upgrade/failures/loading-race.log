@@ -1,0 +1,122 @@
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:36:16] "GET / HTTP/1.1" 200 -
+
+Running 4 tests using 1 worker
+
+(node:20382) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:36:18] "GET /adapters-a.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:36:18] code 404, message File not found
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:36:18] "GET /favicon.ico HTTP/1.1" 404 -
+  ✘  1 tests/ui-design.spec.mjs:25:37 › design light: real Popup, import, overlay and preview desktop/narrow (30.1s)
+(node:20946) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:36:49] "GET /adapters-a.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:36:49] code 404, message File not found
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:36:49] "GET /favicon.ico HTTP/1.1" 404 -
+  ✘  2 tests/ui-design.spec.mjs:25:37 › design dark: real Popup, import, overlay and preview desktop/narrow (30.1s)
+(node:21324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:37:20] "GET /adapters-a.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:37:20] code 404, message File not found
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:37:20] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓  3 tests/ui-design.spec.mjs:44:37 › design light: multi-component inspector, degradation and keyboard recovery (1.4s)
+  ✓  4 tests/ui-design.spec.mjs:44:37 › design dark: multi-component inspector, degradation and keyboard recovery (1.3s)
+
+
+  1) tests/ui-design.spec.mjs:25:37 › design light: real Popup, import, overlay and preview desktop/narrow
+
+    Test timeout of 30000ms exceeded.
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/ui-design-design-light-rea-8b0d4--and-preview-desktop-narrow/test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/ui-design-design-light-rea-8b0d4--and-preview-desktop-narrow/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/ui-design-design-light-rea-8b0d4--and-preview-desktop-narrow/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/ui-design-design-light-rea-8b0d4--and-preview-desktop-narrow/error-context.md
+
+    Error Context: test-results/ui-design-design-light-rea-8b0d4--and-preview-desktop-narrow/error-context.md
+
+  2) tests/ui-design.spec.mjs:25:37 › design dark: real Popup, import, overlay and preview desktop/narrow
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Target page, context or browser has been closed
+    Browser logs:
+
+    <launching> /home/lqy/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --enable-unsafe-extension-debugging --disable-extensions-except=/mnt/e/30_项目/intelligent-ui-portability-lab/extension --load-extension=/mnt/e/30_项目/intelligent-ui-portability-lab/extension --user-data-dir=/tmp/playwright_chromiumdev_profile-sI9syC --remote-debugging-pipe about:blank
+    <launched> pid=20958
+    [pid=20958][err] [20958:20975:1020/113649.327898:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+    [pid=20958][err] [20958:20975:1020/113649.328894:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+    [pid=20958][err] [20958:20975:1020/113649.328927:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+    [pid=20958][err] [20958:20975:1020/113649.349877:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+    [pid=20958][err] [20958:20958:1020/113649.463449:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type:
+    [pid=20958][err] [20958:20975:1020/113649.463525:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+    [pid=20958][err] [20958:20958:1020/113649.463570:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type:
+    [pid=20958][err] [20958:20975:1020/113649.463612:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+    [pid=20958][err] [20958:20958:1020/113649.466201:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type:
+    [pid=20958][err] [20958:20975:1020/113649.466291:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+    [pid=20958][err] [20958:20958:1020/113649.479705:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type:
+    [pid=20958][err] [20958:20958:1020/113649.479751:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type:
+    [pid=20958][err] [20958:20975:1020/113649.480156:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+    [pid=20958][err] [20958:20958:1020/113649.480310:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type:
+    [pid=20958][err] [20958:20958:1020/113649.491125:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type:
+    [pid=20958][err] [20958:20975:1020/113649.491221:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+    [pid=20958][err] [20958:20958:1020/113649.495836:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type:
+    [pid=20958][err] [20958:20975:1020/113649.495928:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+    [pid=20958][err] [20958:20958:1020/113649.513620:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type:
+    [pid=20958] <gracefully close start>
+    Call log:
+      - waiting for locator('#cancel')
+        - locator resolved to <button hidden="" id="cancel">取消转换</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not visible
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not visible
+        - retrying click action
+          - waiting 100ms
+        55 × waiting for element to be visible, enabled and stable
+           - element is not visible
+         - retrying click action
+           - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+
+
+      34 |  // A bounded large input keeps the real sanitizer busy; capture a genuine in-flight state.
+      35 |  await importer.locator('#pasteArea').evaluate(e=>{const d=new DataTransfer();d.setData('text/html','<div>'+('<p>加载状态 Loading verification</p>'.repeat(1500))+'</div>');e.dispatchEvent(new ClipboardEvent('paste',{clipboardData:d,bubbles:true,cancelable:true}));});
+    > 36 |  await expect(importer.locator('#cancel')).toBeVisible();await shot(importer,`import-loading-${theme}`);await importer.locator('#cancel').click();await expect(importer.locator('#status')).toContainText('已取消');await expect(importer.locator('#pasteArea')).toHaveAttribute('aria-busy','false');
+         |                                                                                                                                           ^
+      37 |  }
+      38 |  const next=context.waitForEvent('page',p=>p.url().includes('/preview.html'));await paste(importer,'界面记录 Interface archive\n'+('中英文长文本 Export verification ').repeat(18));const preview=await next;await expect(preview.locator('#save')).toBeEnabled();await preview.emulateMedia({colorScheme:theme});
+      39 |  for(const width of [1280,375]){await preview.setViewportSize({width,height:900});await shot(preview,`preview-${theme}-${width}`);await noOverflow(preview);if(phase!=='before')await audit(preview,`preview-${theme}-${width}`);}
+        at /mnt/e/30_项目/intelligent-ui-portability-lab/tests/ui-design.spec.mjs:36:139
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/ui-design-design-dark-real-065d5--and-preview-desktop-narrow/test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/ui-design-design-dark-real-065d5--and-preview-desktop-narrow/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/ui-design-design-dark-real-065d5--and-preview-desktop-narrow/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/ui-design-design-dark-real-065d5--and-preview-desktop-narrow/error-context.md
+
+    Error Context: test-results/ui-design-design-dark-real-065d5--and-preview-desktop-narrow/error-context.md
+
+  2 failed
+    tests/ui-design.spec.mjs:25:37 › design light: real Popup, import, overlay and preview desktop/narrow
+    tests/ui-design.spec.mjs:25:37 › design dark: real Popup, import, overlay and preview desktop/narrow
+  2 passed (1.1m)

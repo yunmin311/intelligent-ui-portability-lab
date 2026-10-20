@@ -1,0 +1,57 @@
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:40:35] "GET / HTTP/1.1" 200 -
+
+Running 4 tests using 1 worker
+
+(node:25332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:40:36] "GET /adapters-a.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:40:36] code 404, message File not found
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:40:36] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓  1 tests/ui-design.spec.mjs:25:37 › design light: real Popup, import, overlay and preview desktop/narrow (2.7s)
+  ✘  2 tests/ui-design.spec.mjs:25:37 › design dark: real Popup, import, overlay and preview desktop/narrow (30.1s)
+(node:26146) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:41:10] "GET /adapters-a.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:41:10] code 404, message File not found
+[WebServer] 127.0.0.1 - - [20/Oct/2026 11:41:10] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓  3 tests/ui-design.spec.mjs:45:37 › design light: multi-component inspector, degradation and keyboard recovery (1.5s)
+  ✓  4 tests/ui-design.spec.mjs:45:37 › design dark: multi-component inspector, degradation and keyboard recovery (1.9s)
+
+
+  1) tests/ui-design.spec.mjs:25:37 › design dark: real Popup, import, overlay and preview desktop/narrow
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.waitForEvent: Target page, context or browser has been closed
+    =========================== logs ===========================
+    waiting for event "filechooser"
+    ============================================================
+
+      30 |  for(const width of [1280,375]){await importer.setViewportSize({width,height:900});await shot(importer,`import-${theme}-${width}`);await noOverflow(importer);if(phase!=='before')await audit(importer,`import-${theme}-${width}`);}
+      31 |  await paste(importer,'');await expect(importer.locator('#status')).toContainText('没有');await shot(importer,`import-error-${theme}`);
+    > 32 |  await importer.locator('#pasteArea').focus();await importer.keyboard.press('Tab');await expect(importer.locator('#file')).toBeFocused();await importer.keyboard.press('Tab');await expect(importer.locator('#drop')).toBeFocused();const chooser=importer.waitForEvent('filechooser');await importer.keyboard.press('Enter');await chooser;
+         |                                                                                                                                                                                                                                                            ^
+      33 |  if(phase!=='before'){
+      34 |  // A bounded large input keeps the real sanitizer busy; capture a genuine in-flight state.
+      35 |  await importer.locator('#pasteArea').evaluate(e=>{const d=new DataTransfer();d.setData('text/html','<div>'+('<p>加载状态 Loading verification</p>'.repeat(1500))+'</div>');e.dispatchEvent(new ClipboardEvent('paste',{clipboardData:d,bubbles:true,cancelable:true}));});
+        at /mnt/e/30_项目/intelligent-ui-portability-lab/tests/ui-design.spec.mjs:32:252
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/ui-design-design-dark-real-065d5--and-preview-desktop-narrow/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/ui-design-design-dark-real-065d5--and-preview-desktop-narrow/test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/ui-design-design-dark-real-065d5--and-preview-desktop-narrow/test-failed-3.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/ui-design-design-dark-real-065d5--and-preview-desktop-narrow/error-context.md
+
+    Error Context: test-results/ui-design-design-dark-real-065d5--and-preview-desktop-narrow/error-context.md
+
+  1 failed
+    tests/ui-design.spec.mjs:25:37 › design dark: real Popup, import, overlay and preview desktop/narrow
+  3 passed (38.8s)

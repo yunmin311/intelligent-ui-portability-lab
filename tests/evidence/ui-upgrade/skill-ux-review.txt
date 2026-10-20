@@ -1,0 +1,36 @@
+## UI Pro Max Search Results
+**Domain:** ux | **Query:** keyboard loading feedback
+**Source:** ux-guidelines.csv | **Found:** 3 results
+
+### Result 1
+- **Category:** Feedback
+- **Issue:** Loading Indicators
+- **Platform:** All
+- **Description:** Loading feedback should match the expected wait and avoid flashing for near-instant work
+- **Do:** Follow platform and component guidance; preserve layout focus and accessible busy status
+- **Don't:** Apply one timing threshold to every operation or leave long waits unexplained
+- **Code Example Good:** Stable skeleton or progress with aria-busy
+- **Code Example Bad:** Flickering spinner or frozen UI
+- **Severity:** High
+
+### Result 2
+- **Category:** Animation
+- **Issue:** Loading States
+- **Platform:** All
+- **Description:** Show feedback during async operations
+- **Do:** Use skeleton screens or spinners
+- **Don't:** Leave UI frozen with no feedback
+- **Code Example Good:** animate-pulse skeleton
+- **Code Example Bad:** Blank screen while loading
+- **Severity:** High
+
+### Result 3
+- **Category:** Performance
+- **Issue:** Lazy Loading
+- **Platform:** All
+- **Description:** Load content as needed
+- **Do:** Lazy load below-fold images and content
+- **Don't:** Load everything upfront
+- **Code Example Good:** loading='lazy'
+- **Code Example Bad:** All images eager load
+- **Severity:** Medium

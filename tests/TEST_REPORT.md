@@ -1,3 +1,38 @@
+# v0.5.1 界面升级验收 · 2026-10-20
+
+Decision：基准 main/origin/main `71f8fb02e86431bcc400e069066c5ec99eb01692`，开始前 fetch、工作区干净；分支 `codex/ui-design-upgrade`。这是产品界面迭代，保留版本0.5.1、IR1.3、权限、配方与来源保真策略。设计以 [DESIGN_SPEC](../docs/DESIGN_SPEC.md) 为准，具体问题、Skills与最终规则审查见 [界面审查](../docs/UI_UPGRADE_AUDIT.md)。以下旧版报告属于历史记录。
+
+## 本轮实测
+
+- `npm test`：静态检查、schema无漂移、**44项单元 + 50项浏览器通过**，其中38项是真实Linux Chromium MV3，另12项为普通页面/模块测试。[完整日志](evidence/ui-upgrade/test.log)。
+- 新增四项UI场景：真实工具栏Popup → Importer/Overlay/Preview，浅深主题、1280/375px、无页面横向溢出、键盘焦点/Enter文件选择/Space降级确认、状态与失败恢复、长中英文、多组件报告滚动、静态格式禁用交互策略、导出文件不混入工具主题。[补充UI日志](evidence/ui-upgrade/ui-tests.log)。独立浏览器会话隔离原生选择器状态，Enter前确认页面焦点；不是权限或业务mock。
+- [真实前后截图](evidence/ui-upgrade/index.html)：首批基线在修改生产代码前采集；375px选择器补拍来自同一main归档字节，补拍2项通过/2项新布局场景跳过，非当前代码伪装旧界面。[基线补拍日志](evidence/ui-upgrade/baseline-supplement.log)。概念A/B另行标注，没有当作验收图。
+- 六类文字色对，在两个页面、两宽度、两主题计算：最低浅色5.16:1、深色6.20:1，全部≥4.5:1；详细数值见after目录contrast JSON。并非完整WCAG或读屏器认证。
+- 原有安全、权限、取消、截图资源、JSON往返、已知交互、三策略、离线打开和像素比较全部保留；[本轮视觉数值](evidence/ui-upgrade/regression-visual-results.json)。来源/导出视觉仍用原变化比例<2%、MAE<2阈值，未更换golden或放宽门槛。
+- `npm audit --audit-level=low`：0漏洞；没有新增项目依赖、远程字体或框架。[日志](evidence/ui-upgrade/dependency-audit.log)。
+
+运行环境为WSL2 Ubuntu24.04 / Node24 / Playwright1.64.1 / Linux Chromium156.0.8078.4。[runtime](evidence/ui-upgrade/runtime.json)。真实Popup通过CDP Extensions.triggerAction打开；截图、键盘和下载操作在扩展中执行。新UI测试中的粘贴使用前台合成ClipboardEvent，原v0.5.1文字Ctrl+C/Ctrl+V回归仍通过；不声称覆盖Windows系统富文本剪贴板转换。
+
+## 安装包与追溯
+
+打包命令 `npm run package`；解压安装命令 `npm run test:package`。包验证逐文件比较解压字节和通过测试的extension SHA-256，在实际MV3操作前后都检查。本轮解压安装后的**38项MV3全部通过**，包含四项新增UI场景；[安装包日志](evidence/ui-upgrade/installed-package.log)、[逐文件验证记录](evidence/ui-upgrade/installed-package.json)。文件清单与归档hash以 `dist/v0.5.1/package-manifest.json`、`SHA256SUMS` 为准。版本仍是0.5.1，区别于历史资产必须核对hash与构建信息。
+
+[通过测试的源码字节](evidence/ui-upgrade/verified-build.json)记录本地测试时间；build-info标记基准revision与workingTreeModified=true，sourceDigest记录本轮修改，不能冒充纯main发行构建。CI从提交重新构建并保留独立工件。没有公开Release。
+
+## 已知边界
+
+Implemented：共享明暗令牌、导入优先Popup、粘贴工作区、来源优先Preview、受限报告、44px控件、焦点与统一状态；导入文档未提供背景时采用白色画布，避免系统深色导致默认黑字不可读，显式来源背景优先，已有JSON不改色。
+
+Tested：以上日志、截图、离线文件和包验证对应实际运行；失败调试日志保留在 [failures](evidence/ui-upgrade/failures/loading-race.md)，最后结果不按修复推测通过。
+
+Unverified / Blocked：本轮没有Windows Chrome/Edge实机、Obsidian GUI、真实ChatGPT样本或完整读屏器环境；375px为桌面浏览器窄视口，并非移动端操作系统验证。ChatGPT自动提取Gate未改变。
+
+Proposal：B编辑工作台只作概念；后续依据真实用户反馈调整密度。没有PDF、新适配器或额外权限。
+
+复现：`npm ci` → `npx playwright install --with-deps chromium` → `npm test` → `npm run package` → `npm run test:package`。仅补拍本轮场景：`npx playwright test tests/ui-design.spec.mjs`。Windows/Obsidian人工步骤仍见以下历史报告，不能用本轮Linux通过代替。
+
+---
+
 # v0.5.1 验收报告 · 2026-10-19
 
 Decision：开始前 fetch，实际 main/origin/main 为 `8255b075a931410eec7c185a956161da910d973e`，工作区干净；分支 `codex/v0.5.1-paste`。在原仓库集成，未执行旧补丁；两份用户 ZIP 的逐项审计与 hash 见 [交接审计](../docs/V051_HANDOFF_AUDIT.md)。v0.5.0 历史报告可从基准提交读取，历史 evidence 保留。

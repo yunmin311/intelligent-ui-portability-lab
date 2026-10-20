@@ -862,7 +862,7 @@
     const { nonce, text: text2, kind, width } = event.data;
     try {
       if (typeof text2 !== "string" || text2.length > 2e6 || !["html", "svg"].includes(kind)) throw Error("\u6587\u4EF6\u8D85\u8FC7 2 MB \u6216\u7C7B\u578B\u4E0D\u652F\u6301");
-      document.body.style.cssText = "margin:0;width:" + Math.min(1600, Math.max(320, Number(width) || 1200)) + "px";
+      document.body.style.cssText = "background:#fff;margin:0;width:" + Math.min(1600, Math.max(320, Number(width) || 1200)) + "px";
       const safe = sanitize(text2, kind);
       document.body.replaceChildren(safe);
       const snapshot = await captureElement(safe, { source: { type: kind, origin: "local" }, method: "local-file" });

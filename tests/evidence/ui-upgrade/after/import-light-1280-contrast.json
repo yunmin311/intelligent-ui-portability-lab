@@ -1,0 +1,44 @@
+[
+  {
+    "fg": "fg",
+    "bg": "surface",
+    "color": "rgb(23, 43, 44)",
+    "background": "rgb(255, 255, 255)",
+    "ratio": 14.80591277961894
+  },
+  {
+    "fg": "muted",
+    "bg": "surface",
+    "color": "rgb(82, 103, 105)",
+    "background": "rgb(255, 255, 255)",
+    "ratio": 5.99511656427162
+  },
+  {
+    "fg": "muted",
+    "bg": "bg",
+    "color": "rgb(82, 103, 105)",
+    "background": "rgb(245, 247, 247)",
+    "ratio": 5.57542450813284
+  },
+  {
+    "fg": "muted",
+    "bg": "accent-soft",
+    "color": "rgb(82, 103, 105)",
+    "background": "rgb(230, 243, 239)",
+    "ratio": 5.261780970720291
+  },
+  {
+    "fg": "accent-ink",
+    "bg": "accent",
+    "color": "rgb(255, 255, 255)",
+    "background": "rgb(15, 123, 108)",
+    "ratio": 5.159658140042329
+  },
+  {
+    "fg": "danger",
+    "bg": "panel",
+    "color": "rgb(163, 52, 42)",
+    "background": "rgb(237, 242, 241)",
+    "ratio": 6.0260600590638695
+  }
+]

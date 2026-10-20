@@ -1,0 +1,76 @@
+╔═════════════════════════════════════════════════════════════════════════════════════════╗
+║  TARGET: UI Portability Lab - RECOMMENDED DESIGN SYSTEM                                 ║
+╚═════════════════════════════════════════════════════════════════════════════════════════╝
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+├─── DESIGN DIALS ────────────────────────────────────────────────────────────────────────┤
+│  Motion:   1/10 — Subtle                                                                │
+│  Density:  7/10 — Standard                                                              │
+├─── PATTERN ─────────────────────────────────────────────────────────────────────────────┤
+│  Name: Hero + Features + CTA                                                            │
+│     Conversion: Deep CTA placement. For CTA label text, verify at least 4.5:1 against   │
+│     the button fill; use 7:1 only when the product explicitly targets AAA normal-text   │
+│     contrast. Keep focus and component boundaries independently visible. Disable hero   │
+│     parallax under reduced motion and render its static final state.                    │
+│     CTA: Hero (sticky) + Bottom                                                         │
+│     Sections:                                                                           │
+│       1. Hero with headline/image                                                       │
+│       2. Value prop                                                                     │
+│       3. Key features (3-5)                                                             │
+│       4. CTA section                                                                    │
+│       5. Footer                                                                         │
+├─── STYLE ───────────────────────────────────────────────────────────────────────────────┤
+│  Name: Minimalism & Swiss Style                                                         │
+│     Mode Support: Light supported | Dark supported                                      │
+│     Keywords: Clean, simple, spacious, functional, white space, high contrast,          │
+│     geometric, sans-serif, grid-based, essential                                        │
+│     Best For: Enterprise apps, dashboards, documentation sites, SaaS platforms,         │
+│     professional tools                                                                  │
+│     Performance: cost:low|drivers:none | Accessibility:                                 │
+│     risk:low|requires:contrast-text-4.5,keyboard,visible-focus,reduced-motion           │
+├─── COLORS ──────────────────────────────────────────────────────────────────────────────┤
+│     Primary:           #7C3AED    (--color-primary)                                     │
+│     On Primary:        #FFFFFF    (--color-on-primary)                                  │
+│     Secondary:         #6366F1    (--color-secondary)                                   │
+│     On Secondary:      #000000    (--color-on-secondary)                                │
+│     Accent/CTA:        #0891B2    (--color-accent)                                      │
+│     On Accent/CTA:     #000000    (--color-on-accent)                                   │
+│     Background:        #0F172A    (--color-background)                                  │
+│     Foreground:        #FFFFFF    (--color-foreground)                                  │
+│     Card:              #192134    (--color-card)                                        │
+│     Card Foreground:   #FFFFFF    (--color-card-foreground)                             │
+│     Muted:             #171939    (--color-muted)                                       │
+│     Muted Foreground:  #94A3B8    (--color-muted-foreground)                            │
+│     Border:            rgba(255,255,255,0.08) (--color-border)                          │
+│     Destructive:       #DC2626    (--color-destructive)                                 │
+│     On Destructive:    #FFFFFF    (--color-on-destructive)                              │
+│     Ring:              #7C3AED    (--color-ring)                                        │
+│     Notes: Editor violet + filter cyan on dark                                          │
+├─── TYPOGRAPHY ──────────────────────────────────────────────────────────────────────────┤
+│  Outfit / Work Sans                                                                     │
+│     Mood: geometric, modern, clean, balanced, contemporary, versatile                   │
+│     Best For: General purpose, portfolios, agencies, modern brands, landing pages       │
+│     Google Fonts:                                                                       │
+│     https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Wo  │
+│     rk+Sans:wght@300;400;500;600;700&display=swap                                       │
+│     CSS Import: @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@3...  │
+├─── KEY EFFECTS ─────────────────────────────────────────────────────────────────────────┤
+│     Subtle hover (200-250ms), smooth transitions, sharp shadows if any, clear type      │
+│     hierarchy, fast loading                                                             │
+├─── MOTION ──────────────────────────────────────────────────────────────────────────────┤
+│  Scroll Reveal (Subtle)                                                                 │
+│     Trigger: scroll (viewport enter) | Duration: 300-400ms | Easing: power1.out         │
+│     GSAP: gsap.from(el, { opacity: 0, y: 12, duration: 0.35, ease: 'power1.out',        │
+│     scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none      │
+│     reverse' } });                                                                      │
+│     Framework: Requires the ScrollTrigger plugin registered once via                    │
+│     gsap.registerPlugin(ScrollTrigger); Use matchMedia('(prefers-reduced-motion:        │
+│     reduce)') to skip non-essential motion and render the final state immediately       │
+├─── PRE-DELIVERY CHECKLIST ──────────────────────────────────────────────────────────────┤
+│     [ ] No emojis as icons (use SVG: Heroicons/Lucide)                                  │
+│     [ ] cursor-pointer on all clickable elements                                        │
+│     [ ] Hover states with smooth transitions (150-300ms)                                │
+│     [ ] Light mode: text contrast 4.5:1 minimum                                         │
+│     [ ] Focus states visible for keyboard nav                                           │
+│     [ ] prefers-reduced-motion respected                                                │
+│     [ ] Responsive: 375px, 768px, 1024px, 1440px                                        │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
