@@ -33,7 +33,7 @@
 | Markdown | 标题/列表/表格等语义；复杂 SVG/MathML 明确指向 HTML 导出，阅读器支持有差异 |
 | JSON | IR 1.3.0，可校验、重导入；1.0/1.1/1.2 显式迁移，外部已知配方逐项独立验证并清除来源等价声明；v0.2 static-snapshot 只通过隔离 HTML 迁移 |
 | SVG | 仅所选根元素为 SVG；HTML 容器不冒充矢量导出 |
-| PNG | SVG 根元素或导入图片；不提供任意 HTML 截图 |
+| PNG | ≤100万像素的SVG根，或已保存为PNG资源的导入图片；JPEG资源请用HTML/ZIP；不提供任意HTML截图 |
 | ZIP | HTML、IR、Markdown、已有资源、manifest、SHA-256、独立诊断、交互报告、受控运行时审阅副本；不抓跨域资源 |
 
 MathML、开放 Shadow DOM、简单文本伪元素、滚动偏移均有静态处理与限制说明。详见 [保真矩阵](docs/FIDELITY_MATRIX.md)。PDF、任意第三方交互恢复、官方账户包专用解析尚为 Proposal。

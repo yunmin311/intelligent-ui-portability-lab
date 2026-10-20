@@ -20,7 +20,7 @@ Decision：视觉优先，HTML/ZIP可选择性保留原生details与重建自有
 
 ## 格式
 
-HTML 为主要视觉输出，无额外品牌/标题/页边距；元信息不占画面。JSON 为可重读IR；报告独立。SVG只允许SVG根，PNG只允许SVG根或导入图片。ZIP归档已有内容并提供SHA-256；不因归档而扩大资源访问。
+HTML 为主要视觉输出，无额外品牌/标题/页边距；元信息不占画面。JSON 为可重读IR；报告独立。SVG只允许SVG根，PNG只允许≤100万像素的SVG根或已保存为PNG资源的导入图片；JPEG资源使用HTML/ZIP，预览禁用不支持的PNG选项。ZIP归档已有内容并提供SHA-256；不因归档而扩大资源访问。
 
 Markdown保留语义，不承诺像素；复杂SVG/MathML以文字提示查看HTML；独立MD图片提示查看HTML，ZIP内使用相对资源。未对所有Obsidian版本和主题进行GUI验收。PDF、任意HTML截图、第三方任意交互恢复均为 Proposal，未显示成已实现能力。
 
