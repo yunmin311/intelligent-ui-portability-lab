@@ -82,3 +82,7 @@ Proposal：正式授权数据包专用解析与未来第三方适配。Explorati
 不采纳交接原型的unsafe-inline CSP、重复净化/ZIP/下载实现；补丁未执行。原扩展CSP、唯一来源sandbox、CSS白名单、资源签名/hash及固定运行时不放宽。HTML标记不授予recipe；JSON保持IR1.3去信任验证；截图external-unverified/redacted:false。截图预算及取消限制以架构文档为准。没有新权限或网络依赖。
 
 候选配方必须通过结构→有限状态→模型验证才可进入例外捕获集合；计算结果必须可见，Tabs/state预验证不读取隐藏正文。最终模型改变触发整次丢弃并默认脱敏重捕。测试包含恶意calculator/Tabs、错误绑定、非法状态、instrumented隐藏读取、零来源DOM mutation及竞态。授权绑定documentId，完成/失败提交消费，取消/导航/关闭失效；来源同源不能沿用上一文档授权。
+
+## v0.5.2 可用性收口复核
+
+预览缩放仅在扩展页外层transform，不改隔离frame权限或内容；格式禁用依据已校验IR，不访问来源。文件入口合并复用同一file/paste/drop转换，错误/取消后恢复；图片风险提示提前显示。没有新增权限、依赖、后台请求、recipe、授权绕过或放宽输入预算；documentId一次授权、候选完整预验证、外部JSON信任清除和CSP沿用并在全量测试中回归。Gate和以上外部条款研究沿用原核对日期，不把本轮体验检查称作新的法律核查。证据统一见[本轮验收](USABILITY_REVIEW_0.5.2.md)。

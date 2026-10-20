@@ -1,4 +1,4 @@
-# v0.5.1 实际架构 · Decision
+# v0.5.2 实际架构 · Decision
 
 源码使用原生 ES modules，无前端框架、后端或生产 npm 库。esbuild 只将内容脚本和隔离导入器打成随包分发的 IIFE 与产品自有有限运行时；其他扩展页使用本地 ESM。
 
@@ -30,6 +30,7 @@ flowchart LR
 | `src/core/render.js` | 校验后的 IR→HTML/Markdown/JSON/SVG；不访问原网站 |
 | `src/core/archive.js` | 确定性 ZIP STORE/CRC32、文件 SHA-256/manifest |
 | `src/core/session.js` | TTL、最多3份、保守配额与淘汰 |
+| `src/preview-scale.js` | 隔离frame显示缩放、占位尺寸与ResizeObserver清理；不读取/修改来源内容、IR或导出 |
 | `background.js` | 发送者/消息/来源验证、串行会话写入、创建预览 |
 | `import.js` / `src/import-sandbox.js` | 统一文件/拖放/粘贴路由与取消；未净化 HTML 永不进入有扩展权限 DOM |
 | `src/jobs.js` / `src/worker.js` | 独立 Worker 校验/序列化/ZIP；超10秒 terminate |

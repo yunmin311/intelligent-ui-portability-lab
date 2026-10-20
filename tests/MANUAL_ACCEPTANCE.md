@@ -1,10 +1,10 @@
-# Windows / Obsidian 人工验收 · v0.5.1
+# Windows / Obsidian 人工验收 · v0.5.2
 
 状态：**Unverified**。2026-10-19 本轮重新调用 Windows Computer Use，初始化仍失败。上一版记录的 Windows 浏览器及 Obsidian 安装信息不能作为本轮运行证据。桌面控制工具在当前 WSL 工作路径初始化失败：`sandboxCwd is not a local file URI: file:///mnt/e/30_%E9%A1%B9%E7%9B%AE/intelligent-ui-portability-lab`。没有修改用户浏览器配置或现有 vault。Linux Chromium 自动化结果不能代替以下平台验收。
 
 ## Chrome 与 Edge 分别执行
 
-1. 解压 `Intelligent-UI-Portability-Lab-v0.5.1-extension.zip`，先用 PowerShell `Get-FileHash -Algorithm SHA256 <ZIP>` 与 SHA256SUMS 对照。到各自 `chrome://extensions` / `edge://extensions`，打开开发者模式，加载包内 `extension`。确认显示0.5.1及 activeTab/scripting/storage；没有持久站点授权。
+1. 解压 `Intelligent-UI-Portability-Lab-v0.5.2-extension.zip`，先用 PowerShell `Get-FileHash -Algorithm SHA256 <ZIP>` 与 SHA256SUMS 对照。到各自 `chrome://extensions` / `edge://extensions`，打开开发者模式，加载包内 `extension`。确认显示0.5.2及 activeTab/scripting/storage；没有持久站点授权。
 2. 在仓库 WSL 运行 `python3 -m http.server 8765 --directory fixtures`。Windows 浏览器打开 `http://localhost:8765/selective-interactions.html`。改变谐波8、振幅1.3、相位-0.75；表格筛选30并降序；展开折叠。保存来源截图并记录浏览器版本、主题、1200×900视口。
 3. 从工具栏真实 Popup 勾选受控来源契约（只用于自己拥有且符合有限模型的组件），选JSON，选择mixed区域，箭头扩大/缩小，Esc取消一次，再重进Enter捕获。下载JSON，**关闭来源和原预览标签页**。
 4. Popup→导入本地文件→选刚下载JSON。预览应显示local/external-unverified及model-validated，不能显示来源等价已证明。HTML/Auto能下载；Interactive必须明确确认未知按钮静态降级；Static禁用所有交互。切格式后确认框重置。
@@ -28,3 +28,9 @@
 4. 将ZIP的notes.md和resources目录一起放入独立Obsidian测试vault，阅读视图/实时预览核对图片。独立截图Markdown应禁用，不生成坏链接。不要只检查Markdown源文件。
 5. 空剪贴板、不支持GIF、多文件、超大截图、转换中取消及再次粘贴应有明确状态且能继续使用。确认网络无HTTP请求、控制台无输入脚本执行。
 6. 保留真实来源截图、导出文件、Windows/浏览器/Obsidian版本和结果。不向公共仓库提交账号或聊天隐私；实际ChatGPT样本未提供前不能记为通过。
+
+## v0.5.2 预览与入口补充（仍待 Windows 实机）
+
+375px与桌面、深浅主题分别检查：粘贴区后Tab只到一个文件按钮，Enter/Space打开选择器，拖放单文件，取消后可重试。宽内容默认适应窗口，改100%后画布内滚动可看细节；改50%操作折叠/Tabs/计算输入，键盘同样有效。下载尺寸及初始状态不应随预览缩放/演示操作改变。Interactive出现降级时应直接看到原因，切格式须重新确认。文本的SVG/PNG不可选；4K截图直接提示原/保存尺寸与小字损失，需清晰细字时分区域截图，不将放大预览当成提高分辨率。
+
+关闭全部扩展标签页后再退出测试浏览器，用独立浏览器配置离线打开HTML和ZIP的index.html；将notes.md与resources原样放入独立测试vault检查实际渲染。当前Linux通过不代表这些Windows/Obsidian步骤已执行。

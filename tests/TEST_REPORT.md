@@ -1,3 +1,17 @@
+# v0.5.2 三轮自主验收 · 2026-10-20
+
+基准main `42758ce0d2ebfcf154c3c7a8a61abd56351c85ab`，分支 `codex/usability-v052`；完整问题清单、每轮记录、平台边界与规则审查以[本轮验收](../docs/USABILITY_REVIEW_0.5.2.md)为单一事实来源。[真实前后截图与离线样例](evidence/v0.5.2/index.html)。
+
+- 第一轮：修改前安装旧包，38项MV3通过；5个新增探针复现5项体验问题（P0=0/P1=3/P2=2）。
+- 第二轮：五项修复后定向通过，完整 `npm test` 45单元+59浏览器通过；没有跳过测试或修改保真阈值。
+- 第三轮：重新完整 `npm test`，45单元+59浏览器通过；最终ZIP解压安装后47项MV3全部通过，测试前后逐文件SHA-256与已测源码一致。[第三轮日志](evidence/v0.5.2/round3-full.log)、[安装日志](evidence/v0.5.2/installed-package.log)、[字节证据](evidence/v0.5.2/installed-package.json)、[独立离线浏览器](evidence/v0.5.2/installed-standalone-result.json)。
+- `npm audit --audit-level=low`：0漏洞，无新依赖。
+- 关闭整个扩展配置后，普通Chromium离线打开HTML/ZIP，图片及Markdown相对资源、SHA-256均通过，无外部HTTP请求或运行错误。
+
+本地安装ZIP SHA-256：`4c1dca97af92ee02c0a8ce87160fef75b97ec159ffa8e5858bcedfef9d38e2e8`。源码包与安装ZIP的extension字节一致，完整清单在dist/v0.5.2/package-manifest.json；CI重新构建时revision变化会产生独立hash。版本0.5.2、IR1.3、最小权限和ChatGPT Gate保持。Windows/Edge/Obsidian GUI/真实ChatGPT样本仍Unverified，375px属于桌面窄视口。没有公开Release。
+
+---
+
 # v0.5.1 界面升级验收 · 2026-10-20
 
 Decision：基准 main/origin/main `71f8fb02e86431bcc400e069066c5ec99eb01692`，开始前 fetch、工作区干净；分支 `codex/ui-design-upgrade`。这是产品界面迭代，保留版本0.5.1、IR1.3、权限、配方与来源保真策略。设计以 [DESIGN_SPEC](../docs/DESIGN_SPEC.md) 为准，具体问题、Skills与最终规则审查见 [界面审查](../docs/UI_UPGRADE_AUDIT.md)。以下旧版报告属于历史记录。

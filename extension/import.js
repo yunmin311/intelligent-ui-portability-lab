@@ -1,6 +1,7 @@
 import {raster} from './src/import-raster.js';
 import {clipboardInput,fileKind,textMarkup} from './src/import-input.js';
 import {job} from './src/jobs.js';
+const drop=document.getElementById('drop');
 const status=document.getElementById('status'),file=document.getElementById('file'),cancel=document.getElementById('cancel'),paste=document.getElementById('pasteArea');
 let active;
 function isolated(text,kind,signal){return new Promise((resolve,reject)=>{
@@ -13,7 +14,7 @@ function isolated(text,kind,signal){return new Promise((resolve,reject)=>{
 });}
 async function convert(input){
  if(active){status.textContent='正在转换，请等待或先取消，再粘贴新内容。';return;}
- const controller=new AbortController(),{signal}=controller;active=controller;status.dataset.state='loading';file.disabled=true;cancel.hidden=false;paste.setAttribute('aria-busy','true');status.textContent='正在本地解析、净化并校验…';
+ const controller=new AbortController(),{signal}=controller;active=controller;status.dataset.state='loading';file.disabled=true;drop.disabled=true;cancel.hidden=false;paste.setAttribute('aria-busy','true');status.textContent='正在本地解析、净化并校验…';
  try{
  const kind=input.kind,f=input.file;
  if(f&&f.size>(kind==='image'?16000000:kind==='json'?4000000:kind==='text'?4000000:2000000))throw Error('文件超过安全大小限制，请缩小内容');
@@ -29,13 +30,13 @@ async function convert(input){
  // This final local handoff is atomic; cancellation remains available until it starts.
  cancel.hidden=true;const response=await chrome.runtime.sendMessage({type:'capture',snapshot,format:'html'});if(response.error)throw Error(response.error);status.dataset.state='success';status.textContent='转换完成，已打开预览。检查原貌、差异与遗漏后下载；也可继续粘贴下一份内容。';
  }catch(error){status.dataset.state=signal.aborted?'idle':'error';status.textContent=signal.aborted?'已取消转换，没有创建预览。可重新粘贴或导入。':'导入失败：'+error.message+'。可重新粘贴或选择文件。';}
- finally{if(active===controller){active=null;file.disabled=false;cancel.hidden=true;paste.setAttribute('aria-busy','false');file.value='';}}
+ finally{if(active===controller){active=null;file.disabled=false;drop.disabled=false;cancel.hidden=true;paste.setAttribute('aria-busy','false');file.value='';}}
 }
 function acceptFile(f){if(!f)return;try{void convert({kind:fileKind(f.name),file:f});}catch(error){status.dataset.state='error';status.textContent='导入失败：'+error.message;}}
 file.onchange=()=>acceptFile(file.files[0]);cancel.onclick=()=>active?.abort(Error('用户取消转换'));
 paste.addEventListener('beforeinput',e=>e.preventDefault());
 paste.addEventListener('paste',e=>{e.preventDefault();try{void convert(clipboardInput(e.clipboardData));}catch(error){status.dataset.state='error';status.textContent=error.message;}});
-const drop=document.getElementById('drop');drop.ondragover=e=>e.preventDefault();drop.ondrop=e=>{e.preventDefault();if(e.dataTransfer.files.length!==1){status.dataset.state='error';status.textContent='请一次拖入一个文件';return;}acceptFile(e.dataTransfer.files[0]);};drop.onclick=()=>file.click();
+drop.ondragover=e=>e.preventDefault();drop.ondrop=e=>{e.preventDefault();if(e.dataTransfer.files.length!==1){status.dataset.state='error';status.textContent='请一次拖入一个文件';return;}acceptFile(e.dataTransfer.files[0]);};drop.onclick=()=>file.click();
 window.addEventListener('pagehide',()=>active?.abort(Error('导入页关闭')));
 
 // Focus only on first load so the primary Ctrl+V path needs no extra click.

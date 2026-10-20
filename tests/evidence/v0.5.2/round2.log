@@ -1,0 +1,17 @@
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:54:22] "GET / HTTP/1.1" 200 -
+
+Running 5 tests using 1 worker
+
+(node:102975) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:54:24] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:54:24] code 404, message File not found
+[WebServer] 127.0.0.1 - - [20/Oct/2026 15:54:24] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓  1 tests/usability.spec.mjs:44:1 › usability: wide preview fits narrow screen without mutating exported dimensions (2.7s)
+  ✓  2 tests/usability.spec.mjs:52:1 › usability: one visible accessible file entry opens chooser from keyboard (1.6s)
+
+  ✓  3 tests/usability.spec.mjs:55:1 › usability: interactive downgrade exposes the component reasons before consent (2.5s)
+  ✓  4 tests/usability.spec.mjs:58:1 › usability: screenshot quality loss is visible without opening diagnostics (4.1s)
+  ✓  5 tests/usability.spec.mjs:61:1 › usability: unsupported graphic formats are explained before download selection (2.0s)
+
+  5 passed (15.2s)

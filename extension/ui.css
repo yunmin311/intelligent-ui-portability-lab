@@ -185,3 +185,14 @@ button.primary{border:2px solid ButtonText}
 .import-feedback:has([data-state=error]){border-left-color:var(--danger)}
 .import-feedback:has([data-state=loading]){border-left-style:dashed}
 #message[data-state=warning]{color:var(--fg);border-left:3px solid var(--accent);padding-left:8px}
+
+/* Display transforms live only in product chrome, never in renderer output or IR. */
+.file-label{display:block;font-weight:550;margin-bottom:8px}
+.preview-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.preview-controls label{margin:0;font-size:12px}
+.preview-controls select{width:auto;min-width:132px}
+.preview-controls output{font-size:12px;color:var(--muted)}
+.preview-hint{font-size:12px;margin:0 0 12px}
+.preview-canvas{position:relative;overflow:hidden}
+.preview-canvas iframe{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none}
+.quality-notice{font-size:12px;color:var(--fg);border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px;margin:0 0 12px}
