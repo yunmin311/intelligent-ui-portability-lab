@@ -1,0 +1,16 @@
+{
+  "source": {
+    "width": 3840,
+    "height": 2160
+  },
+  "saved": {
+    "height": 2160,
+    "width": 3840
+  },
+  "resources": 12,
+  "base64Bytes": 508316,
+  "jsonBytes": 513900,
+  "durationMs": 2235,
+  "differentChannels": 0,
+  "totalChannels": 33177600
+}

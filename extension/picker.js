@@ -353,6 +353,7 @@
   var allowedSvg = new Set("svg g defs path rect circle ellipse line polyline polygon text tspan lineargradient radialgradient stop clippath mask pattern title desc".split(" "));
   var allowedAttributes = new Set("role aria-selected aria-hidden aria-controls aria-labelledby tabindex hidden viewBox width height x y x1 x2 y1 y2 cx cy r rx ry d points transform fill stroke stroke-width stroke-linecap stroke-linejoin opacity fill-opacity stroke-opacity offset stop-color stop-opacity preserveAspectRatio xmlns vector-effect clip-path mask stroke-dasharray stroke-dashoffset text-anchor dominant-baseline colspan rowspan start value display".split(" "));
   var styleProps = ["visibility", "direction", "writing-mode", "color-scheme", "background-image", "background-size", "background-position", "background-repeat", "border-collapse", "border-spacing", "table-layout", "caption-side", "list-style-type", "list-style-position", "font-variant", "font-stretch", "word-break", "overflow-wrap", "text-indent", "text-transform", "text-overflow", "text-shadow", "float", "clear", "align-self", "align-content", "justify-items", "justify-self", "column-gap", "row-gap", "grid-auto-flow", "grid-auto-rows", "grid-auto-columns", "flex-grow", "flex-shrink", "flex-basis", "order", "aspect-ratio", "max-height", "object-position", "fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin", "fill-opacity", "stroke-opacity", "stop-color", "stop-opacity", "text-anchor", "dominant-baseline", "clip-path", "mask", "transform", "transform-origin", "display", "position", "top", "right", "bottom", "left", "z-index", "box-sizing", "color", "background-color", "font-family", "font-size", "font-weight", "font-style", "line-height", "letter-spacing", "text-align", "white-space", "width", "height", "max-width", "min-width", "min-height", "margin", "margin-top", "margin-right", "margin-bottom", "margin-left", "padding", "padding-top", "padding-right", "padding-bottom", "padding-left", "border", "border-width", "border-style", "border-color", "border-radius", "box-shadow", "opacity", "vertical-align", "flex", "flex-direction", "flex-wrap", "align-items", "justify-content", "gap", "grid-template-columns", "grid-template-rows", "grid-column", "grid-row", "overflow", "text-decoration", "object-fit"];
+  styleProps.push(...["top", "right", "bottom", "left"].flatMap((side) => ["width", "style", "color"].map((part) => "border-" + side + "-" + part)), ...["top-left", "top-right", "bottom-right", "bottom-left"].map((corner) => "border-" + corner + "-radius"), "overflow-x", "overflow-y", "column-count", "column-width", "column-fill", "column-rule-width", "column-rule-style", "column-rule-color", "break-inside", "text-decoration-line", "text-decoration-color", "text-decoration-style", "text-decoration-thickness");
   var rejectTags = new Set("script style iframe frame object embed template link meta base audio video source track noscript foreignobject animate animatetransform set use".split(" "));
   var allowedMath = new Set("math mrow mi mn mo mtext mfrac msqrt mroot msup msub msubsup munder mover munderover mtable mtr mtd mfenced mspace menclose mstyle mpadded".split(" "));
   var SVG = "http://www.w3.org/2000/svg";
@@ -471,8 +472,21 @@
   }
   var diagnostic = (s) => {
     validateSnapshot(s);
-    return { kind: "ui-portability-diagnostic", schemaVersion: VERSION, capability: s.capability, createdAt: s.createdAt, dimensions: s.dimensions, omissions: s.omissions, limitations: s.limitations, security: s.security, resourceSummary: s.resources.map(({ id, mime, sha256: sha2562, status }) => ({ id, mime, sha256: sha2562, status })) };
+    return { kind: "ui-portability-diagnostic", schemaVersion: VERSION, capability: s.capability, createdAt: s.createdAt, dimensions: s.dimensions, omissions: s.omissions, limitations: s.limitations, security: s.security, typography: typography(s.tree), resourceSummary: s.resources.map(({ id, mime, sha256: sha2562, status }) => ({ id, mime, sha256: sha2562, status })) };
   };
+  function typography(tree) {
+    const fonts = /* @__PURE__ */ new Set(), math = { block: 0, inline: 0 };
+    let svg2 = 0, mergedTables = 0;
+    function visit(n) {
+      if (n.style?.["font-family"]) fonts.add(n.style["font-family"]);
+      if (n.tag === "math") math[n.attrs.display === "block" ? "block" : "inline"]++;
+      if (n.tag === "svg") svg2++;
+      if (["td", "th"].includes(n.tag) && (Number(n.attrs.colspan || 1) > 1 || Number(n.attrs.rowspan || 1) > 1)) mergedTables++;
+      n.children?.forEach(visit);
+    }
+    visit(tree);
+    return { sourceFontFamilies: [...fonts], math, svg: svg2, mergedCells: mergedTables, glyphCoverage: "unverified", fontFiles: "not-embedded", markdown: "MathML / SVG \u5728 Markdown \u4E2D\u4F7F\u7528 HTML \u5BFC\u51FA\u5360\u4F4D\uFF1B\u5408\u5E76\u5355\u5143\u683C\u56DE\u9000\u4E3A\u5B89\u5168 HTML\uFF0C\u9605\u8BFB\u5668\u652F\u6301\u53EF\u80FD\u4E0D\u540C\u3002", guidance: "\u8BF7\u5BF9\u7167\u6765\u6E90\u4E0E\u79BB\u7EBF HTML \u7684\u540C\u4E00\u516C\u5F0F\u3002\u82E5\u4E24\u8005\u5747\u7F3A\u5B57\uFF0C\u5148\u68C0\u67E5\u6765\u6E90\u5B57\u4F53\uFF1B\u53EA\u6709\u5BFC\u51FA\u7F3A\u5B57\u65F6\u68C0\u67E5\u79BB\u7EBF\u7CFB\u7EDF\u56DE\u9000\u5B57\u4F53\u3002\u672C\u62A5\u544A\u5217\u51FA\u58F0\u660E\u7684\u5B57\u4F53\u65CF\uFF0C\u4E0D\u8BC1\u660E\u5B57\u5F62\u8986\u76D6\uFF0C\u4E5F\u4E0D\u63A8\u65AD LaTeX\u3002" };
+  }
 
   // extension/src/capture/dom.js
   async function captureElement(selected, { signal, exclude, onProgress = () => {

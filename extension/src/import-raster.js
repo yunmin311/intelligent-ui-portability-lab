@@ -1,3 +1,6 @@
+import {encodePNG,checkArchiveDimensions} from './core/image-archive.js';
+import {imageArchive} from './core/archive.js';
+import {parsePNG,decodePNG,encodeRGBA,cropRGBA} from './core/png.js';
 import {rasterDimensions} from './core/raster.js';
 import {sha256,verifyResources,VERSION,LIMITS} from './core/ir.js';
 
@@ -22,7 +25,7 @@ const encode=(canvas,mime,quality)=>new Promise((resolve,reject)=>canvas.toBlob(
 function base64(bytes){let s='';for(let i=0;i<bytes.length;i+=32768)s+=String.fromCharCode(...bytes.subarray(i,i+32768));return btoa(s);}
 export async function raster(file,{signal,onProgress=()=>{},preserveResolution=false}={}){
  onProgress('正在检查截图尺寸…');const input=await preflightRaster(file,{signal});
- if(preserveResolution)return archiveRaster(input,{signal,onProgress});
+ if(preserveResolution){if(input.mime!=='image/png')throw Error('精确原尺寸归档仅接受 PNG；JPEG/WebP 请选标准模式，或先自行转换为 PNG');return archiveRaster(input,{signal,onProgress});}
  let bitmap,canvas;
  try{
   const target=fitRaster(input.dimensions.width,input.dimensions.height);
@@ -59,6 +62,7 @@ async function archiveRaster(input,{signal,onProgress}){
  if(width*height>ARCHIVE_LIMITS.maxPixels||Math.max(width,height)>ARCHIVE_LIMITS.maxDimension)throw Error('原尺寸归档最多 840 万像素、单边 12000 px；请裁剪图片或选择标准模式');
  let bitmap,canvas;
  try{
+  const exact=input.mime==='image/png'?await decodePNG(input.bytes):null;
   checkAbort(signal);onProgress('正在解码原尺寸图片…');
   bitmap=await createImageBitmap(new Blob([input.bytes],{type:input.mime}),{imageOrientation:'none'});checkAbort(signal);
   if(bitmap.width!==width||bitmap.height!==height)throw Error('原图解码尺寸与文件头不符；请转换为 PNG 后重试');
@@ -69,14 +73,21 @@ async function archiveRaster(input,{signal,onProgress}){
    checkAbort(signal);onProgress(`正在无损封装原尺寸分块 ${resources.length+1} / ${count}…`);
    const w=Math.min(ARCHIVE_LIMITS.tile,width-left),h=Math.min(ARCHIVE_LIMITS.tile,height-top);
    canvas.width=w;canvas.height=h;ctx.drawImage(bitmap,left,top,w,h,0,0,w,h);
-   const blob=await encode(canvas,'image/png');checkAbort(signal);
+   const blob=exact?new Blob([await encodeRGBA(w,h,cropRGBA(exact.pixels,width,left,top,w,h),exact.colors)],{type:'image/png'}):await encode(canvas,'image/png');checkAbort(signal);
    const size=4*Math.ceil(blob.size/3);
-   if(blob.type!=='image/png'||size>LIMITS.resource||total+size>ARCHIVE_LIMITS.base64Bytes)throw Error('原尺寸无损归档超过资源容量限制；请裁剪图片或选择标准模式，未自动降低质量');
+   if(blob.type!=='image/png'||size>LIMITS.resource||total+size>ARCHIVE_LIMITS.base64Bytes)throw Error('原尺寸无损归档超过资源容量限制；请选择仅 ZIP 无损归档、裁剪图片或选择标准模式，未自动降低质量');
    const bytes=new Uint8Array(await blob.arrayBuffer());checkAbort(signal);
    const id='r'+resources.length;resources.push({id,mime:'image/png',data:base64(bytes),sha256:await sha256(bytes),status:'captured'});total+=size;
    children.push({tag:'img',ns:'html',attrs:{alt:`原尺寸图片分块 ${resources.length} / ${count}`},style:{position:'absolute',left:left+'px',top:top+'px',width:w+'px',height:h+'px',display:'block'},resourceId:id,component:'image',children:[]});
   }
-  const snapshot={schemaVersion:VERSION,kind:'ui-portability-snapshot',capability:'visual-only',createdAt:new Date().toISOString(),source:{type:'image',origin:'local'},dimensions:{width,height},background:'transparent',tree:{tag:'div',ns:'html',attrs:{},style:{position:'relative',width:width+'px',height:height+'px',overflow:'hidden'},children},resources,provenance:{method:'raster-import',status:'external-unverified'},security:{redacted:false,remoteResources:false,scripts:false},omissions:['仅保存视觉像素，未恢复文字语义或交互。','图片中的正文、账号及其他敏感信息不会自动脱敏，请在导入前检查。'],limitations:[`原图 ${width} × ${height} px；保存 ${width} × ${height} px；${resources.length} 个 PNG 分块。`,'原尺寸无损像素归档：未缩放、未使用 JPEG 压缩；移除原文件元数据，不保存原始文件字节。','请使用 HTML 或 ZIP 中 index.html 查看完整拼合画面；notes.md 展示独立图片块，不保持拼合布局。']};
+  const snapshot={schemaVersion:VERSION,kind:'ui-portability-snapshot',capability:'visual-only',createdAt:new Date().toISOString(),source:{type:'image',origin:'local'},dimensions:{width,height},background:'transparent',tree:{tag:'div',ns:'html',attrs:{},style:{position:'relative',width:width+'px',height:height+'px',overflow:'hidden'},children},resources,provenance:{method:'raster-import',status:'external-unverified'},security:{redacted:false,remoteResources:false,scripts:false},omissions:['仅保存视觉像素，未恢复文字语义或交互。','图片中的正文、账号及其他敏感信息不会自动脱敏，请在导入前检查。'],limitations:[`原图 ${width} × ${height} px；保存 ${width} × ${height} px；${resources.length} 个 PNG 分块。`,'原尺寸无损像素归档：未缩放、未使用 JPEG 压缩；移除原文件元数据，不保存原始文件字节。','HTML 使用分块保持完整画面；ZIP 另含完整 original.png 与 notes.md 的单图相对引用；JSON 含全部分块，可独立往返。']};
   checkAbort(signal);await verifyResources(snapshot);checkAbort(signal);return snapshot;
  }finally{bitmap?.close();if(canvas){canvas.width=0;canvas.height=0;}}
+}
+
+export async function rasterZIP(file,{signal,onProgress=()=>{}}={}){
+ onProgress('正在检查原尺寸 ZIP 归档预算…');const input=await preflightRaster(file,{signal});checkArchiveDimensions(input.dimensions);if(input.mime!=='image/png')throw Error('精确原尺寸归档仅接受 PNG；JPEG/WebP 请选标准模式，或先自行转换为 PNG');let bitmap;
+ try{checkAbort(signal);onProgress('正在无损编码完整 PNG；不缩放、不保存到会话…');bitmap=await createImageBitmap(new Blob([input.bytes],{type:input.mime}),{imageOrientation:'none'});checkAbort(signal);if(bitmap.width!==input.dimensions.width||bitmap.height!==input.dimensions.height)throw Error('原图解码尺寸与文件头不符');
+ const png=input.mime==='image/png'?parsePNG(input.bytes).bytes:await encodePNG(bitmap.width,bitmap.height,ctx=>ctx.drawImage(bitmap,0,0),{signal});bitmap.close();bitmap=null;checkAbort(signal);onProgress('正在计算校验值并封装 ZIP…');const result=await imageArchive(png,input.dimensions);checkAbort(signal);return result;
+ }finally{bitmap?.close();}
 }

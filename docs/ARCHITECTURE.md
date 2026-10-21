@@ -1,3 +1,17 @@
+## v0.7.0 原尺寸PNG与ZIP-only · Decision
+
+沿用IR1.4和唯一ZIP writer。`core/png.js` 有界解析PNG签名、CRC、块、IHDR与像素流；分块处理8位非隔行格式，解压长度严格等于scanline预算。RGBA字节通过过滤器解码与原生CompressionStream封装，避免Canvas预乘alpha量化。PNG颜色配置保留；灰度ICC不能套用到RGBA，分块拒绝并引导ZIP-only。16位、隔行也引导ZIP-only；动画拒绝，不悄悄截取首帧。精确两模式只接受PNG，标准JPEG/WebP路径保留。
+
+`core/image-archive.js` 仅识别原尺寸导入器的精确1000px网格、空根属性、仅alt图片属性、尺寸/定位/资源一致的布局。合成完整PNG时逐块校验尺寸与颜色配置，拒绝混合配置；重组不缩放。`archive.js` 在原归档中附加 `resources/original.png` 并替换笔记图片引用，保留原来的内嵌分块JSON；预览PNG导出复用同一合成器。
+
+ZIP-only是用户明确选择的另一存储契约，而非第二套导出器：复用预检与ZIP writer。≤16MB输入，≤8.4MP、单边12000、≤36MB PNG；解析/浏览器验证后仅保留像素与颜色块，去除元数据。直接打包HTML、notes、PNG、manifest、SHA-256；不传入capture/session、不生成snapshot.json，不提供JSON往返。页面取消后不触发下载；解码或压缩原生调用不能抢占，返回时检查signal。IR4MB、每资源2MB base64、原尺寸总2.5MB与会话预算均未放宽。
+
+安全CSS扩展仅增加CSSOM实际展开的border/radius/overflow/columns/text-decoration属性，仍通过原safeCss与命名空间校验；schema同步生成，既有IR可直接读取。字体/公式诊断仅统计安全树和声明字体，不是字体文件检测或字形完整性证明。插件UI增加格式说明，不向导出内容插入品牌外框。
+
+当前版本入口 `dist/v0.7.0/`，执行证据以[测试报告](../tests/TEST_REPORT.md)为准；以下为历史架构沿革。
+
+---
+
 ## v0.6.0 当前实现 · Decision
 
 本节覆盖下方 v0.5 历史说明中关于当前版本和标准截图唯一模式的描述。新增实现与证据见 [兼容性研究](COMPATIBILITY_REVIEW_0.6.0.md)。

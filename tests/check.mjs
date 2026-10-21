@@ -1,6 +1,6 @@
 import {fileURLToPath} from 'node:url';import fs from 'node:fs';import assert from 'node:assert/strict';import {execFileSync} from 'node:child_process';
 const root=new URL('../',import.meta.url),ext=new URL('extension/',root);
 const manifest=JSON.parse(fs.readFileSync(new URL('manifest.json',ext),'utf8'));
-assert.equal(manifest.manifest_version,3);assert.equal(manifest.version,'0.6.0');assert.deepEqual(manifest.permissions,['activeTab','scripting','storage']);assert.equal(manifest.host_permissions,undefined);assert.equal(manifest.background.type,'module');
+assert.equal(manifest.manifest_version,3);assert.equal(manifest.version,'0.7.0');assert.deepEqual(manifest.permissions,['activeTab','scripting','storage']);assert.equal(manifest.host_permissions,undefined);assert.equal(manifest.background.type,'module');
 for(const name of fs.readdirSync(ext,{recursive:true})){const path=new URL(name,ext);if(!fs.statSync(path).isFile()||!/[.](js|html|css)$/.test(name))continue;const source=fs.readFileSync(path,'utf8');if(name.endsWith('.js'))execFileSync(process.execPath,['--check',fileURLToPath(path)]);assert.doesNotMatch(source,/\bfetch\s*\(|XMLHttpRequest|chrome\.cookies|backend-api|\/api\/auth\/session/);assert.doesNotMatch(source,/<script[^>]+src=["']https?:/);assert.doesNotMatch(source,/DONT_EXPORT_ME|PRIVATE_NOTE_DO_NOT_EXPORT/);}
 assert.match(fs.readFileSync(new URL('popup.js',ext),'utf8'),/chatgpt\.com/);console.log('PASS: MV3 permissions, recursive syntax, network/credential boundaries');

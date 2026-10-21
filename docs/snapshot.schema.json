@@ -1495,6 +1495,122 @@
                 "object-fit": {
                   "type": "string",
                   "maxLength": 2000
+                },
+                "border-top-width": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-top-style": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-top-color": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-right-width": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-right-style": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-right-color": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-bottom-width": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-bottom-style": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-bottom-color": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-left-width": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-left-style": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-left-color": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-top-left-radius": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-top-right-radius": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-bottom-right-radius": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "border-bottom-left-radius": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "overflow-x": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "overflow-y": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "column-count": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "column-width": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "column-fill": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "column-rule-width": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "column-rule-style": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "column-rule-color": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "break-inside": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "text-decoration-line": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "text-decoration-color": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "text-decoration-style": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "text-decoration-thickness": {
+                  "type": "string",
+                  "maxLength": 2000
                 }
               }
             },

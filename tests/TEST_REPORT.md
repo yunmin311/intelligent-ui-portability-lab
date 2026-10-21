@@ -1,3 +1,21 @@
+# v0.7.0 综合验收 · 2026-10-21
+
+实际远端基准 main `36f98586a5515a137b441fd98e23c8fcb4103c0e`；分支 `codex/comprehensive-v070`。所有命令、Chromium 和测试在 WSL Ubuntu24.04 执行；Node24.21.0。保留原视觉阈值、安全断言、权限、许可证、IR1.4及全部预算。没有新增依赖或公开 Release。
+
+- 完整 `npm test`：**59 单元 + 70 浏览器通过，无跳过**。[完整日志](evidence/v0.7.0/logs/full.log) · [扩展字节证明](evidence/v0.7.0/verified-build.json)。最终安装ZIP解压后 **58项真实MV3通过**，测试前后逐文件SHA-256一致。[安装日志](evidence/v0.7.0/logs/installed-package.log) · [安装字节证明](evidence/v0.7.0/installed-package.json)。
+- 4K PNG：3840×2160、12块，33177600 RGBA通道差异0；ZIP新增完整 `resources/original.png`，笔记由12图块变为1张完整图片。JSON仍包含全部资源。高熵1600×1000 PNG通过主动选择仅ZIP保存，逐像素与成员SHA-256校验通过；仅ZIP不含JSON、不宣称IR往返。
+- 修复 CSSOM 边框单侧长属性丢失，修改前边框0px，修改后7px/11px；边框/Grid截图600×205、明暗Flex/多栏/合并表格/MathML截图800×267，来源与导出逐像素差异均0。[前后截图、真实下载文件](evidence/v0.7.0/index.html)。不是任意网页保真承诺。
+- 实际系统剪贴板 Ctrl+C/V 富文本、纯文本、PNG；Popup→picker→preview→download、文件/拖放、取消/失败/重试、缩放、JSON重新导入、六类有限交互与嵌套状态/键盘均经真实MV3回归。来源和整个扩展关闭后，用新浏览器离线打开HTML/ZIP，检查MathML、SVG、表格、details与图片，无外部HTTP请求。
+- 真正执行 marked 渲染 notes.md，再由断网 Chromium 打开：4K图片一张3840×2160，高熵图片一张1600×1000，合并表格与代码空白保留，无远程请求。[Markdown结果](evidence/v0.7.0/markdown-reader.json) · [安装包产物重复验证](evidence/v0.7.0/installed-markdown-reader.json)。MathML/SVG在Markdown有明确降级提示，不推断LaTeX。MathML实际使用平台DejaVu字体，仅证明本样本回退，完整缺字覆盖仍Unverified。
+- 独立代码、安全及视觉审查发现并修复：Canvas半透明及透明RGB量化、精确图块隐藏属性、灰度ICC转RGBA色彩变化。新PNG流编解码保留原始RGBA，严格校验块、CRC、布局及解压预算；灰度ICC分块明确拒绝并引导保留原PNG流的仅ZIP模式。[审查记录](evidence/v0.7.0/independent-review.json)。当前未发现未修复P0/P1。
+- `npm audit --audit-level=low`：**0漏洞**，无新增依赖。[审计日志](evidence/v0.7.0/logs/audit.log)。
+- 精确快照仅8位非隔行PNG；16位/隔行/灰度ICC用仅ZIP；JPEG/WebP精确模式拒绝并说明标准模式或自行转换PNG。动画PNG拒绝。未知业务逻辑静态降级；不新增只有自有fixture可用的适配器；ChatGPT自动提取Gate保持。
+- **Unverified**：Windows Chrome/Edge GUI、Obsidian GUI、用户真实ChatGPT内容。桌面桥一次初始化因WSL文件URI失败；隔离现有Obsidian进程CDP不可用，停止重复初始化。没有访问用户vault、对话或改正式配置。Linux Markdown渲染不冒充Obsidian验收。
+
+安装包、源码包、manifest与SHA256SUMS在 `dist/v0.7.0/`。CI按实际提交重新构建，revision与hash会变化，应使用同一工件内的配套校验值。最终PR、CI及main提交状态见交付回复。
+
+---
+
 # v0.6.0 复杂内容实测 · 2026-10-20
 
 基准 main `5496b53`；分支 `codex/compatibility-v060`。九类CC0自编复杂内容、六条输入路径。富文本/纯文本/PNG使用真实Chromium剪贴板传输；内容不是ChatGPT用户样本。[完整研究、逐渠道矩阵和三轮记录](../docs/COMPATIBILITY_REVIEW_0.6.0.md) · [前后证据与离线样例](evidence/v0.6.0/index.html)。
