@@ -1,4 +1,4 @@
-import {raster} from './src/import-raster.js';
+import {raster,rasterZIP} from './src/import-raster.js';
 import {clipboardInput,fileKind,textMarkup} from './src/import-input.js';
 import {job} from './src/jobs.js';
 const drop=document.getElementById('drop');
@@ -20,6 +20,7 @@ async function convert(input){
  const kind=input.kind,f=input.file;
  if(f&&f.size>(kind==='image'?16000000:kind==='json'?4000000:kind==='text'?4000000:2000000))throw Error('文件超过安全大小限制，请缩小内容');
  let snapshot;
+ if(kind==='image'&&quality.value==='zip-only'){const bytes=await rasterZIP(f,{signal,onProgress:message=>{if(!signal.aborted)status.textContent=message;}});signal.throwIfAborted();const url=URL.createObjectURL(new Blob([bytes],{type:'application/zip'}));const a=document.createElement('a');a.href=url;a.download='ui-image-archive.zip';a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);status.dataset.state='success';status.textContent='已发起无损 ZIP 下载：含完整 PNG、notes.md 和离线 index.html。此模式仅保存视觉，不含 JSON 快照，不能 JSON 往返。请解压后打开并检查；可继续导入。';return;}
  if(kind==='image')snapshot=await raster(f,{signal,preserveResolution:quality.value==='archive',onProgress:message=>{if(!signal.aborted)status.textContent=message;}});
  else{
  const text=input.text??await f.text();signal.throwIfAborted();

@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {markdown,html} from '../../extension/src/core/render.js';import {validateSnapshot} from '../../extension/src/core/ir.js';
+import {markdown,html} from '../../extension/src/core/render.js';import {validateSnapshot,diagnostic} from '../../extension/src/core/ir.js';
 const t=text=>({text});const n=(tag,children=[],attrs={},ns='html')=>({tag,ns,attrs,style:{},children});
 const snapshot=tree=>({schemaVersion:'1.4.0',kind:'ui-portability-snapshot',capability:'static',createdAt:new Date().toISOString(),source:{type:'html',origin:'local'},dimensions:{width:600,height:400},background:'#fff',tree,resources:[],provenance:{method:'local-file',status:'external-unverified'},omissions:[],limitations:[],security:{redacted:false,remoteResources:false,scripts:false}});
 test('Markdown keeps nested lists, ordered starts, item values and continuation blocks',()=>{
@@ -19,3 +19,13 @@ test('mixed verified recipes plus nested Markdown blocks export MD and ZIP indep
 test('discontinuous ordered values use HTML so CommonMark cannot renumber them',()=>{const md=markdown(snapshot(n('ol',[n('li',[t('three')]),n('li',[t('seven')],{value:'7'})],{start:'3'})));assert.match(md,/<ol start="3">/);assert.match(md,/<li value="7">seven<\/li>/);assert.match(markdown(snapshot(n('p',[n('code',[t(' foo ')])]))),/`  foo  `/);});
 
 test('direct legacy IR1.0 Markdown subtree export remains valid',()=>{const s={...snapshot(n('div',[n('ul',[n('li',[t('legacy')])]),n('blockquote',[n('p',[t('quoted')])])])),schemaVersion:'1.0.0'};assert.match(markdown(s),/- legacy/);assert.match(markdown(s),/> quoted/);});
+
+test('CSSOM expanded safe border/radius/overflow/column properties remain representable',async()=>{
+ const {styleProps,safeCss}=await import('../../extension/src/core/policy.js');
+ for(const key of ['border-top-width','border-left-style','border-bottom-color','border-top-left-radius','overflow-x','overflow-y','column-count','column-width','column-rule-width'])assert.ok(styleProps.includes(key),key);
+ for(const value of ['url(https://example.com/evil)','u\\rl(x)','image-set("https://example.com")'])assert.equal(safeCss(value),false);
+});
+
+test('diagnostic exposes math display and source font families without inventing formula conversion',()=>{
+ const formula=n('math',[n('mi',[t('α')],{},'math')],{display:'block'},'math');formula.style['font-family']='Source Math, serif';const s=snapshot(n('main',[formula]));const d=diagnostic(s);assert.equal(d.typography.math.block,1);assert.equal(d.typography.math.inline,0);assert.deepEqual(d.typography.sourceFontFamilies,['Source Math, serif']);assert.equal(d.typography.glyphCoverage,'unverified');assert.match(d.typography.markdown,/MathML/);
+});

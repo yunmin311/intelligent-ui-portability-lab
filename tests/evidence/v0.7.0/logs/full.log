@@ -1,0 +1,258 @@
+
+> intelligent-ui-portability-lab@0.7.0 test
+> node scripts/test.mjs
+
+PASS: MV3 permissions, recursive syntax, network/credential boundaries
+✔ Markdown keeps nested lists, ordered starts, item values and continuation blocks (3.721502ms)
+✔ Markdown retains quote, emphasis, inline code and sub/sup meaning (0.501485ms)
+✔ Markdown merged cells retain safe HTML table rather than misaligned pipe table (1.632957ms)
+✔ MathML display semantics and ordered list attributes survive validated HTML (4.185009ms)
+✔ IR 1.0–1.3 migrate explicitly; unknown or wrongly labelled new attributes fail (15.590313ms)
+✔ list starts handle zero, negatives and invalid values; inline code pipes remain literal (0.533399ms)
+✔ mixed verified recipes plus nested Markdown blocks export MD and ZIP independently (53.892249ms)
+✔ discontinuous ordered values use HTML so CommonMark cannot renumber them (1.064596ms)
+✔ direct legacy IR1.0 Markdown subtree export remains valid (0.400957ms)
+✔ CSSOM expanded safe border/radius/overflow/column properties remain representable (2.037042ms)
+✔ diagnostic exposes math display and source font families without inventing formula conversion (0.725651ms)
+✔ IR roundtrip and separate diagnostic (12.514115ms)
+✔ fail closed on active attributes, resource URLs, schema, sizes and capabilities (1.132891ms)
+✔ session boundaries, expiry, capacity and malformed dates (9.897711ms)
+✔ resource integrity and future version failure (2.22691ms)
+✔ ZIP CRC reference and deterministic bytes (0.383948ms)
+✔ deep, wide and text stress fails without partial output (1.01137ms)
+✔ SVG local refs allowed, active namespace/type tricks fail, diagnostic contains no content (0.596108ms)
+✔ review regressions: missing dimensions and CSS resource functions rejected (0.407773ms)
+✔ encoded image size checked before decoding (0.24757ms)
+✔ Markdown nested visuals are explicit rather than silently dropped (0.648087ms)
+✔ Markdown preformatted content retains blank lines, spaces and fence literals (0.285264ms)
+✔ explicit clipboard payload precedence and MIME rejection (1.206031ms)
+✔ plain markup is literal, preserves newlines and rejects oversize before escaping (0.259124ms)
+✔ screenshot preflight accepts 4K with bounded input policy but existing resources stay limited (12.89296ms)
+✔ raster fit always retains aspect ratio within 1 MP and 4096 sides (0.253833ms)
+✔ abort and invalid headers stop screenshot import before browser decoder (0.557402ms)
+✔ complete raster geometry rejects gaps, overlap, transformed or out-of-budget composites (1.410169ms)
+✔ PNG pixel codec preserves partial alpha and invisible RGB without canvas quantization (250.708427ms)
+✔ complete raster recognition rejects hidden roots and tiles (0.463884ms)
+✔ strategies distinguish native behavior from unknown static controls (1.962324ms)
+✔ finite Fourier model and table orders reject invalid ranges (1.426377ms)
+✔ external declarations never confer recipe trust; strict recipe fields (0.352167ms)
+✔ recipe schema rejects code, range violations and cross-component bindings (1.620991ms)
+✔ preview fit never enlarges, is bounded to available width and preserves explicit zoom (0.578718ms)
+✔ CSS values cannot append declarations or blocks (0.839376ms)
+✔ 1.0 migration establishes current schema with no inferred behavior (1.527763ms)
+✔ ZIP rejects traversal, absolute and platform separator paths (0.417534ms)
+✔ Fourier numeric oracle samples the explicit finite mathematical sum (2.195034ms)
+✔ external finite model roundtrip retains behavior but cannot forge source equivalence (11.135235ms)
+✔ malicious behavior candidates downgrade independently without granting execution (3.286264ms)
+✔ interactive requires explicit fallback consent; zero recoveries cannot masquerade as interactive (4.527342ms)
+✔ 1.0 and 1.1 migrate explicitly to 1.4 without inventing evidence (1.259505ms)
+✔ real import parser clears forged identity, rejects active data and missing resources (1.858489ms)
+✔ cross-component binding, overlapping roots and forged numeric strings cannot restore recipes (3.663529ms)
+✔ recipe topology rejects parser-dropped SVG and output ancestors of controls (2.855262ms)
+✔ void HTML nodes cannot hide validated recipe descendants from rendering (0.877786ms)
+✔ foreign namespace native details cannot masquerade as recoverable interaction (0.737839ms)
+✔ versioned registry is closed and flattened bindings retain array targets (1.254003ms)
+✔ fixed calculator rounds the sum and rejects nonnumeric, bounds, step and source expressions (1.084014ms)
+✔ tabs require matching finite selection, local ARIA and independent array bindings (1.696561ms)
+✔ boolean two-panel model requires checkbox and exact visible state (0.30845ms)
+✔ nested recipes in panels are independent; cross-scope references fail (0.454627ms)
+✔ import independently downgrades invalid candidates and drops source equivalence (0.289601ms)
+✔ IR1.3 import roundtrip validates numeric controls, flattened render markers and migration (3.929662ms)
+✔ localhost filenames and page markers never grant source equivalence or controlled authority (0.216292ms)
+✔ panel grammar rejects parser reparenting and exposes no hidden content through model activation (0.540311ms)
+✔ static renderer retains authored fixed height and grid tracks (0.492974ms)
+✔ static and active modes preserve authored fixed panel dimensions (0.525799ms)
+ℹ tests 59
+ℹ suites 0
+ℹ pass 59
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 418.972205
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:19:48] "GET / HTTP/1.1" 200 -
+
+Running 70 tests using 1 worker
+
+(node:23413) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:19:51] "GET /compatibility-workspace.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:19:51] code 404, message File not found
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:19:51] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓   1 tests/compatibility.spec.mjs:37:1 › compatibility: actual browser rich clipboard versus HTML file and JSON roundtrip (5.8s)
+  ✓   2 tests/compatibility.spec.mjs:49:1 › compatibility: actual plain clipboard preserves exact preformatted text (1.4s)
+  ✓   3 tests/compatibility.spec.mjs:53:1 › compatibility: SVG file preserves safe vector gradients and MathML mixed content (1.6s)
+  ✓   4 tests/compatibility.spec.mjs:58:1 › compatibility: real browser PNG clipboard enters through trusted paste (1.0s)
+  ✓   5 tests/compatibility.spec.mjs:64:1 › compatibility: bounded archive rejection, cancellation, recovery, JPEG/WebP and tamper checks (2.7s)
+  ✓   6 tests/compatibility.spec.mjs:76:1 › compatibility: same corpus via real toolbar region capture includes drawn Canvas (1.7s)
+  ✓   7 tests/compatibility.spec.mjs:80:1 › comprehensive: CSSOM border longhands preserve source layout offline (1.6s)
+  ✓   8 tests/compatibility.spec.mjs:89:1 › comprehensive: flex, columns, merged tables and inline/block math remain readable in both themes (3.3s)
+
+  ✓   9 tests/compatibility.spec.mjs:95:1 › comprehensive: high entropy ZIP-only preserves pixels without IR or session handoff (1.6s)
+
+  ✓  10 tests/compatibility.spec.mjs:106:1 › comprehensive: partial alpha and transparent RGB survive ZIP-only and JSON raster archive (1.5s)
+
+  ✓  11 tests/compatibility.spec.mjs:115:1 › compatibility: high resolution archive keeps exact source pixels and survives standalone offline ZIP (8.2s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:23] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:23] code 404, message File not found
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:23] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓  12 tests/engine.spec.mjs:2:1 › engine-only overlay and semantic container regression (not extension E2E) (347ms)
+  ✓  13 tests/import-raster.spec.mjs:5:1 › screenshot helper safely scales real 4K pixels, validates resources and cancels (426ms)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:24] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:24] code 404, message File not found
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:24] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓  14 tests/mv3.spec.mjs:47:1 › real toolbar Popup → selection → preview → download → open + pixel golden (1.4s)
+  ✓  15 tests/mv3.spec.mjs:63:1 › cancel, repeat injection and tab isolation (1.3s)
+  ✓  16 tests/mv3.spec.mjs:68:1 › security inputs, hidden content, XSS, URL removal and Markdown escaping (2.6s)
+  ✓  17 tests/mv3.spec.mjs:79:1 › changed slider state, SVG paths, canvas, dark mode, narrow container (3.0s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:34] "GET /interactive-demo.html HTTP/1.1" 304 -
+  ✓  18 tests/mv3.spec.mjs:89:1 › limits fail clearly; SVG wrong region; expired preview (1.1s)
+  ✓  19 tests/mv3.spec.mjs:94:1 › SnapDOM controlled comparison and explicit omission reports (1.1s)
+  ✓  20 tests/mv3.spec.mjs:108:1 › ChatGPT gate and browser internal page failure via actual Popup (555ms)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:36] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:36] "GET /golden-components.html HTTP/1.1" 200 -
+  ✓  21 tests/mv3.spec.mjs:112:1 › golden grid, formula fallback, checkbox, Markdown table and depth failure (2.4s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:38] "GET /interactive-demo.html HTTP/1.1" 200 -
+
+  ✓  22 tests/mv3.spec.mjs:128:1 › local HTML hostile file → isolated conversion → IR roundtrip → ZIP offline checksums (4.8s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:43] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  23 tests/mv3.spec.mjs:140:1 › SVG import gradients, PNG download; raster visual-only and malformed file recovery (2.0s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:45] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  24 tests/mv3.spec.mjs:149:1 › worker restart restores session; expiry and sender/schema rejection (1.2s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:46] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  25 tests/mv3.spec.mjs:156:1 › capture failure retry resets omissions; cancellation during bounded work (1.8s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:48] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:48] "GET /complex-components.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:50] "GET /complex-components.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:52] "GET /complex-components.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:53] "GET /complex-components.html HTTP/1.1" 200 -
+  ✓  26 tests/mv3.spec.mjs:161:1 › complex fixture paired pixel goldens across viewports and themes + SnapDOM control (7.0s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:55] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  27 tests/mv3.spec.mjs:177:1 › review regressions: transformed root, broad DOM, format race and unsafe SVG import (2.2s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:57] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:57] "GET /selective-interactions.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:20:57] "GET /recipes.js HTTP/1.1" 200 -
+
+  ✓  28 tests/mv3.spec.mjs:185:1 › v0.4 selective strategies, native details, Fourier/table equivalence, HTML + ZIP offline (10.6s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:08] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:08] "GET /selective-interactions.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:08] "GET /recipes.js HTTP/1.1" 200 -
+  ✓  29 tests/mv3.spec.mjs:212:1 › v0.4 changed initial states / dark visual; imported JSON cannot authorize runtime; CSP blocks extra code (10.7s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:19] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:19] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  30 tests/mv3.spec.mjs:228:1 › v0.4 native-only grid expands without overlap or source toggle side effects (1.1s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:20] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:20] "GET /selective-interactions.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:20] "GET /recipes.js HTTP/1.1" 200 -
+
+  ✓  31 tests/mv3.spec.mjs:233:37 › v0.4.1 JSON full roundtrip with original page closed / light (7.8s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:28] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:28] "GET /selective-interactions.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:28] "GET /recipes.js HTTP/1.1" 200 -
+
+  ✓  32 tests/mv3.spec.mjs:233:37 › v0.4.1 JSON full roundtrip with original page closed / dark (5.7s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:33] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  33 tests/mv3.spec.mjs:253:1 › v0.4.1 no recoverable interaction blocks Interactive; Auto and Static remain usable (1.6s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:35] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:35] "GET /selective-interactions.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:35] "GET /recipes.js HTTP/1.1" 200 -
+  ✓  34 tests/mv3.spec.mjs:257:1 › v0.4.1 malformed recipe topology downgrades independently in real JSON import (7.3s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:44] "GET /adapters-a.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:44] code 404, message File not found
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:44] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓  35 tests/ui-design.spec.mjs:25:37 › design light: real Popup, import, overlay and preview desktop/narrow (2.7s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:47] "GET /adapters-a.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:47] code 404, message File not found
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:47] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓  36 tests/ui-design.spec.mjs:25:37 › design dark: real Popup, import, overlay and preview desktop/narrow (2.7s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:49] "GET /adapters-a.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:49] code 404, message File not found
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:49] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓  37 tests/ui-design.spec.mjs:45:37 › design light: multi-component inspector, degradation and keyboard recovery (1.8s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:51] "GET /adapters-a.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:51] code 404, message File not found
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:51] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓  38 tests/ui-design.spec.mjs:45:37 › design dark: multi-component inspector, degradation and keyboard recovery (1.7s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:53] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:53] code 404, message File not found
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:21:53] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓  39 tests/usability.spec.mjs:44:1 › usability: wide preview fits narrow screen without mutating exported dimensions (2.3s)
+  ✓  40 tests/usability.spec.mjs:52:1 › usability: one visible accessible file entry opens chooser from keyboard (1.2s)
+
+  ✓  41 tests/usability.spec.mjs:55:1 › usability: interactive downgrade exposes the component reasons before consent (1.7s)
+  ✓  42 tests/usability.spec.mjs:58:1 › usability: screenshot quality loss is visible without opening diagnostics (2.0s)
+  ✓  43 tests/usability.spec.mjs:61:1 › usability: unsupported graphic formats are explained before download selection (1.1s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:01] "GET /usability-workspace.html HTTP/1.1" 200 -
+
+  ✓  44 tests/usability.spec.mjs:65:1 › usability: actual rich Ctrl+C/V preserves structure and closes source before offline HTML/ZIP (2.1s)
+  ✓  45 tests/usability.spec.mjs:72:1 › usability: damaged/missing resources, drag/drop count, rapid formats and cancellation recover (1.8s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:05] "GET /adapters-a.html HTTP/1.1" 200 -
+  ✓  46 tests/usability.spec.mjs:81:1 › usability: zoomed controlled preview keeps pointer/keyboard input and downloads original state (1.4s)
+
+  ✓  47 tests/usability.spec.mjs:89:1 › usability: standalone browser opens image HTML/ZIP after extension profile is closed (2.0s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:09] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  48 tests/v05-capture-security.spec.mjs:10:1 › capture omits ordinary unsupported ARIA roles and tabindex while retaining finite states (199ms)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:09] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  49 tests/v05-capture-security.spec.mjs:14:1 › duplicate source IDs remove ambiguous identifiers and references without failing capture (177ms)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:09] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  50 tests/v05-capture-security.spec.mjs:18:1 › node-budget preflight and abortion run before recipe scans (201ms)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:09] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  51 tests/v05-capture-security.spec.mjs:22:1 › recipe candidate budget fails before role scans (190ms)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:10] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:10] code 404, message File not found
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:10] "GET /favicon.ico HTTP/1.1" 404 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:10] "GET /adapters-composite.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:10] "GET /recipes.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:10] "GET /adapters-composite.html HTTP/1.1" 304 -
+
+  ✓  52 tests/v05-composite.spec.mjs:69:58 › v0.5 nested chart/tabs + filtertable/state real MV3 JSON→HTML/ZIP / light (5.5s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:16] "GET /adapters-composite.html HTTP/1.1" 304 -
+
+  ✓  53 tests/v05-composite.spec.mjs:69:58 › v0.5 nested chart/tabs + filtertable/state real MV3 JSON→HTML/ZIP / dark (5.7s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:21] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:21] code 404, message File not found
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:21] "GET /favicon.ico HTTP/1.1" 404 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:21] "GET /adapters-a.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:22] "GET /adapters-a.html HTTP/1.1" 304 -
+
+  ✓  54 tests/v05.spec.mjs:59:68 › v0.5 a/light adapter JSON→HTML/ZIP offline roundtrip and visual (7.4s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:29] "GET /adapters-a.html HTTP/1.1" 304 -
+
+  ✓  55 tests/v05.spec.mjs:59:68 › v0.5 a/dark adapter JSON→HTML/ZIP offline roundtrip and visual (7.4s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:36] "GET /adapters-b.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:37] "GET /adapters-b.html HTTP/1.1" 304 -
+
+  ✓  56 tests/v05.spec.mjs:59:68 › v0.5 b/light adapter JSON→HTML/ZIP offline roundtrip and visual (7.6s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:44] "GET /adapters-b.html HTTP/1.1" 304 -
+
+  ✓  57 tests/v05.spec.mjs:59:68 › v0.5 b/dark adapter JSON→HTML/ZIP offline roundtrip and visual (7.5s)
+  ✓  58 tests/v05.spec.mjs:72:1 › page markers do not grant controlled interaction without Popup consent (1.1s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:54] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  59 tests/v051-capture-security.spec.mjs:11:1 › invalid calculator markers cannot retain numerical private input values (188ms)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:54] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  60 tests/v051-capture-security.spec.mjs:15:1 › invalid Tabs bindings never reveal or copy inactive text (189ms)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:54] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  61 tests/v051-capture-security.spec.mjs:19:1 › valid controlled inactive panel capture never mutates source DOM (191ms)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:55] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  62 tests/v051-capture-security.spec.mjs:23:1 › state change after prevalidation discards privileged capture and recaptures redacted (258ms)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:55] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  63 tests/v051-capture-security.spec.mjs:28:1 › cross component binding and illegal state cannot reveal hidden data (175ms)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:55] "GET /interactive-demo.html HTTP/1.1" 200 -
+  ✓  64 tests/v051-capture-security.spec.mjs:32:1 › candidate prevalidation never reads inactive panel or unrelated hidden text (192ms)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:56] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:56] code 404, message File not found
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:56] "GET /favicon.ico HTTP/1.1" 404 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:56] "GET /adapters-a.html HTTP/1.1" 200 -
+  ✓  65 tests/v051-grants.spec.mjs:19:1 › controlled grants bind a document and expire on cancel, navigation and completion (1.7s)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:58] "GET /interactive-demo.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:58] code 404, message File not found
+[WebServer] 127.0.0.1 - - [21/Oct/2026 11:22:58] "GET /favicon.ico HTTP/1.1" 404 -
+  ✓  66 tests/v051.spec.mjs:41:1 › v051 real Popup → text paste → HTML/Markdown, literal markup and independent offline files (1.6s)
+  ✓  67 tests/v051.spec.mjs:45:1 › v051 rich HTML paste sanitization, native details, semantic Markdown, no recipe authority (1.9s)
+
+  ✓  68 tests/v051.spec.mjs:49:1 › v051 screenshot paste scales 4K safely; HTML/ZIP/notes resource survives import close and hashes match (1.9s)
+  ✓  69 tests/v051.spec.mjs:57:1 › v051 empty/unsupported/oversize/cancel/repeated paste recover without stale preview (1.5s)
+  ✓  70 tests/v051.spec.mjs:63:1 › v051 file and drop reuse paste pipeline; oversized image rejects before preview (2.5s)
+
+  70 passed (3.3m)
+Verified extension digest recorded for packaging.

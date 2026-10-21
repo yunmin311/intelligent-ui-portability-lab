@@ -1,0 +1,61 @@
+{
+  "renderer": "marked",
+  "environment": "Linux Chromium, real file:// Markdown rendering, not Obsidian",
+  "cases": [
+    {
+      "name": "4k-markdown",
+      "images": [
+        {
+          "src": "resources/original.png",
+          "width": 3840,
+          "height": 2160
+        }
+      ],
+      "mergedCells": 0,
+      "mathFallback": false,
+      "remote": []
+    },
+    {
+      "name": "document-markdown",
+      "images": [],
+      "mergedCells": 1,
+      "code": "  a  b\n    c\n",
+      "mathFallback": true,
+      "remote": []
+    },
+    {
+      "name": "entropy-markdown",
+      "images": [
+        {
+          "src": "resources/original.png",
+          "width": 1600,
+          "height": 1000
+        }
+      ],
+      "mergedCells": 0,
+      "mathFallback": false,
+      "remote": []
+    }
+  ],
+  "baselineBorder": {
+    "top": "0px",
+    "left": "0px"
+  },
+  "mathFonts": {
+    "fonts": [
+      {
+        "familyName": "DejaVu Sans",
+        "postScriptName": "DejaVuSans",
+        "isCustomFont": false,
+        "glyphCount": 2
+      },
+      {
+        "familyName": "DejaVu Serif",
+        "postScriptName": "DejaVuSerif",
+        "isCustomFont": false,
+        "glyphCount": 1
+      }
+    ]
+  },
+  "fontMeaning": "Actual Chromium platform fallback for this sample only; not complete glyph coverage or Obsidian proof."
+}

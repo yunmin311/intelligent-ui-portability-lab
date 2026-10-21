@@ -1,0 +1,13 @@
+{
+  "trusted": true,
+  "types": [
+    "Files"
+  ],
+  "files": [
+    {
+      "type": "image/png",
+      "size": 10383
+    }
+  ],
+  "source": "Locally generated PNG written using browser Clipboard API; actual Ctrl+V, not Windows system screenshot"
+}
