@@ -1,0 +1,14 @@
+{
+  "stops": [
+    {
+      "color": "rgb(255, 0, 0)",
+      "opacity": "0.5"
+    },
+    {
+      "color": "rgb(0, 0, 255)",
+      "opacity": "1"
+    }
+  ],
+  "differentChannels": 0,
+  "externalRequests": []
+}

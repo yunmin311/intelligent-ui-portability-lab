@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "UI Portability Lab (Prototype)",
   "description": "Local visual snapshots and selective, verified offline interactions. ChatGPT integration remains blocked.",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "minimum_chrome_version": "114",
   "permissions": [
     "activeTab",

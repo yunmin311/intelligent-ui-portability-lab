@@ -1,11 +1,11 @@
 import {nodes,validateBehaviors} from '../core/interactions.js';
 import {sourceAdapter} from '../core/sources.js';
 import {detectCandidates,componentRoles,extractCandidate,prevalidateCandidate} from './adapters.js';
-import {allowedHtml,allowedSvg,allowedMath,allowedAttributes,styleProps,rejectTags,SVG,MATH,safeCss,localReference} from '../core/policy.js';
+import {allowedHtml,allowedSvg,allowedMath,allowedAttributes,styleProps,rejectTags,SVG,MATH,safeCss,localReference,inheritedStyleProps} from '../core/policy.js';
 import {validateSnapshot,sha256,LIMITS,VERSION} from '../core/ir.js';
 export async function captureElement(selected,{signal,exclude,onProgress=()=>{},source={type:'page',origin:location.origin},method='sanitized-dom',controlled=false}={}){
  if(!selected?.isConnected)throw Error('所选区域已被页面移除');
- const rect=selected.getBoundingClientRect();if(rect.width<1||rect.height<1||rect.width>12000||rect.height>12000)throw Error('区域尺寸须在 1–12000 px 之间');
+ const rect=selected.getBoundingClientRect();if(rect.width<1||rect.height<1||rect.width>LIMITS.dimension||rect.height>LIMITS.dimension)throw Error('区域尺寸须在 1–100000 px 之间');
  const captured=new WeakMap();
  const contract=sourceAdapter(location.href,{controlled,file:method!=='sanitized-dom'});
  const originallyHidden=new Set(),controlledPanels=new Set();
@@ -23,17 +23,24 @@ export async function captureElement(selected,{signal,exclude,onProgress=()=>{},
  const controlledNumbers=new Set(candidates.filter(c=>c.recipe==='calculator@1').flatMap(c=>[...(componentRoles(c.root).get('left')||[]),...(componentRoles(c.root).get('right')||[])]));
  signal?.throwIfAborted();
  function cssValue(value){if(/url\s*\(/i.test(value)){const match=value.match(/^url\(["']?(?:[^#"')]*#)([^"')]+)["']?\)$/);if(match&&ids.has(match[1]))return `url(#${ids.get(match[1])})`;omissions.add('CSS/SVG 外部或缺失资源引用已移除');return null;}return safeCss(value)?value:null;}
- function styles(css){const out={};for(const name of styleProps){const v=css.getPropertyValue(name).trim();const safe=cssValue(v);if(v&&safe)out[name]=safe;}return out;}
+ // MathML layout is font-metric driven; pinned box sizes would flatten fractions
+ // and radicals once the offline machine's math font differs from the capturer's.
+ const mathLayoutSkip=new Set(['width','height','min-width','min-height','max-width','max-height','margin','margin-top','margin-right','margin-bottom','margin-left','padding','padding-top','padding-right','padding-bottom','padding-left','line-height','vertical-align']);
+ const sideNone=(css,name)=>{const m=name.match(/^border-(top|right|bottom|left)-(width|style|color)$/);return !!m&&css.getPropertyValue('border-'+m[1]+'-style')==='none';};
+ function styles(css,inherited={},skip){const out={};for(const name of styleProps){if(skip?.has(name)||sideNone(css,name))continue;const v=css.getPropertyValue(name).trim();const safe=cssValue(v);if(v&&safe){// Explicit inherit still overrides UA rules and SVG presentation attributes.
+ if(inheritedStyleProps.has(name)&&Object.hasOwn(inherited,name)&&inherited[name]===v)out[name]='inherit';else out[name]=safe;}}return out;}
  async function resource(data,mime){if(data.length>LIMITS.resource||(resourceSize+=data.length)>2500000)throw Error('内嵌资源超过安全大小限制');const raw=Uint8Array.from(atob(data),c=>c.charCodeAt(0));const r={id:'r'+resources.length,mime,data,sha256:await sha256(raw),status:'captured'};resources.push(r);return r.id;}
  function node(tag='span',ns='html'){return {tag,ns,attrs:{},style:{},children:[],evidence:{status:'captured',method:'computed-dom'}};}
  // Inactive branches are never revealed in the source DOM: no MutationObserver,
  // toggle, layout or page-business side effects are triggered during capture.
- async function clone(original,depth=0){
+ async function clone(original,depth=0,inherited={}){
  if(++visited>5000||depth>75)throw Error('捕获超过 5000 节点或 75 层');if(visited%16===0){onProgress(visited);await new Promise(r=>setTimeout(r,0));}signal?.throwIfAborted();
  if(original.nodeType===3){const text=original.nodeValue||'';textSize+=text.length;if(textSize>1000000)throw Error('文本超过 100 万字符限制');return {text};}if(original.nodeType!==1||original===exclude)return null;
  const name=original.localName.toLowerCase();if(rejectTags.has(name)){if(name==='iframe')stats.omittedFrames++;omissions.add('不支持的活动内容已移除：'+name);return null;}
  const css=getComputedStyle(original);if(css.display==='none'&&!originallyHidden.has(original)||['hidden','collapse'].includes(css.visibility))return null;
- let target=node();captured.set(original,target);target.style=styles(css);if(originallyHidden.has(original)&&target.style.display==='none')delete target.style.display;stats.elements++;
+ const ns=original.namespaceURI===SVG?'svg':original.namespaceURI===MATH?'math':'html';
+ let target=node();captured.set(original,target);target.style=styles(css,inherited,ns==='math'?mathLayoutSkip:undefined);if(originallyHidden.has(original)&&target.style.display==='none')delete target.style.display;stats.elements++;
+ const childInherited={...inherited};for(const k in target.style)if(inheritedStyleProps.has(k))childInherited[k]=css.getPropertyValue(k).trim();
  if(controlledPanels.has(original)){
   // Typed OM preserves authored auto without replacing deliberate fixed panel heights.
   try{const authored=original.computedStyleMap?.().get('height');if(authored?.toString()==='auto')target.style.height='auto';else if(!authored)omissions.add('当前浏览器无法确认面板自然高度，保留捕获尺寸');}catch{omissions.add('当前浏览器无法确认面板自然高度，保留捕获尺寸');}
@@ -44,7 +51,6 @@ export async function captureElement(selected,{signal,exclude,onProgress=()=>{},
   try{const blob=await new Promise(resolve=>original.toBlob(resolve,'image/png'));signal?.throwIfAborted();if(!blob||blob.size>1400000)throw Error('Canvas too large');const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result.split(',')[1]);reader.onerror=reject;reader.readAsDataURL(blob);});target.tag='img';target.evidence={status:'captured',method:'rasterized'};target.resourceId=await resource(data,'image/png');stats.canvasImages++;omissions.add('Canvas 已转为静态 PNG，不含数据和交互');return target;}catch(e){if(signal?.aborted)throw e;omissions.add('Canvas 无法读取，已省略');target.children=[{text:'[Canvas 无法安全内嵌]'}];return target;}
  }
  if(name==='img'){const src=original.getAttribute('src')||'';const m=src.match(/^data:(image\/(?:png|jpeg|webp));base64,([A-Za-z0-9+/=]+)$/i);if(m){target.tag='img';target.attrs.alt=(original.getAttribute('alt')||'').slice(0,1000);target.resourceId=await resource(m[2],m[1].toLowerCase());}else{stats.omittedImages++;omissions.add('远程或非安全内嵌图片已省略');target.evidence={status:'unsupported',method:'placeholder'};target.children=[{text:'[图片已省略]'}];}return target;}
- const ns=original.namespaceURI===SVG?'svg':original.namespaceURI===MATH?'math':'html';
  const supported=ns==='svg'?allowedSvg.has(name):ns==='math'?allowedMath.has(name):allowedHtml.has(name);
  if(supported){target.tag=ns==='svg'?original.localName:name;target.ns=ns;}else{target.evidence={status:'unsupported',method:'placeholder'};omissions.add('不支持的标签已降为文本容器：'+name);}
  target.component=ns==='svg'?'graphic':ns==='math'?'formula':name==='table'?'table':'container';if(name==='svg')stats.svg++;
@@ -60,10 +66,10 @@ export async function captureElement(selected,{signal,exclude,onProgress=()=>{},
  const children=original.shadowRoot?.childNodes||original.childNodes;if(original.shadowRoot){target.evidence={status:'captured',method:'flattened-shadow'};}if(original.shadowRoot)omissions.add('开放 Shadow DOM 已展开为静态节点；slot 分发和封闭 Shadow DOM 不保证完整');else if(name.includes('-'))omissions.add('封闭 Shadow DOM 或自定义组件内部不可确认');
  const pseudos=[];
  for(const pseudo of ['::before','::after']){const p=getComputedStyle(original,pseudo);if(p.content&&p.content!=='none'&&p.content!=='normal'){
- try{const content=JSON.parse(p.content);if(typeof content!=='string')throw Error();const replacement=node('span');replacement.evidence={status:'captured',method:'generated-pseudo'};replacement.style=styles(p);replacement.children=[{text:content}];pseudos.push([pseudo,replacement]);}catch{omissions.add('复杂 CSS 伪元素（计数器/图像/多段内容）未捕获');}}}
+ try{const content=JSON.parse(p.content);if(typeof content!=='string')throw Error();const replacement=node('span');replacement.evidence={status:'captured',method:'generated-pseudo'};replacement.style=styles(p,childInherited);replacement.children=[{text:content}];pseudos.push([pseudo,replacement]);}catch{omissions.add('复杂 CSS 伪元素（计数器/图像/多段内容）未捕获');}}}
  if(pseudos.find(x=>x[0]==='::before'))target.children.push(pseudos.find(x=>x[0]==='::before')[1]);
  // Read mounted descendants without toggling source details: toggle handlers may mutate or fetch.
- for(const c of children){const out=await clone(c,depth+1);if(out)target.children.push(out);}
+ for(const c of children){const out=await clone(c,depth+1,childInherited);if(out)target.children.push(out);}
  if(pseudos.find(x=>x[0]==='::after'))target.children.push(pseudos.find(x=>x[0]==='::after')[1]);
  if(original.scrollTop||original.scrollLeft){target.state={scrollTop:original.scrollTop,scrollLeft:original.scrollLeft};const wrapper=node('div');wrapper.evidence={status:'captured',method:'scroll-flattened'};for(const k of ['display','flex-direction','flex-wrap','align-items','justify-content','gap','grid-template-columns','grid-template-rows','column-gap','row-gap'])if(target.style[k])wrapper.style[k]=target.style[k];wrapper.style.width=(original.scrollWidth-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight))+'px';wrapper.style.height=(original.scrollHeight-parseFloat(css.paddingTop)-parseFloat(css.paddingBottom))+'px';wrapper.style.transform=`translate(${-original.scrollLeft}px, ${-original.scrollTop}px)`;wrapper.style['transform-origin']='0px 0px';wrapper.children=target.children;target.children=[wrapper];target.style.display='block';target.style.overflow='hidden';omissions.add('滚动当前偏移已静态展开；后续滚动和粘性定位不恢复');}
  return target;

@@ -1,3 +1,7 @@
+# v0.7.1 产品打磨补充
+
+SVG 渐变端点颜色和透明度保留各自声明；相同继承值使用显式 inherit，覆盖浏览器默认样式和 SVG 属性，避免标题/按钮/表头/填色漂移；长文捕获与公开 JSON Schema 单轴上限统一为 100000px，原图片像素/资源/IR 字节预算不变。离线样例入口见 `samples/index.html`，样例均为自建合成内容。Windows 与 Obsidian GUI 仍 Unverified。验收证据见 `tests/TEST_REPORT.md`。
+
 ## v0.7.0 当前增量
 
 | 内容 | 本次实现 | 边界 |

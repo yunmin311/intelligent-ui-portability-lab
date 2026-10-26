@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UI Portability Lab · 导出样例（离线可开）</title>
+<style>
+:root{--bg:#f5f7f7;--surface:#fff;--fg:#172b2c;--muted:#526769;--line:#cbd5d5;--panel:#edf2f1;--accent:#0f7b6c;--accent-soft:#e6f3ef}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.7 system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;color:var(--fg);background:var(--bg)}
+.wrap{max-width:960px;margin:0 auto;padding:32px 20px 64px}
+header h1{font-size:26px;margin:8px 0 4px;letter-spacing:-.02em}
+header p{color:var(--muted);margin:0 0 28px}
+.tag{display:inline-block;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:2px 12px;font-size:13px;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 22px;display:flex;flex-direction:column;gap:8px}
+.card h2{font-size:17px;margin:0}
+.card p{margin:0;color:var(--muted);font-size:14px;flex:1}
+.card ul{margin:0;padding-left:18px;color:var(--muted);font-size:13.5px}
+.open{margin-top:10px;align-self:flex-start;background:var(--accent);color:#fff;text-decoration:none;border-radius:8px;padding:9px 18px;font-weight:600}
+.open:hover{filter:brightness(1.07)}
+.meta{font-size:12.5px;color:var(--muted)}
+footer{margin-top:36px;color:var(--muted);font-size:13.5px;border-top:1px solid var(--line);padding-top:18px}
+code{background:var(--panel);border-radius:4px;padding:1px 6px;font-size:.92em}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<span class="tag">无需安装扩展 · 双击即可打开</span>
+<h1>UI Portability Lab 导出样例</h1>
+<p>以下是本工具真实导出的文件。全部为<b>合成测试内容</b>（项目自建样例，不包含任何 ChatGPT 或第三方页面数据），可离线打开、无网络请求、无外部依赖。</p>
+</header>
+<div class="grid">
+
+<div class="card">
+<h2>复杂富文本 · 表格 / 公式 / 图表 / 代码</h2>
+<p>从一篇含 MathML 公式、SVG 渐变图表、参数对比表、代码块、嵌套列表与折叠区的文章，用真实 Ctrl+C / Ctrl+V 粘贴导出的单页 HTML。</p>
+<ul><li>公式结构与表格边框、配色完整保留</li><li>折叠区（details）可点击展开</li><li>文件自包含，可直接归档</li></ul>
+<a class="open" href="rich-article.html">打开 HTML</a>
+<span class="meta">对应 Markdown 版本：<a href="rich-article.md">rich-article.md</a>（公式与图表以占位说明标注）</span>
+</div>
+
+<a class="card" href="interactive-components.html">
+<h2>已验证交互 · 标签页 / 计算器 / 状态开关</h2>
+<p>从项目自建的受支持组件页面导出。标签页切换、加法计算器、状态面板开关和原生折叠区在离线 HTML 中<b>真实可操作</b>。</p>
+<ul><li>只有经过验证的组件会恢复交互</li><li>未知组件一律静态保存，不执行来源脚本</li><li>导出时需在弹窗中勾选"受控组件恢复（高级）"</li></ul>
+<span class="open">打开并试试点击</span>
+<span class="meta">交互能力以导出页内报告为准，不代表任意第三方网站</span>
+</a>
+
+<a class="card" href="screenshot-4k.zip">
+<h2>4K 截图归档 · ZIP 完整离线包</h2>
+<p>3840 × 2160 合成监控大屏截图按"原尺寸无损"导出的 ZIP：解压后 <code>index.html</code> 是网页视图，<code>notes.md</code> 用相对路径引用完整单图，可直接放进 Obsidian。</p>
+<ul><li>每像素无损，未缩放</li><li>SHA-256 清单可校验完整性</li><li>含下载说明 README</li></ul>
+<span class="open">下载 ZIP</span>
+<span class="meta">ZIP 需先解压再打开其中的 index.html</span>
+</a>
+
+</div>
+<footer>
+<h2 style="font-size:15px;margin:0 0 6px">这些文件是怎么来的？</h2>
+<p>安装 Chrome 扩展 → 在来源页面复制（或截图）→ 在扩展的导入页按 Ctrl+V → 预览确认 → 下载。安装与使用说明见仓库根目录的 <code>使用说明.md</code>（一页、三步）。所有处理均在本地完成，样例内容为项目自建，用于展示真实导出效果。</p>
+</footer>
+</div>
+</body>
+</html>

@@ -6,6 +6,15 @@ export const styleProps = [ 'visibility','direction','writing-mode','color-schem
 styleProps.push(...['top','right','bottom','left'].flatMap(side=>['width','style','color'].map(part=>'border-'+side+'-'+part)),...['top-left','top-right','bottom-right','bottom-left'].map(corner=>'border-'+corner+'-radius'),'overflow-x','overflow-y','column-count','column-width','column-fill','column-rule-width','column-rule-style','column-rule-color','break-inside','text-decoration-line','text-decoration-color','text-decoration-style','text-decoration-thickness');
 export const rejectTags = new Set('script style iframe frame object embed template link meta base audio video source track noscript foreignobject animate animatetransform set use'.split(' '));
 
+// Inherited properties: a declaration identical to the captured parent value is
+// redundant in the export because CSS inheritance reproduces it exactly, so
+// capture deduplicates it. An initial-value table for non-inherited properties
+// was tried and rejected: several "initial" strings (border-*-color is
+// currentcolor) silently repaint dark-theme exports, so pruning stays limited
+// to exact inheritance duplication and to invisible border sides. SVG stop-color,
+// stop-opacity and dominant-baseline are not inherited; retain their declarations.
+export const inheritedStyleProps = new Set('color color-scheme direction writing-mode visibility font-family font-size font-weight font-style font-stretch font-variant line-height letter-spacing text-align text-indent text-transform text-shadow white-space word-break overflow-wrap list-style-type list-style-position caption-side border-spacing fill stroke stroke-width stroke-linecap stroke-linejoin fill-opacity stroke-opacity text-anchor'.split(' '));
+
 export const allowedMath = new Set("math mrow mi mn mo mtext mfrac msqrt mroot msup msub msubsup munder mover munderover mtable mtr mtd mfenced mspace menclose mstyle mpadded".split(" "));
 export const SVG="http://www.w3.org/2000/svg", MATH="http://www.w3.org/1998/Math/MathML";
 const safeFunctions=new Set('rgb rgba hsl hsla hwb lab lch oklab oklch color color-mix light-dark linear-gradient repeating-linear-gradient radial-gradient repeating-radial-gradient conic-gradient repeating-conic-gradient matrix matrix3d translate translatex translatey translatez translate3d scale scalex scaley scalez scale3d rotate rotatex rotatey rotatez rotate3d skew skewx skewy perspective calc min max clamp var env fit-content repeat minmax'.split(' '));
