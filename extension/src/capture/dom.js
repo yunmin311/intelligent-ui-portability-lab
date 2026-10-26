@@ -27,7 +27,8 @@ export async function captureElement(selected,{signal,exclude,onProgress=()=>{},
  // and radicals once the offline machine's math font differs from the capturer's.
  const mathLayoutSkip=new Set(['width','height','min-width','min-height','max-width','max-height','margin','margin-top','margin-right','margin-bottom','margin-left','padding','padding-top','padding-right','padding-bottom','padding-left','line-height','vertical-align']);
  const sideNone=(css,name)=>{const m=name.match(/^border-(top|right|bottom|left)-(width|style|color)$/);return !!m&&css.getPropertyValue('border-'+m[1]+'-style')==='none';};
- function styles(css,inherited={},skip){const out={};for(const name of styleProps){if(skip?.has(name)||sideNone(css,name))continue;const v=css.getPropertyValue(name).trim();const safe=cssValue(v);if(v&&safe){if(inheritedStyleProps.has(name)&&Object.hasOwn(inherited,name)&&inherited[name]===v)continue;out[name]=safe;}}return out;}
+ function styles(css,inherited={},skip){const out={};for(const name of styleProps){if(skip?.has(name)||sideNone(css,name))continue;const v=css.getPropertyValue(name).trim();const safe=cssValue(v);if(v&&safe){// Explicit inherit still overrides UA rules and SVG presentation attributes.
+ if(inheritedStyleProps.has(name)&&Object.hasOwn(inherited,name)&&inherited[name]===v)out[name]='inherit';else out[name]=safe;}}return out;}
  async function resource(data,mime){if(data.length>LIMITS.resource||(resourceSize+=data.length)>2500000)throw Error('内嵌资源超过安全大小限制');const raw=Uint8Array.from(atob(data),c=>c.charCodeAt(0));const r={id:'r'+resources.length,mime,data,sha256:await sha256(raw),status:'captured'};resources.push(r);return r.id;}
  function node(tag='span',ns='html'){return {tag,ns,attrs:{},style:{},children:[],evidence:{status:'captured',method:'computed-dom'}};}
  // Inactive branches are never revealed in the source DOM: no MutationObserver,
@@ -39,7 +40,7 @@ export async function captureElement(selected,{signal,exclude,onProgress=()=>{},
  const css=getComputedStyle(original);if(css.display==='none'&&!originallyHidden.has(original)||['hidden','collapse'].includes(css.visibility))return null;
  const ns=original.namespaceURI===SVG?'svg':original.namespaceURI===MATH?'math':'html';
  let target=node();captured.set(original,target);target.style=styles(css,inherited,ns==='math'?mathLayoutSkip:undefined);if(originallyHidden.has(original)&&target.style.display==='none')delete target.style.display;stats.elements++;
- const childInherited={...inherited};for(const k in target.style)if(inheritedStyleProps.has(k))childInherited[k]=target.style[k];
+ const childInherited={...inherited};for(const k in target.style)if(inheritedStyleProps.has(k))childInherited[k]=css.getPropertyValue(k).trim();
  if(controlledPanels.has(original)){
   // Typed OM preserves authored auto without replacing deliberate fixed panel heights.
   try{const authored=original.computedStyleMap?.().get('height');if(authored?.toString()==='auto')target.style.height='auto';else if(!authored)omissions.add('当前浏览器无法确认面板自然高度，保留捕获尺寸');}catch{omissions.add('当前浏览器无法确认面板自然高度，保留捕获尺寸');}

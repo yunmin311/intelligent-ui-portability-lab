@@ -371,7 +371,7 @@
   var styleProps = ["visibility", "direction", "writing-mode", "color-scheme", "background-image", "background-size", "background-position", "background-repeat", "border-collapse", "border-spacing", "table-layout", "caption-side", "list-style-type", "list-style-position", "font-variant", "font-stretch", "word-break", "overflow-wrap", "text-indent", "text-transform", "text-overflow", "text-shadow", "float", "clear", "align-self", "align-content", "justify-items", "justify-self", "column-gap", "row-gap", "grid-auto-flow", "grid-auto-rows", "grid-auto-columns", "flex-grow", "flex-shrink", "flex-basis", "order", "aspect-ratio", "max-height", "object-position", "fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin", "fill-opacity", "stroke-opacity", "stop-color", "stop-opacity", "text-anchor", "dominant-baseline", "clip-path", "mask", "transform", "transform-origin", "display", "position", "top", "right", "bottom", "left", "z-index", "box-sizing", "color", "background-color", "font-family", "font-size", "font-weight", "font-style", "line-height", "letter-spacing", "text-align", "white-space", "width", "height", "max-width", "min-width", "min-height", "margin", "margin-top", "margin-right", "margin-bottom", "margin-left", "padding", "padding-top", "padding-right", "padding-bottom", "padding-left", "border", "border-width", "border-style", "border-color", "border-radius", "box-shadow", "opacity", "vertical-align", "flex", "flex-direction", "flex-wrap", "align-items", "justify-content", "gap", "grid-template-columns", "grid-template-rows", "grid-column", "grid-row", "overflow", "text-decoration", "object-fit"];
   styleProps.push(...["top", "right", "bottom", "left"].flatMap((side) => ["width", "style", "color"].map((part) => "border-" + side + "-" + part)), ...["top-left", "top-right", "bottom-right", "bottom-left"].map((corner) => "border-" + corner + "-radius"), "overflow-x", "overflow-y", "column-count", "column-width", "column-fill", "column-rule-width", "column-rule-style", "column-rule-color", "break-inside", "text-decoration-line", "text-decoration-color", "text-decoration-style", "text-decoration-thickness");
   var rejectTags = new Set("script style iframe frame object embed template link meta base audio video source track noscript foreignobject animate animatetransform set use".split(" "));
-  var inheritedStyleProps = new Set("color color-scheme direction writing-mode visibility font-family font-size font-weight font-style font-stretch font-variant line-height letter-spacing text-align text-indent text-transform text-shadow white-space word-break overflow-wrap list-style-type list-style-position caption-side border-spacing fill stroke stroke-width stroke-linecap stroke-linejoin fill-opacity stroke-opacity stop-color stop-opacity text-anchor dominant-baseline".split(" "));
+  var inheritedStyleProps = new Set("color color-scheme direction writing-mode visibility font-family font-size font-weight font-style font-stretch font-variant line-height letter-spacing text-align text-indent text-transform text-shadow white-space word-break overflow-wrap list-style-type list-style-position caption-side border-spacing fill stroke stroke-width stroke-linecap stroke-linejoin fill-opacity stroke-opacity text-anchor".split(" "));
   var allowedMath = new Set("math mrow mi mn mo mtext mfrac msqrt mroot msup msub msubsup munder mover munderover mtable mtr mtd mfenced mspace menclose mstyle mpadded".split(" "));
   var SVG = "http://www.w3.org/2000/svg";
   var MATH = "http://www.w3.org/1998/Math/MathML";
@@ -558,8 +558,8 @@
         const v = css.getPropertyValue(name).trim();
         const safe = cssValue(v);
         if (v && safe) {
-          if (inheritedStyleProps.has(name) && Object.hasOwn(inherited, name) && inherited[name] === v) continue;
-          out[name] = safe;
+          if (inheritedStyleProps.has(name) && Object.hasOwn(inherited, name) && inherited[name] === v) out[name] = "inherit";
+          else out[name] = safe;
         }
       }
       return out;
@@ -603,7 +603,7 @@
       if (originallyHidden.has(original) && target.style.display === "none") delete target.style.display;
       stats.elements++;
       const childInherited = { ...inherited };
-      for (const k in target.style) if (inheritedStyleProps.has(k)) childInherited[k] = target.style[k];
+      for (const k in target.style) if (inheritedStyleProps.has(k)) childInherited[k] = css.getPropertyValue(k).trim();
       if (controlledPanels.has(original)) {
         try {
           const authored = original.computedStyleMap?.().get("height");

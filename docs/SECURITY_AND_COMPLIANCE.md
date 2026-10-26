@@ -32,7 +32,7 @@
 | 输入/身份泄漏 | 文本/密码/textarea/select/contenteditable 脱敏；普通 hidden 不捕获，合法受控模型的必要面板/行按下节例外处理；不读 Cookie、Storage 或会话端点 | 密码、token query 链接、隐藏文本、可编辑内容未进入导出；普通段落/Canvas 中的秘密不能识别 |
 | 扩展页消息越权 | capture 只允许顶层 HTTP(S) tab 且非阻止域；预览请求限制扩展 URL；不声明 externally_connectable/外部资源入口 | isolated world 降低页面直接触达；不是恶意网站对 Overlay/DOM 修改的完整防御 |
 | 持久隐私 | 仅storage.session受信上下文，无local/sync/网络后端；3份/7.5MB估算/10分钟访问上限，报告下载不含正文 | 下载的用户文件长期存在；JSON 本身包含净化正文。SW重启可恢复，浏览器重启/扩展重载清空；过期物理清理由后续消息触发 |
-| 大页面/异常 | 5000访问节点（含文本，入栈即限额）、75层、100万文本字符、单边12000px、IR4MB；单资源base64≤200万字符，Canvas/栅格≤100万像素；编码头先检查 | 节点/深度失败实测；DOM遍历分批协作取消，单次原生调用不能硬中断；纯转换Worker10秒terminate，隔离页15秒移除；宽/深DOM、重试取消有压力回归 |
+| 大页面/异常 | 5000访问节点（含文本，入栈即限额）、75层、100万文本字符、DOM单边100000px、IR4MB；单资源base64≤200万字符，Canvas/栅格≤100万像素；编码头先检查 | 节点/深度失败实测；DOM遍历分批协作取消，单次原生调用不能硬中断；纯转换Worker10秒terminate，隔离页15秒移除；宽/深DOM、重试取消有压力回归 |
 
 只申请 activeTab、scripting、storage；不申请 host_permissions/cookies/webRequest/downloads。storage只为SW重启后的会话恢复，未扩大站点访问范围。真实下载由预览页用户按钮触发原生 a.download，Blob URL 60 秒后撤销，无后台自动下载。MV3 开发工具测试参数只用于测试浏览器，不写入扩展。
 

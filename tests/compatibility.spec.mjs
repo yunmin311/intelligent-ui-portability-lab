@@ -112,6 +112,41 @@ test('comprehensive: partial alpha and transparent RGB survive ZIP-only and JSON
  }await p.close();
 });
 
+test('product polish: SVG gradient stop color and opacity survive inherited-style pruning offline',async()=>{
+ const markup='<section style="width:200px;height:100px"><svg width="200" height="100"><defs><linearGradient id="gradient" style="stop-color:red;stop-opacity:0.5"><stop offset="0" style="stop-color:red;stop-opacity:0.5"/><stop offset="1" style="stop-color:blue"/></linearGradient></defs><rect width="200" height="100" fill="url(#gradient)"/></svg></section>';
+ const source=await context.newPage();await source.setContent(markup);
+ const stops=p=>p.locator('stop').evaluateAll(es=>es.map(e=>({color:getComputedStyle(e).stopColor,opacity:getComputedStyle(e).stopOpacity})));
+ const expected=await stops(source),before=PNG.sync.read(await source.locator('svg').screenshot({path:path.join(evidence,'gradient-source.png')}));
+ const p=await importer(),out=await file(p,'gradient.html',markup),saved=await save(out,'gradient-export.html','html');
+ const offline=await context.newPage(),requests=[];offline.on('request',r=>{if(/^https?:/.test(r.url()))requests.push(r.url());});await offline.goto('file://'+saved);
+ expect(await stops(offline)).toEqual(expected);
+ const after=PNG.sync.read(await offline.locator('svg').screenshot({path:path.join(evidence,'gradient-export.png')}));
+ expect([after.width,after.height]).toEqual([before.width,before.height]);expect(Buffer.compare(before.data,after.data)).toBe(0);expect(requests).toEqual([]);
+ await fs.writeFile(path.join(evidence,'gradient-metrics.json'),JSON.stringify({stops:expected,differentChannels:0,externalRequests:requests},null,2));
+ await Promise.all([source.close(),p.close(),out.close(),offline.close()]);
+});
+
+test('product polish: long document exports self-contained JSON and reimports without truncation',async()=>{
+ const p=await importer(),out=await file(p,'long-document.html','<article style="height:26000px;width:600px"><h1>Long document</h1><p>Start</p><p style="margin-top:25000px">End marker</p></article>');
+ const saved=await save(out,'long-document.json','json'),s=JSON.parse(await fs.readFile(saved,'utf8'));
+ expect(s.dimensions.height).toBeGreaterThan(12000);expect(s.dimensions.height).toBeLessThanOrEqual(100000);
+ const roundtrip=await file(p,'long-document.json',JSON.stringify(s),'application/json');
+ const again=JSON.parse(await fs.readFile(await save(roundtrip,'long-roundtrip.json','json'),'utf8'));expect(again.tree).toEqual(s.tree);expect(again.dimensions).toEqual(s.dimensions);
+ const offline=await context.newPage();await offline.goto('file://'+await save(roundtrip,'long-document.html','html'));await expect(offline.getByText('End marker')).toHaveText('End marker');
+ await Promise.all([p.close(),out.close(),roundtrip.close(),offline.close()]);
+});
+
+test('product polish: inherited styles override UA defaults and SVG presentation attributes offline',async()=>{
+ // Standards mode matches the extension sandbox; quirks-mode table inheritance differs.
+ const markup='<!doctype html><div style="font:16px Arial;text-align:left;width:400px"><h1 style="font:inherit">Heading <em>title</em></h1><button style="font:inherit">Button</button><table><tr><th style="font:inherit;text-align:inherit">Cell</th></tr></table><svg width="50" height="50" style="fill:red"><rect width="50" height="50" fill="blue" style="fill:red"/></svg></div>';
+ const source=await context.newPage();await source.setContent(markup);
+ const values=p=>p.locator('h1,button,th,rect').evaluateAll(es=>es.map(e=>{const s=getComputedStyle(e);return {fontSize:s.fontSize,fontWeight:s.fontWeight,fontFamily:s.fontFamily,textAlign:s.textAlign,fill:s.fill};}));
+ const expected=await values(source),p=await importer(),out=await file(p,'inherited.html',markup),saved=await save(out,'inherited-export.html','html'),offline=await context.newPage();await offline.goto('file://'+saved);
+ expect(await values(offline)).toEqual(expected);await expect(offline).toHaveTitle('Heading title');
+ await fs.writeFile(path.join(evidence,'inherited-metrics.json'),JSON.stringify({source:expected,offline:await values(offline)},null,2));
+ await Promise.all([source.close(),p.close(),out.close(),offline.close()]);
+});
+
 test('compatibility: high resolution archive keeps exact source pixels and survives standalone offline ZIP',async()=>{
  test.setTimeout(60000);const p=await importer();const source=await p.evaluate(()=>{const c=document.createElement('canvas');c.width=3840;c.height=2160;const x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);x.fillStyle='#172b2c';x.font='12px monospace';for(let y=20;y<2160;y+=22)x.fillText('细字 original pixels 0123456789 αβγ | archive CC0',10,y);for(let y=0;y<2160;y+=2){x.fillStyle=y%4?'#c02030':'#107080';x.fillRect(3800,y,40,1);}return c.toDataURL().split(',')[1];});
  if(!baseline)await p.locator('#rasterQuality').selectOption('archive');const probe=await context.newCDPSession(p);await probe.send('Performance.enable');const heapBefore=await probe.send('Runtime.getHeapUsage');const rss=[];const sample=async()=>{try{const {processInfo}=await cdp.send('SystemInfo.getProcessInfo');let kib=0;for(const proc of processInfo){try{const status=await fs.readFile(`/proc/${proc.id}/status`,'utf8');kib+=Number(status.match(/^VmRSS:\s+(\d+)/m)?.[1]||0);}catch{}}rss.push({ms:Date.now(),kib});}catch{}};await sample();const timer=setInterval(sample,100);const start=Date.now();const out=await file(p,'4k.png',Buffer.from(source,'base64'),'image/png');const s=await inspect(out,'4k');const duration=Date.now()-start;const heapAfter=await probe.send('Runtime.getHeapUsage');clearInterval(timer);await sample();await fs.writeFile(path.join(evidence,'archive-memory.json'),JSON.stringify({heapBefore,heapAfter,rssSamples:rss.length,rssMinKiB:Math.min(...rss.map(x=>x.kib)),rssMaxKiB:Math.max(...rss.map(x=>x.kib)),note:'100ms Linux aggregate browser-process RSS samples; shared pages may count twice and unsampled peaks are unknown. JS heap is importer renderer only.'},null,2));if(!baseline){const round=await file(p,'archive-roundtrip.json',JSON.stringify(s),'application/json');const again=await inspect(round,'4k-roundtrip');expect(again.resources).toEqual(s.resources);expect(again.tree).toEqual(s.tree);await round.close();}const zip=await save(out,'4k.zip','zip');const folder=path.join(evidence,'4k-unpacked');execFileSync('python3',['-c','import sys,zipfile;zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])',zip,folder]);

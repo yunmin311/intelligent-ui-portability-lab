@@ -11,8 +11,9 @@ export const rejectTags = new Set('script style iframe frame object embed templa
 // capture deduplicates it. An initial-value table for non-inherited properties
 // was tried and rejected: several "initial" strings (border-*-color is
 // currentcolor) silently repaint dark-theme exports, so pruning stays limited
-// to exact inheritance duplication and to invisible border sides.
-export const inheritedStyleProps = new Set('color color-scheme direction writing-mode visibility font-family font-size font-weight font-style font-stretch font-variant line-height letter-spacing text-align text-indent text-transform text-shadow white-space word-break overflow-wrap list-style-type list-style-position caption-side border-spacing fill stroke stroke-width stroke-linecap stroke-linejoin fill-opacity stroke-opacity stop-color stop-opacity text-anchor dominant-baseline'.split(' '));
+// to exact inheritance duplication and to invisible border sides. SVG stop-color,
+// stop-opacity and dominant-baseline are not inherited; retain their declarations.
+export const inheritedStyleProps = new Set('color color-scheme direction writing-mode visibility font-family font-size font-weight font-style font-stretch font-variant line-height letter-spacing text-align text-indent text-transform text-shadow white-space word-break overflow-wrap list-style-type list-style-position caption-side border-spacing fill stroke stroke-width stroke-linecap stroke-linejoin fill-opacity stroke-opacity text-anchor'.split(' '));
 
 export const allowedMath = new Set("math mrow mi mn mo mtext mfrac msqrt mroot msup msub msubsup munder mover munderover mtable mtr mtd mfenced mspace menclose mstyle mpadded".split(" "));
 export const SVG="http://www.w3.org/2000/svg", MATH="http://www.w3.org/1998/Math/MathML";

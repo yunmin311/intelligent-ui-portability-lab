@@ -1,0 +1,41 @@
+{
+  "renderer": "marked",
+  "environment": "Linux Chromium offline file://; not Obsidian",
+  "cases": [
+    {
+      "name": "4k",
+      "images": [
+        {
+          "src": "resources/original.png",
+          "width": 3840,
+          "height": 2160
+        }
+      ],
+      "mergedCells": 0,
+      "code": [],
+      "remote": []
+    },
+    {
+      "name": "document",
+      "images": [],
+      "mergedCells": 1,
+      "code": [
+        "  a  b\n    c\n"
+      ],
+      "remote": []
+    },
+    {
+      "name": "entropy",
+      "images": [
+        {
+          "src": "resources/original.png",
+          "width": 1600,
+          "height": 1000
+        }
+      ],
+      "mergedCells": 0,
+      "code": [],
+      "remote": []
+    }
+  ]
+}

@@ -57,6 +57,6 @@ net.ipv4.tcp_congestion_control = bbr
   3. 重排乱序率
 
 附录：术语表
-- ****
-- ****
-- ****
+- **RTT**：往返时延
+- **cwnd**：拥塞窗口
+- **AQM**：主动队列管理

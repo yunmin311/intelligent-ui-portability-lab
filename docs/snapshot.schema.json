@@ -58,12 +58,12 @@
         "width": {
           "type": "number",
           "minimum": 1,
-          "maximum": 12000
+          "maximum": 100000
         },
         "height": {
           "type": "number",
           "minimum": 1,
-          "maximum": 12000
+          "maximum": 100000
         }
       },
       "required": [

@@ -1,3 +1,19 @@
+# v0.7.1 产品打磨与独立验收 · 2026-10-26
+
+基线 main `6243b00`，上一轮分支提交 `adc20b0`。独立审查发现继承样式去重改变 SVG 渐变、默认标题/按钮/表头及 presentation 属性，并发现长文 Schema 上限与运行时不一致、嵌套行内标题漏字。修复后重新运行最终检查，保留原视觉阈值与安全断言。未增加权限或依赖，未公开 Release。
+
+- `npm test`：**61 单元 + 73 真实 Chromium 浏览器场景通过**，无跳过；`npm run test:package`：**61 个安装包解压后 MV3 场景通过**，测试前后逐文件 SHA-256 一致。最终 CI 在同一提交上重复构建、测试、打包及安装包验证。
+- 新增回归先失败再通过：SVG 渐变颜色/透明度逐像素差异 0；显式继承继续覆盖 UA 默认样式及 SVG presentation 属性；26000px 长文 JSON 导出后重新导入，树和尺寸一致；Schema 尺寸边界与运行时一致；HTML 标题收集 `<span>/<em>` 子树文字。[截图与机器证据](evidence/v0.7.1/index.html)。
+- 完整回归包括真实 Ctrl+C/V 富文本、纯文本与 PNG、Popup 捕获、文件/拖放、取消/重试、明暗主题、六类有限交互、嵌套状态隔离、键盘、HTML/ZIP/Markdown/JSON。关闭扩展浏览器后，独立离线浏览器打开产物。4K RGBA 通道差异 0，ZIP 成员哈希与整图引用通过。
+- Markdown 实际使用 marked 渲染后在 Linux Chromium 断网 `file://` 打开：3840×2160 与高熵 1600×1000 均只引用一张完整图片；合并表格、代码空白保留，0 HTTP 请求。此结果不代表 Obsidian GUI。[Markdown 验证](evidence/v0.7.1/markdown-reader-final.json)。
+- 样例均为合成内容；重新导出富文本样例并独立离线检查公式与表格。撤回此前 37% 压缩数字，该值来自存在保真缺陷的省略算法；最终实现以保真为准。
+- `npm audit --audit-level=low`：**0 漏洞**。独立审查复核原 P1/P2 修复通过，未发现未修复的 P0/P1。[审查记录](evidence/v0.7.1/independent-review.json)。
+- **Unverified**：Windows Chrome/Edge GUI、Obsidian GUI、未提供的用户真实 ChatGPT 内容；ChatGPT 自动提取 Gate 保持。未知第三方业务逻辑继续静态降级，不执行来源 JavaScript。
+
+安装包、源码包、manifest 与 SHA256SUMS 位于 `dist/v0.7.1/`。最终交付使用合并 main 的干净 CI 工件；CI revision、包哈希与安装测试证明以同一工件为准。PR、最终 main 和 CI 链接见交付回复。
+
+---
+
 # v0.7.0 综合验收 · 2026-10-21
 
 实际远端基准 main `36f98586a5515a137b441fd98e23c8fcb4103c0e`；分支 `codex/comprehensive-v070`。所有命令、Chromium 和测试在 WSL Ubuntu24.04 执行；Node24.21.0。保留原视觉阈值、安全断言、权限、许可证、IR1.4及全部预算。没有新增依赖或公开 Release。

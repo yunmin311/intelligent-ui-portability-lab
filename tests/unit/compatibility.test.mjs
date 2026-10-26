@@ -29,3 +29,20 @@ test('CSSOM expanded safe border/radius/overflow/column properties remain repres
 test('diagnostic exposes math display and source font families without inventing formula conversion',()=>{
  const formula=n('math',[n('mi',[t('α')],{},'math')],{display:'block'},'math');formula.style['font-family']='Source Math, serif';const s=snapshot(n('main',[formula]));const d=diagnostic(s);assert.equal(d.typography.math.block,1);assert.equal(d.typography.math.inline,0);assert.deepEqual(d.typography.sourceFontFamilies,['Source Math, serif']);assert.equal(d.typography.glyphCoverage,'unverified');assert.match(d.typography.markdown,/MathML/);
 });
+
+test('long-document runtime and published schema share dimension boundaries',async()=>{
+ const {LIMITS}=await import('../../extension/src/core/ir.js');
+ const {readFile}=await import('node:fs/promises');
+ const schema=JSON.parse(await readFile(new URL('../../docs/snapshot.schema.json',import.meta.url),'utf8'));
+ for(const axis of ['width','height']){
+  assert.equal(schema.properties.dimensions.properties[axis].maximum,LIMITS.dimension);
+  const s=snapshot(n('p',[t('long document')]));s.dimensions[axis]=LIMITS.dimension;
+  assert.doesNotThrow(()=>validateSnapshot(s));
+  s.dimensions[axis]++;assert.throws(()=>validateSnapshot(s));
+ }
+});
+
+test('HTML title includes all descendant heading text',()=>{
+ const s=snapshot(n('main',[n('h1',[n('span',[t('My ')]),n('em',[t('title')])])]));
+ assert.match(html(s),/<title>My title<\/title>/);
+});
