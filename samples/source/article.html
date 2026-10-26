@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>传输控制实践指南（合成样例）</title>
+<style>
+  body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;max-width:860px;margin:0 auto;padding:24px;color:#1c2733;background:#fff;line-height:1.65}
+  h1{font-size:26px;border-bottom:2px solid #2b6cb0;padding-bottom:8px}
+  h2{font-size:19px;color:#2b6cb0;margin-top:28px}
+  table{border-collapse:collapse;width:100%;margin:12px 0}
+  th,td{border:1px solid #cbd5e0;padding:6px 10px;text-align:left}
+  th{background:#edf2f7}
+  tr:nth-child(even) td{background:#f7fafc}
+  code{background:#edf2f7;padding:2px 5px;border-radius:4px;font-size:0.92em}
+  pre{background:#1a202c;color:#e2e8f0;padding:14px;border-radius:8px;overflow-x:auto}
+  .callout{border-left:4px solid #dd6b20;background:#fffaf0;padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .card{border:1px solid #cbd5e0;border-radius:8px;padding:10px}
+  math{font-size:1.15em}
+</style>
+</head>
+<body>
+<h1>传输控制实践指南：从拥塞窗口到调度策略</h1>
+<p><em>本文为合成测试样例（作者：UI Portability Lab 自测内容，2026-10），用于验证复杂富文本的保存保真度。</em></p>
+
+<h2>1. 为什么需要拥塞控制</h2>
+<p>当多条流共享同一瓶颈链路时，无控制的发送方会把路由器队列填满，导致<strong>排队延迟</strong>急剧上升并触发大量丢包。经典解决思路是让每个发送方维护一个拥塞窗口 <code>cwnd</code>，并根据 ACK 反馈调整：</p>
+<div class="callout">慢启动并非"慢"，而是起点低、指数增长；遇到丢包后进入拥塞避免阶段，改为线性增长。</div>
+
+<h2>2. 核心公式</h2>
+<p>稳态下 CUBIC 的窗口增长函数为：</p>
+<math display="block"><mi>W</mi><mo>(</mo><mi>t</mi><mo>)</mo><mo>=</mo><mi>C</mi><msup><mo>(</mo><mi>t</mi><mo>−</mo><msub><mi>K</mi></msub><mo>)</mo></msup><mo>+</mo><msub><mi>W</mi><mi>max</mi></msub></math>
+<p>其中 <math><mi>K</mi><mo>=</mo><msqrt><mroot><mrow><msub><mi>W</mi><mi>max</mi></msub><mi>β</mi></mrow><mi>3</mi></mroot><mo>/</mo><mi>C</mi></msqrt></math>，<math><mi>β</mi><mo>=</mo><mn>0.7</mn></math> 为乘性降低因子。</p>
+<p>平均吞吐率还受往返时延限制：<math><mi>rate</mi><mo>≈</mo><mfrac><mrow><mi>cwnd</mi></mrow><mrow><mi>RTT</mi></mrow></mfrac><mo>·</mo><mn>8</mn></math> bit/s。</p>
+
+<h2>3. 参数对比</h2>
+<table>
+<tr><th>算法</th><th>丢包响应</th><th>RTT 公平性</th><th>典型场景</th></tr>
+<tr><td>Reno</td><td>窗口减半</td><td>较差</td><td>低带宽深队列</td></tr>
+<tr><td>CUBIC</td><td>β=0.7 缩减</td><td>中等</td><td>通用长肥网络</td></tr>
+<tr><td>BBR</td><td>不依赖丢包</td><td>较好</td><td>高丢包无线链路</td></tr>
+</table>
+
+<h2>4. 观测数据</h2>
+<svg width="520" height="240" viewBox="0 0 520 240" role="img" aria-label="吞吐率对比柱状图">
+  <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#63b3ed"/><stop offset="1" stop-color="#2b6cb0"/></linearGradient></defs>
+  <line x1="40" y1="200" x2="500" y2="200" stroke="#718096"/>
+  <line x1="40" y1="20" x2="40" y2="200" stroke="#718096"/>
+  <rect x="70" y="120" width="90" height="80" fill="url(#g1)" rx="4"/>
+  <rect x="210" y="60" width="90" height="140" fill="url(#g1)" rx="4"/>
+  <rect x="350" y="30" width="90" height="170" fill="url(#g1)" rx="4"/>
+  <text x="115" y="215" text-anchor="middle" font-size="13" fill="#4a5568">Reno</text>
+  <text x="255" y="215" text-anchor="middle" font-size="13" fill="#4a5568">CUBIC</text>
+  <text x="395" y="215" text-anchor="middle" font-size="13" fill="#4a5568">BBR</text>
+  <text x="130" y="105" font-size="12" fill="#2d3748">480 Mbps</text>
+  <text x="270" y="45" font-size="12" fill="#2d3748">840 Mbps</text>
+  <text x="410" y="70" font-size="12" fill="#2d3748">1020 Mbps</text>
+  <text x="46" y="30" font-size="12" fill="#4a5568">吞吐率</text>
+</svg>
+<p>柱状图：同一 100 Mbps×10 ms 瓶颈下的稳态吞吐（合成数据）。</p>
+
+<h2>5. 示例配置</h2>
+<pre><code># sysctl 调整（Linux）
+net.core.default_qdisc = fq
+net.ipv4.tcp_congestion_control = bbr</code></pre>
+
+<h2>6. 调度策略要点</h2>
+<div class="grid">
+  <div class="card"><strong>交互流量</strong><p>低延迟优先，限速突发，避免大文件传输阻塞 ACK。</p></div>
+  <div class="card"><strong>批量流量</strong><p>可以接受较高延迟，使用较低优先级队列并整形。</p></div>
+</div>
+<ul>
+  <li>队列管理
+    <ul>
+      <li>AQM：CoDel / FQ-CoDel</li>
+      <li>避免 bufferbloat：目标延迟 5 ms</li>
+    </ul>
+  </li>
+  <li>测量
+    <ol><li>基线 RTT</li><li>负载下 RTT</li><li>重排乱序率</li></ol>
+  </li>
+</ul>
+<details><summary>附录：术语表</summary><ul>
+<li><strong>RTT</strong>：往返时延</li>
+<li><strong>cwnd</strong>：拥塞窗口</li>
+<li><strong>AQM</strong>：主动队列管理</li>
+</ul></details>
+</body>
+</html>

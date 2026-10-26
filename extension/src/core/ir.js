@@ -2,7 +2,7 @@ import {validateBehaviors} from './interactions.js';
 import {rasterDimensions} from './raster.js';
 import {allowedHtml,allowedSvg,allowedMath,allowedAttributes,styleProps,safeCss,localReference} from './policy.js';
 export const VERSION='1.4.0';
-export const LIMITS=Object.freeze({nodes:5000,depth:75,text:1000000,bytes:4000000,dimension:12000,resource:2000000});
+export const LIMITS=Object.freeze({nodes:5000,depth:75,text:1000000,bytes:4000000,dimension:100000,resource:2000000});
 const own=(o,keys)=>{if(!o||typeof o!=='object'||Array.isArray(o)||Object.keys(o).some(k=>!keys.includes(k)))throw Error('IR 字段不合法');};
 const str=(s,max=2000)=>{if(typeof s!=='string'||s.length>max)throw Error('IR 字符串超限');};
 const list=(v,max=200)=>{if(!Array.isArray(v)||v.length>max)throw Error('IR 数组超限');};

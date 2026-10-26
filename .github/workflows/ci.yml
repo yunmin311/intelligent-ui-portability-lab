@@ -25,10 +25,10 @@ jobs:
           path: |
             tests/artifacts/v0.4.1
             tests/artifacts/v0.5.0
-            tests/artifacts/v0.7.0-installed
+            tests/artifacts/v0.7.1-installed
             tests/artifacts/v0.5.1
             tests/artifacts/v052-usability
             tests/artifacts/ui-upgrade
             tests/artifacts/v070-after
             test-results
-            dist/v0.7.0
+            dist/v0.7.1

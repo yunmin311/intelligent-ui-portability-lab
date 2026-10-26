@@ -28,8 +28,10 @@ window.addEventListener('message',async event=>{
  try{
  if(typeof text!=='string'||text.length>2000000||!['html','svg'].includes(kind))throw Error('文件超过 2 MB 或类型不支持');
  // A local document without a supplied background uses the browser's white paper default.
- // Do not infer a source background from the extension/system theme.
- document.body.style.cssText='background:#fff;margin:0;width:'+Math.min(1600,Math.max(320,Number(width)||1200))+'px';
+ // Do not infer a source background from the extension/system theme. The explicit base
+ // font keeps exports deterministic: without it the sandbox host's default font size
+ // (e.g. 12px in some Chromium builds) would leak into every captured element.
+ document.body.style.cssText='background:#fff;margin:0;color:#000;font:16px/1.5 system-ui,-apple-system,"Segoe UI","Microsoft YaHei","PingFang SC","Noto Sans",sans-serif;width:'+Math.min(1600,Math.max(320,Number(width)||1200))+'px';
  const safe=sanitize(text,kind);document.body.replaceChildren(safe);
  const snapshot=await captureElement(safe,{source:{type:kind,origin:'local'},method:'local-file'});
  snapshot.omissions.push('文件中的脚本、事件、远程资源与不支持的样式规则已移除；导入不能证明内容所有权');

@@ -371,6 +371,7 @@
   var styleProps = ["visibility", "direction", "writing-mode", "color-scheme", "background-image", "background-size", "background-position", "background-repeat", "border-collapse", "border-spacing", "table-layout", "caption-side", "list-style-type", "list-style-position", "font-variant", "font-stretch", "word-break", "overflow-wrap", "text-indent", "text-transform", "text-overflow", "text-shadow", "float", "clear", "align-self", "align-content", "justify-items", "justify-self", "column-gap", "row-gap", "grid-auto-flow", "grid-auto-rows", "grid-auto-columns", "flex-grow", "flex-shrink", "flex-basis", "order", "aspect-ratio", "max-height", "object-position", "fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin", "fill-opacity", "stroke-opacity", "stop-color", "stop-opacity", "text-anchor", "dominant-baseline", "clip-path", "mask", "transform", "transform-origin", "display", "position", "top", "right", "bottom", "left", "z-index", "box-sizing", "color", "background-color", "font-family", "font-size", "font-weight", "font-style", "line-height", "letter-spacing", "text-align", "white-space", "width", "height", "max-width", "min-width", "min-height", "margin", "margin-top", "margin-right", "margin-bottom", "margin-left", "padding", "padding-top", "padding-right", "padding-bottom", "padding-left", "border", "border-width", "border-style", "border-color", "border-radius", "box-shadow", "opacity", "vertical-align", "flex", "flex-direction", "flex-wrap", "align-items", "justify-content", "gap", "grid-template-columns", "grid-template-rows", "grid-column", "grid-row", "overflow", "text-decoration", "object-fit"];
   styleProps.push(...["top", "right", "bottom", "left"].flatMap((side) => ["width", "style", "color"].map((part) => "border-" + side + "-" + part)), ...["top-left", "top-right", "bottom-right", "bottom-left"].map((corner) => "border-" + corner + "-radius"), "overflow-x", "overflow-y", "column-count", "column-width", "column-fill", "column-rule-width", "column-rule-style", "column-rule-color", "break-inside", "text-decoration-line", "text-decoration-color", "text-decoration-style", "text-decoration-thickness");
   var rejectTags = new Set("script style iframe frame object embed template link meta base audio video source track noscript foreignobject animate animatetransform set use".split(" "));
+  var inheritedStyleProps = new Set("color color-scheme direction writing-mode visibility font-family font-size font-weight font-style font-stretch font-variant line-height letter-spacing text-align text-indent text-transform text-shadow white-space word-break overflow-wrap list-style-type list-style-position caption-side border-spacing fill stroke stroke-width stroke-linecap stroke-linejoin fill-opacity stroke-opacity stop-color stop-opacity text-anchor dominant-baseline".split(" "));
   var allowedMath = new Set("math mrow mi mn mo mtext mfrac msqrt mroot msup msub msubsup munder mover munderover mtable mtr mtd mfenced mspace menclose mstyle mpadded".split(" "));
   var SVG = "http://www.w3.org/2000/svg";
   var MATH = "http://www.w3.org/1998/Math/MathML";
@@ -386,7 +387,7 @@
 
   // extension/src/core/ir.js
   var VERSION = "1.4.0";
-  var LIMITS = Object.freeze({ nodes: 5e3, depth: 75, text: 1e6, bytes: 4e6, dimension: 12e3, resource: 2e6 });
+  var LIMITS = Object.freeze({ nodes: 5e3, depth: 75, text: 1e6, bytes: 4e6, dimension: 1e5, resource: 2e6 });
   var own = (o, keys) => {
     if (!o || typeof o !== "object" || Array.isArray(o) || Object.keys(o).some((k) => !keys.includes(k))) throw Error("IR \u5B57\u6BB5\u4E0D\u5408\u6CD5");
   };
@@ -492,7 +493,7 @@
   }, source = { type: "page", origin: location.origin }, method = "sanitized-dom", controlled = false } = {}) {
     if (!selected?.isConnected) throw Error("\u6240\u9009\u533A\u57DF\u5DF2\u88AB\u9875\u9762\u79FB\u9664");
     const rect = selected.getBoundingClientRect();
-    if (rect.width < 1 || rect.height < 1 || rect.width > 12e3 || rect.height > 12e3) throw Error("\u533A\u57DF\u5C3A\u5BF8\u987B\u5728 1\u201312000 px \u4E4B\u95F4");
+    if (rect.width < 1 || rect.height < 1 || rect.width > LIMITS.dimension || rect.height > LIMITS.dimension) throw Error("\u533A\u57DF\u5C3A\u5BF8\u987B\u5728 1\u2013100000 px \u4E4B\u95F4");
     const captured = /* @__PURE__ */ new WeakMap();
     const contract = sourceAdapter(location.href, { controlled, file: method !== "sanitized-dom" });
     const originallyHidden = /* @__PURE__ */ new Set(), controlledPanels = /* @__PURE__ */ new Set();
@@ -545,12 +546,21 @@
       }
       return safeCss(value) ? value : null;
     }
-    function styles(css) {
+    const mathLayoutSkip = /* @__PURE__ */ new Set(["width", "height", "min-width", "min-height", "max-width", "max-height", "margin", "margin-top", "margin-right", "margin-bottom", "margin-left", "padding", "padding-top", "padding-right", "padding-bottom", "padding-left", "line-height", "vertical-align"]);
+    const sideNone = (css, name) => {
+      const m = name.match(/^border-(top|right|bottom|left)-(width|style|color)$/);
+      return !!m && css.getPropertyValue("border-" + m[1] + "-style") === "none";
+    };
+    function styles(css, inherited = {}, skip) {
       const out = {};
       for (const name of styleProps) {
+        if (skip?.has(name) || sideNone(css, name)) continue;
         const v = css.getPropertyValue(name).trim();
         const safe = cssValue(v);
-        if (v && safe) out[name] = safe;
+        if (v && safe) {
+          if (inheritedStyleProps.has(name) && Object.hasOwn(inherited, name) && inherited[name] === v) continue;
+          out[name] = safe;
+        }
       }
       return out;
     }
@@ -564,7 +574,7 @@
     function node(tag = "span", ns = "html") {
       return { tag, ns, attrs: {}, style: {}, children: [], evidence: { status: "captured", method: "computed-dom" } };
     }
-    async function clone(original, depth = 0) {
+    async function clone(original, depth = 0, inherited = {}) {
       if (++visited > 5e3 || depth > 75) throw Error("\u6355\u83B7\u8D85\u8FC7 5000 \u8282\u70B9\u6216 75 \u5C42");
       if (visited % 16 === 0) {
         onProgress(visited);
@@ -586,11 +596,14 @@
       }
       const css = getComputedStyle(original);
       if (css.display === "none" && !originallyHidden.has(original) || ["hidden", "collapse"].includes(css.visibility)) return null;
+      const ns = original.namespaceURI === SVG ? "svg" : original.namespaceURI === MATH ? "math" : "html";
       let target = node();
       captured.set(original, target);
-      target.style = styles(css);
+      target.style = styles(css, inherited, ns === "math" ? mathLayoutSkip : void 0);
       if (originallyHidden.has(original) && target.style.display === "none") delete target.style.display;
       stats.elements++;
+      const childInherited = { ...inherited };
+      for (const k in target.style) if (inheritedStyleProps.has(k)) childInherited[k] = target.style[k];
       if (controlledPanels.has(original)) {
         try {
           const authored = original.computedStyleMap?.().get("height");
@@ -656,7 +669,6 @@
         }
         return target;
       }
-      const ns = original.namespaceURI === SVG ? "svg" : original.namespaceURI === MATH ? "math" : "html";
       const supported = ns === "svg" ? allowedSvg.has(name) : ns === "math" ? allowedMath.has(name) : allowedHtml.has(name);
       if (supported) {
         target.tag = ns === "svg" ? original.localName : name;
@@ -708,7 +720,7 @@
             if (typeof content !== "string") throw Error();
             const replacement = node("span");
             replacement.evidence = { status: "captured", method: "generated-pseudo" };
-            replacement.style = styles(p);
+            replacement.style = styles(p, childInherited);
             replacement.children = [{ text: content }];
             pseudos.push([pseudo, replacement]);
           } catch {
@@ -718,7 +730,7 @@
       }
       if (pseudos.find((x) => x[0] === "::before")) target.children.push(pseudos.find((x) => x[0] === "::before")[1]);
       for (const c of children) {
-        const out = await clone(c, depth + 1);
+        const out = await clone(c, depth + 1, childInherited);
         if (out) target.children.push(out);
       }
       if (pseudos.find((x) => x[0] === "::after")) target.children.push(pseudos.find((x) => x[0] === "::after")[1]);
@@ -864,7 +876,7 @@
     const { nonce, text: text2, kind, width } = event.data;
     try {
       if (typeof text2 !== "string" || text2.length > 2e6 || !["html", "svg"].includes(kind)) throw Error("\u6587\u4EF6\u8D85\u8FC7 2 MB \u6216\u7C7B\u578B\u4E0D\u652F\u6301");
-      document.body.style.cssText = "background:#fff;margin:0;width:" + Math.min(1600, Math.max(320, Number(width) || 1200)) + "px";
+      document.body.style.cssText = 'background:#fff;margin:0;color:#000;font:16px/1.5 system-ui,-apple-system,"Segoe UI","Microsoft YaHei","PingFang SC","Noto Sans",sans-serif;width:' + Math.min(1600, Math.max(320, Number(width) || 1200)) + "px";
       const safe = sanitize(text2, kind);
       document.body.replaceChildren(safe);
       const snapshot = await captureElement(safe, { source: { type: kind, origin: "local" }, method: "local-file" });

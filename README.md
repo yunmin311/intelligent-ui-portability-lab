@@ -1,12 +1,14 @@
-# Intelligent UI Portability Lab · v0.7.0
+# Intelligent UI Portability Lab · v0.7.1
 
 本地浏览器扩展：保存有权处理的页面区域，或主动粘贴截图、富文本、纯文本，导入自己的 HTML、SVG、JSON、PNG/JPEG/WebP、TXT/MD 文件，检查静态外观与遗漏，再下载。HTML 优先保留来源视觉，不套品牌卡片；不上传内容。
 
 **Decision：当前支持浏览器原生折叠，以及经明确受控契约和有限模型校验的 Fourier、表格、标签页、加法计算、布尔面板切换。未知行为静态降级，图片 `visual-only`。不复制来源脚本或完整响应式规则；ChatGPT 自动提取仍禁用。** 长期目标与当前能力见 [项目书](PROJECT_PROPOSAL.md)。
 
-当前交付入口：本轮本地 `dist/v0.7.0/` 的 extension/source ZIP、`SHA256SUMS` 和 `package-manifest.json`（先 `npm test && npm run package` 可重建）。源码更新按验证后提交、推送、合并的流程交付；未公开发布 v0.7.0 Release；历史 v0.2/v0.3 ZIP 仅供追溯，不是最新版。
+当前交付入口：本轮本地 `dist/v0.7.1/` 的 extension/source ZIP、`SHA256SUMS` 和 `package-manifest.json`（先 `npm test && npm run package` 可重建）。源码更新按验证后提交、推送、合并的流程交付；未公开发布 v0.7.1 Release；历史 v0.2/v0.3 ZIP 仅供追溯，不是最新版。
 
 安装包不通过公开 Release 发布；源码入口为 [main](https://github.com/yunmin311/intelligent-ui-portability-lab/tree/main)，CI 的 `v070-verification` 工件包含安装 ZIP、源码 ZIP、manifest 与 SHA-256。最终结果见[测试报告](tests/TEST_REPORT.md)，[本轮截图与离线样例](tests/evidence/v0.7.0/index.html)。Windows Chrome/Edge 与 Obsidian GUI 仍 Unverified；Linux Chromium 的实际剪贴板、安装扩展与离线浏览器实测单独记录。
+
+v0.7.1 面向首次使用者完成产品化打磨：粘贴/文件导入统一 16px 中性基准字体（不再泄漏宿主默认 12px 衬线体），MathML 不再钉死盒尺寸、离线字体差异不会压扁分数与根式；捕获时按继承去重冗余样式声明，富文本导出体积约降 37%；长文（约 3 万字 / 6 万 px）不再被 12000px 高度上限误拒。界面文案去术语化（能力徽章、格式与策略选项改为中文直述），导出文件名使用本地时间、标题取正文首个标题。新增 [samples/](samples/index.html) 离线样例入口（复杂富文本、已验证交互、4K 截图 ZIP，双击即可查看，均为合成内容）与根目录 [使用说明.md](使用说明.md)（一页三步）。真实 Chromium 全链路新用户走查、像素金标、暗色主题、连续粘贴/取消重试、噪声 PNG 仅 ZIP 归档全部实测通过。
 
 v0.7.0 修复 CSSOM 边框丢失；PNG ZIP 同时提供完整图片与笔记单图引用；高熵 PNG 可主动选择仅 ZIP 模式。半透明和完全透明像素的 RGB 不经 Canvas 重绘。现有精密工具界面与有限交互保持，预览增加格式推荐、数学与字体诊断。
 
@@ -63,7 +65,7 @@ npm run package
 npm run test:package
 ```
 
-`npm test` 执行打包、语法/权限/schema 检查、Node 单元测试和真实 Chromium MV3 E2E。测试通过记录扩展逐文件 hash；`npm run package` 拒绝未测或变动的扩展，输出 `dist/v0.7.0/` 下源码与安装 ZIP、manifest 和 SHA256SUMS。构建信息记录基准提交、工作区修改标志、运行文件 hash；以实际文件 hash 为准，不把脏工作区标为纯提交构建。
+`npm test` 执行打包、语法/权限/schema 检查、Node 单元测试和真实 Chromium MV3 E2E。测试通过记录扩展逐文件 hash；`npm run package` 拒绝未测或变动的扩展，输出 `dist/v0.7.1/` 下源码与安装 ZIP、manifest 和 SHA256SUMS。构建信息记录基准提交、工作区修改标志、运行文件 hash；以实际文件 hash 为准，不把脏工作区标为纯提交构建。
 
 ```sh
 python3 -m http.server 8765 --directory fixtures
