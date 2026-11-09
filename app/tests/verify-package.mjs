@@ -8,7 +8,10 @@ import {execFileSync} from 'node:child_process';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'); // app/
 const repo = path.resolve(root, '..');
-const zip = path.join(root, 'dist-release', 'PagePort-v1.0.0-extension.zip');
+// Version-agnostic: the release folder says what it just built.
+const releaseDir = path.join(root, 'dist-release');
+const pkg = JSON.parse(await fs.readFile(path.join(releaseDir, 'package-manifest.json'), 'utf8'));
+const zip = path.join(releaseDir, pkg.zip);
 const work = path.join(root, 'tests', 'artifacts', 'zipcheck');
 await fs.rm(work, {recursive: true, force: true});
 await fs.mkdir(work, {recursive: true});

@@ -1,10 +1,15 @@
 {
   "manifest_version": 3,
   "name": "PagePort · 页面保存",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "在网页上点选内容，保存为 Markdown / PNG / 自包含 HTML。本地处理，最小权限。",
   "minimum_chrome_version": "116",
-  "permissions": ["activeTab", "scripting", "storage", "downloads"],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "downloads"
+  ],
   "action": {
     "default_title": "PagePort：保存此页面的内容或外观",
     "default_icon": {
@@ -14,7 +19,9 @@
       "128": "icons/icon128.png"
     }
   },
-  "background": { "service_worker": "background.js" },
+  "background": {
+    "service_worker": "background.js"
+  },
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",

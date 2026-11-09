@@ -36,9 +36,22 @@ pre{background:#f4f4f4;border-radius:8px;padding:12px}</style></head><body>
 <pre><code class="language-bash">sysctl -w net.ipv4.tcp_congestion_control=bbr</code></pre>
 </div></body></html>`;
 
+// Content-fidelity fixture: a normal paragraph with inline markup (must stay ONE
+// block) and four well-formed MathML constructs (must round-trip exactly).
+const FIDELITY = `<!doctype html><html lang="zh"><head><meta charset="utf-8"><title>保真样例</title>
+<style>body{font:15px/1.8 system-ui;max-width:720px;margin:40px auto;padding:0 20px}</style></head><body>
+<h2>保真样例</h2>
+<p id="para">拥塞控制<b>（congestion control）</b>是一种<em>调整</em>发送速率的算法，常见于
+<a href="https://example.com/rfc">RFC 5681</a>的说明，也是TCP实现里最容易出错的<code>cwnd</code>部分。</p>
+<p id="f1"><math><mroot><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mn>3</mn></mroot></math></p>
+<p id="f2"><math><msup><mrow><mi>x</mi><mo>+</mo><mn>1</mn></mrow><mn>2</mn></msup></math></p>
+<p id="f3"><math><mfrac><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow><mn>2</mn></mfrac></math></p>
+<p id="f4"><math><msub><mrow><mi>W</mi><mo>−</mo><mi>K</mi></mrow><mi>max</mi></msub></math></p>
+</body></html>`;
+
 const server = http.createServer(async (q, s) => {
   try {
-    const body = q.url === '/' ? ARTICLE : q.url === '/chat-fixture' ? CHAT_FIXTURE : null;
+    const body = q.url === '/' ? ARTICLE : q.url === '/chat-fixture' ? CHAT_FIXTURE : q.url === '/fidelity' ? FIDELITY : null;
     if (!body) throw 0;
     s.setHeader('content-type', 'text/html; charset=utf-8');
     s.end(body);
@@ -86,7 +99,9 @@ const files = () => fs.readdir(dlDir);
   const body = mdFile ? await fs.readFile(path.join(dlDir, mdFile), 'utf8') : '';
   results.loop1 = {
     panelMounted: true,
-    mdHasTable: /\|.*算法.*\|/.test(md) && md.includes('---'),
+    // Preview must be the rendered result, not raw Markdown source.
+    previewRendered: md.length > 40 && !/\|\s*---/.test(md),
+    tableOk: /\|\s*算法/.test(body) && /\|\s*---/.test(body),
     downloaded: !!mdFile,
     contentOk: /参数对比/.test(body) && body.includes('CUBIC') && body.includes('BBR'),
     mathLatex: /\\frac|\\sqrt|\$\$/.test(body),
@@ -100,7 +115,7 @@ const files = () => fs.readdir(dlDir);
   await page.goto(`http://127.0.0.1:${PORT}/`, {waitUntil: 'networkidle0'});
   await trigger(page);
   await pick(page, await page.$('svg'), 1);
-  await page.evaluate(f => { document.querySelector('[data-pageport="panel"]').shadowRoot.querySelector(`.seg button[data-f="${f}"]`).click(); }, 'png');
+  await page.evaluate(f => { document.querySelector('[data-pageport="panel"]').shadowRoot.querySelector(`#seg button[data-f="${f}"]`).click(); }, 'png');
   await new Promise(r => setTimeout(r, 1500));
   await save(page, 3500);
   const png = (await files()).find(f => f.endsWith('.png'));
@@ -113,7 +128,7 @@ const files = () => fs.readdir(dlDir);
   await page2.goto(`http://127.0.0.1:${PORT}/`, {waitUntil: 'networkidle0'});
   await trigger(page2);
   await pick(page2, await page2.$('svg'), 1);
-  await page2.evaluate(f => { document.querySelector('[data-pageport="panel"]').shadowRoot.querySelector(`.seg button[data-f="${f}"]`).click(); }, 'html');
+  await page2.evaluate(f => { document.querySelector('[data-pageport="panel"]').shadowRoot.querySelector(`#seg button[data-f="${f}"]`).click(); }, 'html');
   await new Promise(r => setTimeout(r, 1200));
   await save(page2, 4000);
   const html = (await files()).find(f => f.endsWith('.html'));
@@ -139,7 +154,7 @@ const files = () => fs.readdir(dlDir);
   const body = mdFile ? await fs.readFile(path.join(dlDir, mdFile), 'utf8') : '';
   results.loop2c = {
     messageSnap: chip === '对话消息',
-    katexLatex: /\\frac\{cwnd\}\{RTT\}/.test(md),
+    katexLatex: /\\frac\{cwnd\}\{RTT\}/.test(body),
     displayMath: /W\(t\)=C\(t-K\)\^3/.test(body),
     gfmTable: body.includes('协议') && body.includes('---'),
     codeFence: body.includes('```bash'),
@@ -161,14 +176,51 @@ const files = () => fs.readdir(dlDir);
     ta.dispatchEvent(new ClipboardEvent('paste', {clipboardData: dt, bubbles: true, cancelable: true}));
   });
   await new Promise(r => setTimeout(r, 800));
-  const md = await page.evaluate(() => document.querySelector('[data-pageport="panel"]').shadowRoot.getElementById('preview').textContent);
+  const previewText = await page.evaluate(() => document.querySelector('[data-pageport="panel"]').shadowRoot.getElementById('preview').textContent);
   await save(page);
   const mdFiles = (await files()).filter(f => f.endsWith('.md'));
   let pasteSaved = false;
   for (const f of mdFiles) if ((await fs.readFile(path.join(dlDir, f), 'utf8')).includes('粘贴标题')) pasteSaved = true;
-  results.paste = {converted: md.includes('粘贴标题'), saved: pasteSaved};
+  results.paste = {converted: previewText.includes('粘贴标题'), saved: pasteSaved};
   await page.close();
 }
+// ---- Loop 4: content fidelity (the two defects a "did it save?" test misses) ----
+{
+  const seen = new Set(await files());
+  const newestMd = async () => {
+    const added = (await files()).filter(f => !seen.has(f) && f.endsWith('.md'));
+    added.forEach(f => seen.add(f));
+    return added.length ? await fs.readFile(path.join(dlDir, added.pop()), 'utf8') : '';
+  };
+  const page = await browser.newPage();
+  await page.setViewport({width: 1100, height: 900});
+  await page.goto(`http://127.0.0.1:${PORT}/fidelity`, {waitUntil: 'networkidle0'});
+  await trigger(page);
+
+  // One paragraph with <b>/<em>/<a>/<code> inside must stay ONE block.
+  await pick(page, await page.$('#para'));
+  await save(page);
+  const paraMd = await newestMd();
+
+  const latex = {};
+  for (const id of ['f1', 'f2', 'f3', 'f4']) {
+    await page.evaluate(() => document.querySelector('[data-pageport="panel"]').shadowRoot.getElementById('re').click());
+    await new Promise(r => setTimeout(r, 300));
+    await pick(page, await page.$('#' + id));
+    await save(page);
+    latex[id] = await newestMd();
+  }
+  results.loop4 = {
+    paragraphSingleBlock: paraMd.split(/\n{2,}/).filter(s => s.trim()).length === 1,
+    inlineKept: paraMd.includes('**（congestion control）**') && paraMd.includes('](https://example.com/rfc)'),
+    mrootIndex: latex.f1.includes('\\sqrt[3]{a+b}'),
+    msupGrouped: latex.f2.includes('{x+1}^{2}'),
+    mfracWhole: latex.f3.includes('\\frac{a+b}{2}'),
+    msubGrouped: latex.f4.includes('{W-K}_{max}'),
+  };
+  await page.close();
+}
+
 // ---- Real chatgpt.com: injection must succeed (content needs user session) ----
 // External site availability fluctuates (bot checks); retry once, else mark
 // inconclusive instead of failing the product suite.

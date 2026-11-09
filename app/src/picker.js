@@ -1,7 +1,50 @@
 // Element picker: hover highlight, click to lock, ↑/↓ to resize, Esc to cancel.
 // On chat-like pages the hover snaps to whole message blocks (public DOM attrs).
 
-const MESSAGE_SEL = '[data-testid^="conversation-turn"], [data-message-author-role], article:has([data-message-author-role])';
+export const MESSAGE_SEL = '[data-testid^="conversation-turn"], [data-message-author-role], article:has([data-message-author-role])';
+
+const TAG_WORDS = {
+  P: '段落', H1: '标题', H2: '标题', H3: '标题', H4: '标题', H5: '标题', H6: '标题',
+  LI: '列表项', TD: '单元格', TH: '表头', TABLE: '表格', PRE: '代码块', CODE: '代码块',
+  IMG: '图片', UL: '列表', OL: '列表', BLOCKQUOTE: '引用', ARTICLE: '文章', SECTION: '区块',
+  DIV: '区块', BODY: '整个页面', MAIN: '主要内容', NAV: '导航', ASIDE: '侧栏',
+  FIGURE: '插图', FIGCAPTION: '图注', FORM: '表单', DETAILS: '折叠块', SUMMARY: '折叠标题',
+  MATH: '公式', SPAN: '文字片段', A: '链接', HEADER: '页头', FOOTER: '页脚', DD: '说明', DT: '术语',
+};
+
+// Human words for "what am I about to save", not tag names.
+export function describeTarget(el) {
+  const msg = el.matches?.(MESSAGE_SEL);
+  if (msg) {
+    const bits = ['对话消息'];
+    if (el.querySelector('table')) bits.push('含表格');
+    if (el.querySelector('.katex, math, .mwe-math-element')) bits.push('含公式');
+    else if (el.querySelector('pre, code')) bits.push('含代码');
+    return bits.slice(0, 3).join(' · ');
+  }
+  const base = TAG_WORDS[el.tagName] || '区域';
+  const extra = el.querySelector?.('table') ? ' · 含表格' : el.querySelector?.('pre') ? ' · 含代码' : '';
+  return base + extra;
+}
+
+const BLOCK_PARENT = new Set(['P', 'LI', 'TD', 'TH', 'DD', 'DT', 'BLOCKQUOTE', 'FIGCAPTION',
+  'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'PRE', 'ARTICLE', 'SECTION', 'DIV', 'SUMMARY']);
+const INLINE_TAGS = new Set(['A', 'B', 'STRONG', 'EM', 'I', 'CODE', 'SPAN', 'SMALL', 'MARK', 'SUB', 'SUP', 'U']);
+
+// Clicking a bold run or a link inside a paragraph should not hand back two words.
+// Short inline fragments snap up to the block that actually holds the sentence.
+function snapToBlock(el) {
+  const tag = el.tagName;
+  // Embedded / atomic content is what the user aimed at — never climb out of it.
+  if (/^(IMG|SVG|CANVAS|VIDEO|IFRAME|MATH|INPUT|BUTTON|SELECT|TEXTAREA|HR)$/.test(tag)) return el;
+  const inline = INLINE_TAGS.has(tag) || getComputedStyle(el).display.startsWith('inline');
+  if (!inline) return el;
+  const own = (el.textContent || '').trim().length;
+  if (own > 40) return el;
+  const parent = el.parentElement;
+  if (!parent || !BLOCK_PARENT.has(parent.tagName)) return el;
+  return (parent.textContent || '').trim().length > own ? parent : el;
+}
 
 function snapToMessage(el) {
   try {
@@ -25,23 +68,30 @@ export class Picker {
       <style>
         :host{all:initial}
         *{box-sizing:border-box;margin:0;padding:0}
-        .box{position:fixed;z-index:2147483645;pointer-events:none;border:2px solid #ffb224;border-radius:6px;
-             box-shadow:0 0 0 2px rgba(0,0,0,.25),0 0 18px rgba(255,178,36,.45);transition:all .05s ease}
-        .tag{position:fixed;z-index:2147483646;pointer-events:none;transform:translateY(-130%);
-             background:#ffb224;color:#1c1503;font:600 11px/1.4 system-ui,sans-serif;padding:3px 8px;border-radius:5px;white-space:nowrap}
+        .box{position:fixed;z-index:2147483645;pointer-events:none;border:2px solid #14161a;border-radius:6px;
+             box-shadow:0 0 0 2px rgba(20,22,26,.13),0 0 0 5px rgba(20,22,26,.06);transition:all .04s linear}
+        .tag{position:fixed;z-index:2147483646;pointer-events:none;transform:translateY(-137%);
+             background:#14161a;color:#fff;font:600 10.5px/1.4 system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+             letter-spacing:.01em;padding:3px 7px;border-radius:4px;white-space:nowrap;
+             box-shadow:0 2px 8px rgba(20,22,26,.22)}
         .bar{position:fixed;z-index:2147483647;left:50%;top:14px;transform:translateX(-50%);
-             background:rgba(24,28,36,.94);color:#eef2f7;border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(12px);
-             font:500 13px/1.5 system-ui,"Segoe UI","Microsoft YaHei",sans-serif;padding:9px 16px;border-radius:999px;
-             box-shadow:0 8px 28px rgba(0,0,0,.35);white-space:nowrap}
-        .bar b{color:#ffb224;font-weight:650}
-        kbd{background:rgba(255,255,255,.12);border-radius:4px;padding:1px 5px;font:inherit;font-size:11px}
-        @media (prefers-color-scheme: light){
-          .bar{background:rgba(255,255,255,.96);color:#253141;border-color:rgba(20,30,50,.12)}
-          kbd{background:rgba(20,30,50,.08)}
+             background:#fff;color:#14161a;border:1px solid #e7e7e5;
+             font:500 12px/1.5 system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+             padding:7px 14px;border-radius:999px;
+             box-shadow:0 10px 28px rgba(20,22,26,.12);white-space:nowrap}
+        .bar b{font-weight:640}
+        kbd{background:#f2f2ef;border:1px solid #e7e7e5;border-radius:3px;padding:0 4px;
+            font:inherit;font-size:10px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#5b6068}
+        @media (prefers-color-scheme: dark){
+          .box{border-color:#f0f1f3;box-shadow:0 0 0 2px rgba(0,0,0,.45),0 0 0 5px rgba(240,241,243,.12)}
+          .tag{background:#f0f1f3;color:#14161a;box-shadow:0 2px 10px rgba(0,0,0,.5)}
+          .bar{background:rgba(20,21,25,.92);color:#eef2f7;border-color:rgba(255,255,255,.09);
+               backdrop-filter:blur(14px);box-shadow:0 10px 28px rgba(0,0,0,.45)}
+          kbd{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12);color:#a8adb6}
         }
       </style>
       <div class="box" hidden></div><div class="tag" hidden></div>
-      <div class="bar">点击选择要保存的区域 · <kbd>↑</kbd> 扩大 <kbd>↓</kbd> 缩小 · <kbd>Esc</kbd> 取消</div>`;
+      <div class="bar"><b>点击</b>选择要保存的区域 · <kbd>↑</kbd> 扩大 <kbd>↓</kbd> 缩小 · <kbd>Esc</kbd> 取消</div>`;
     this.box = this.shadow.querySelector('.box');
     this.tag = this.shadow.querySelector('.tag');
     this.bar = this.shadow.querySelector('.bar');
@@ -77,15 +127,14 @@ export class Picker {
     const el = document.elementFromPoint(this.mx, this.my);
     this.host.style.pointerEvents = '';
     if (!el || el.closest('[data-pageport]')) return null;
-    return snapToMessage(el);
+    return snapToBlock(snapToMessage(el));
   }
   set(el) {
     this.current = el;
     const r = el.getBoundingClientRect();
     Object.assign(this.box.style, {left: r.x + 'px', top: r.y + 'px', width: r.width + 'px', height: r.height + 'px', display: 'block'});
     this.box.hidden = false;
-    const msg = el.matches(MESSAGE_SEL) || el.querySelector?.(MESSAGE_SEL);
-    this.tag.textContent = el.tagName.toLowerCase().replace('#', '') + (el.id ? '#' + el.id.slice(0, 18) : '') + (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/).slice(0, 1).join('') : '') + (msg ? ' · 对话消息' : '');
+    this.tag.textContent = describeTarget(el) + ' · ' + Math.round(r.width) + '×' + Math.round(r.height);
     Object.assign(this.tag.style, {left: r.x + 'px', top: Math.max(4, r.y) + 'px', display: 'block'});
   }
   paint() {

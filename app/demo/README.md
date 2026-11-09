@@ -6,6 +6,8 @@
 - `传输控制实践指南（合成样例） 20261028-005230.png` — 闭环二:可视化区域 → PNG(2×)
 - `传输控制实践指南（合成样例） 20261028-005236.html` — 闭环二:自包含 HTML(内嵌画面,离线 0 网络请求)
 - `模拟对话页 20261028-005247.md` — ChatGPT DOM 契约 fixture 导出(消息吸附/KaTeX→LaTeX)
-- `screenshots/` — 面板选择中/预览中、真实 chatgpt.com 注入、两种 UI 方向
+- `screenshots/` — 面板在真实维基百科页面上的浅色/深色各四态(选择中 / 已锁定 / 图片 / 网页快照)与 2× 裁切
+  - `panel-light.png` `panel-dark.png` 整页;`panel-light-2x.png` `panel-dark-2x.png` 面板本体;`panel-picking.png` 选择态
+  - 重新生成:`node tests/tools/shots.mjs`(登录态 ChatGPT 截图需要用户会话,标 Unverified)
 
 重新生成:`npm run build && node tests/loops.mjs`
